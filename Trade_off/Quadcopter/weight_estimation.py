@@ -6,12 +6,11 @@ def m_payload(m_dmcomm, m_navig, m_mapping, m_control, m_forensics): #g
     return  m_dmcomm + m_navig + m_mapping + m_control + m_forensics # g
 
 def m_avionics(m_0): #g
-    return 0.5*m_0 # g
+    return 0.05*m_0 # g
 
 """semi empirical equations for estimating the weight of a quadcopter"""
 def m_motor(T_max): # Maximum Thrust of Motor [gr]
     return 1e-07 * T_max**3 - 0.0003 * T_max**2 + 0.2783 * T_max - 56.133 # g
-    print(f"Motor Mass: {m_motor(T_max):.2f} g")
 
 def m_ESC(I_max): #  Maximum Continuous Current of ESC [A]
     return 0.9546* I_max - 2.592 # g
@@ -20,7 +19,7 @@ def m_battery(n, C): # n cells, C capacity [mAh]
     if n == 3:
         return  0.0625* C + 35.526 # g
     elif n == 4:
-        return  0.761*C + 69.522 # g
+        return  0.0761*C + 69.522 # g
     elif n == 6:
         return 0.1169*C + 132.0 # g
     
@@ -49,14 +48,14 @@ Recalculate component masses (especially motors, avionics, frame).
 
 Iterate until GTOW converges."""
 
-m_pl = m_payload(150, 70, 230, 50, 3) # m_dmcomm, m_navig, m_mapping, m_control, m_forensics
+m_pl = m_payload(150, 186, 230, 0, 3) # m_dmcomm, m_navig, m_mapping, m_control, m_forensics
 
 def converge_gtow(
     m_pl,
     I_max=22,
     d_p=10,       # cm
     battery_cells=4,
-    battery_capacity=4276,  # mAh
+    battery_capacity=5000,  # mAh
     t_frame=4,
     l_frame=300,
     tol=1e-2,
@@ -68,18 +67,25 @@ def converge_gtow(
     for i in range(max_iter):
         # Step 1: required thrust
         T_total = 2 * m0_guess
+        print("T_total: ", T_total) 
         T_motor = T_total / 4
 
         # Step 2: all component Masses
         m_m = m_motor(T_motor) * 4
+        print(f"Motor Mass 4: {m_m:.2f} g")
         m_e = m_ESC(I_max) * 4
+        print(f"ESC Mass: {m_e:.2f} g")
         m_b = m_battery(battery_cells, battery_capacity)
-        m_p = m_propeller(d_p) * 4
+        print(f"Battery Mass: {m_b:.2f} g")
+        m_p = m_propeller(d_p*2.54) * 4
+        print(f"Propeller Mass 4: {m_p:.2f} g")
         m_f = m_frame(t_frame, l_frame)
+        print(f"Frame Mass: {m_f:.2f} g")
         m_a = m_avionics(m0_guess)
-
+        print(f"Avionics Mass: {m_a:.2f} g")
         # Step 3: new GTOW
         m_total = GTOW(m_m, m_e, m_b, m_p, m_f, m_a, m_pl)
+        print(f"GTOW (m_0): {m_total:.2f} g")
 
         # Step 4: convergence?
         if abs(m_total - m0_guess) < tol:
@@ -93,7 +99,16 @@ def converge_gtow(
 
     raise RuntimeError("GTOW did not converge")
 
+
 if __name__ == "__main__":
-    converge_gtow(m_pl)
+    converge_gtow(
+        m_pl,
+        I_max=22,
+        d_p=10,       # cm
+        battery_cells=4,
+        battery_capacity=4276,  # mAh
+        t_frame=4,
+        l_frame=300,
+    )
 
 
