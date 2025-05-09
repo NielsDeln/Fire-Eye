@@ -1,5 +1,5 @@
 from propulsion_iteration import converge_gtow_and_prop
-
+from weight_estimation import m_pl
 """
 Power Estimation:
 Compute total power needed: motor + payload systems.
@@ -32,7 +32,10 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10):
         E_required = P_total * t_flight  # Wh
 
         # Step 4: to battery capacity
-        voltage = 14.8  # volts
+        n = result['battery_cells']
+        cell_voltage = 3.7  # nominal
+        voltage = n * cell_voltage
+
         discharge_eff = 0.9
         C_required = (E_required / voltage) * 1000 / discharge_eff  # mAh
         print(f"New Estimated Battery Capacity: {C_required:.1f} mAh")
@@ -56,3 +59,4 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10):
 
 
 
+result = full_system_loop(m_pl, P_payload=15, t_flight=20)

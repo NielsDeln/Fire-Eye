@@ -10,7 +10,8 @@ def m_avionics(m_0): #g
 
 """semi empirical equations for estimating the weight of a quadcopter"""
 def m_motor(T_max): # Maximum Thrust of Motor [gr]
-    return 0.0000001*T_max^3-0.0003*T_max^2+0.2783*T_max-56.133 # g
+    return 1e-07 * T_max**3 - 0.0003 * T_max**2 + 0.2783 * T_max - 56.133 # g
+    print(f"Motor Mass: {m_motor(T_max):.2f} g")
 
 def m_ESC(I_max): #  Maximum Continuous Current of ESC [A]
     return 0.9546* I_max - 2.592 # g
@@ -25,7 +26,7 @@ def m_battery(n, C): # n cells, C capacity [mAh]
     
 def m_propeller(d_p): # Diameter of the Propeller [cm]
     d_p_in = d_p/2.54 # in
-    return  0.1367* d_p_in^2 - 9.317* d_p_in + 0.881 # g
+    return  0.1367* d_p_in**2 - 9.317* d_p_in + 0.881 # g
 
 def m_frame(t, l): # Thickness of the frame [mm], Diagonal Size of the Frame [mm]
     if t == 3:
@@ -92,5 +93,7 @@ def converge_gtow(
 
     raise RuntimeError("GTOW did not converge")
 
+if __name__ == "__main__":
+    converge_gtow(m_pl)
 
 

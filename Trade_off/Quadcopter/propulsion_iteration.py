@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from weight_estimation import converge_gtow, m_payload
+from weight_estimation import converge_gtow, m_payload, m_pl
 
 """ITERATION"""
 
@@ -34,8 +34,8 @@ motor_db = [
     # Add more motors as needed
 ]
 # PLACEHOLDERS TBD VALUES
-prop_diameters = np.arange(11, 16, 1) 
-prop_pitches = [4.5, 5.0, 5.5]  # example values
+prop_diameters = np.arange(7.62, 10.16, 12.7, 15.4) 
+#prop_pitches = [4.5, 5.0, 5.5]  # example values
 
 
 # optimization metric function
@@ -58,17 +58,16 @@ def select_best_motor_and_prop(T_motor):
 
     for motor in candidates:
         for d in prop_diameters:
-            for p in prop_pitches:
-                metric = evaluate_motor_prop_combo(motor, d, p)
+            metric = evaluate_motor_prop_combo(motor, d, p)
 
-                if metric < best_metric:
-                    best_metric = metric
-                    best_combo = {
-                        'motor': motor,
-                        'prop_diameter': d,
-                        'prop_pitch': p,
-                        'metric': metric
-                    }
+            if metric < best_metric:
+                best_metric = metric
+                best_combo = {
+                    'motor': motor,
+                    'prop_diameter': d,
+                    'prop_pitch': p,
+                    'metric': metric
+                }
 
     if best_combo:
         #print("\nOptimal Motor-Propeller Pair Found:")
@@ -81,7 +80,6 @@ def select_best_motor_and_prop(T_motor):
 
 
 """Send prop diameter back to GTOW loop"""
-m_pl = m_payload(150, 70, 230, 50, 3)
 # Outer convergence loop: GTOW ↔ Prop ↔ GTOW
 def converge_gtow_and_prop(m_pl, tol=1e-2, max_iter=10):
     d_p = 10  # initial guess for prop diameter [cm]
