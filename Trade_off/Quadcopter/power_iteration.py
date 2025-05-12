@@ -128,5 +128,34 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10):
     raise RuntimeError("System did not converge after all iterations.")
 
 
+
+def analyze_performance(result, cruise_speed_kmh=40):
+    g = 9.81  # m/s²
+    W_takeoff = result['GTOW'] / 1000 * g  # N
+    T_max = result['T_max'] / 1000 * g  # N
+    T_W = T_max / W_takeoff
+
+    flight_duration_hr = result['E_required'] / result['P_total']  # h
+    range_km = cruise_speed_kmh * flight_duration_hr
+
+    fuel_weight_kg = result['battery']['mass'] / 1000  # battery as energy source
+    inverse_W_takeoff = 1 / (result['GTOW'] / 1000)  # 1/kg
+
+    # total power to horsepower (1 HP = 745.7 W)
+    power_hp = result['P_total'] / 745.7
+
+    return {
+        'T/W': T_W,
+        'Range (L)': range_km,
+        'Flight Duration (T)': flight_duration_hr,
+        'Cruising Speed (V_crs)': cruise_speed_kmh,
+        '1/W_takeoff': inverse_W_takeoff,
+        'Fuel Weight (W_fuel)': fuel_weight_kg,
+        'Power Plant Parameter (N_take-off)': power_hp
+    }
+
 if __name__ == "__main__":
-    result = full_system_loop(m_pl, P_payload=29.45, t_flight=0.416) # hours
+    results = full_system_loop(m_pl, P_payload=29.45, t_flight=0.416) # hours
+    performance = analyze_performance(results)
+    for k, v in performance.items():
+        print(f"{k}: {v:.3f}")
