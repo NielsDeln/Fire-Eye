@@ -73,7 +73,6 @@ def converge_gtow(
     for i in range(max_iter):
         # Step 1: required thrust
         T_total = 2 * m0_guess
-        print("T_total: ", T_total) 
         T_motor = T_total / 4
 
         # Step 2: all component Masses
@@ -82,30 +81,29 @@ def converge_gtow(
             I_max = motor_override['peak_current']
         else:
             m_m = m_motor(T_motor) * 4
-        print(f"Motor Mass 4: {m_m:.2f} g")
         m_e = m_ESC(I_max, battery_cells) * 4
-        print(f"ESC Mass: {m_e:.2f} g")
         if battery_override:
             m_b = battery_override['mass']
             battery_cells = battery_override['cells']
             battery_capacity = battery_override['capacity']
         else:
             m_b = m_battery(battery_cells, battery_capacity)
-        print(f"Battery Mass: {m_b:.2f} g")
         m_p = m_propeller(d_p) * 4
-        print(f"Propeller Mass 4: {m_p:.2f} g")
         m_f = m_frame(D_UAV)
-        print(f"Frame Mass: {m_f:.2f} g")
         m_a = m_avionics(m0_guess)
-        print(f"Avionics Mass: {m_a:.2f} g")
         # Step 3: new GTOW
         m_total = GTOW(m_m, m_e, m_b, m_p, m_f, m_a, m_pl)
-        print(f"GTOW (m_0): {m_total:.2f} g")
 
         # Step 4: convergence?
         if abs(m_total - m0_guess) < tol:
             print(f"\n GTOW converged after {i+1} iterations.")
             print(f"GTOW (m_0): {m_total:.2f} g")
+            print(f"Motor Mass 4: {m_m:.2f} g")
+            print(f"ESC Mass: {m_e:.2f} g")
+            print(f"Propeller Mass 4: {m_p:.2f} g")
+            print(f"Frame Mass: {m_f:.2f} g")
+            print(f"Avionics Mass: {m_a:.2f} g")
+            print(f"Battery Mass: {m_b:.2f} g")
             print(f"Required Total Thrust (T_max): {T_total:.2f} g")
             print(f"Required Per-Motor Thrust: {T_motor:.2f} g")
             return m_total, T_total, T_motor
