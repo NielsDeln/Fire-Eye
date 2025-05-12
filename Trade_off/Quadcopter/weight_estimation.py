@@ -24,8 +24,18 @@ def m_battery(n, C): # n cells, C capacity [mAh]
         return 0.1169*C + 132.0 # g
     
 def m_propeller(d_p): # Diameter of the Propeller [cm]
-    d_p_in = d_p/2.54 # in
-    return  0.1367* d_p_in**2 - 9.317* d_p_in + 0.881 # g
+    if d_p == 7.62:
+        return 0.4
+    elif d_p == 10.16:
+        return 0.5
+    elif d_p == 11.9:
+        return 0.6
+    elif d_p == 15.4:
+        return 0.9
+    else:
+        return 0.04 * d_p - 0.2 
+    
+    #return  0.1367* d_p_in**2 - 9.317* d_p_in + 0.881 # g negative values
 
 def m_frame(t, l): # Thickness of the frame [mm], Diagonal Size of the Frame [mm]
     if t == 3:
@@ -53,13 +63,15 @@ m_pl = m_payload(150, 186, 230, 0, 3) # m_dmcomm, m_navig, m_mapping, m_control,
 def converge_gtow(
     m_pl,
     I_max=22,
-    d_p=10,       # cm
+    d_p=10.16,       # cm
     battery_cells=4,
     battery_capacity=5000,  # mAh
     t_frame=4,
     l_frame=300,
     tol=1e-2,
-    max_iter=100
+    max_iter=100,
+    battery_override=None,
+    motor_override=None,
 ):
     # Initial guess for m_0 (MTOW)
     m0_guess = m_pl / 0.4 
@@ -71,13 +83,21 @@ def converge_gtow(
         T_motor = T_total / 4
 
         # Step 2: all component Masses
-        m_m = m_motor(T_motor) * 4
+        if motor_override:
+            m_m = motor_override['mass']
+        else:
+            m_m = m_motor(T_motor) * 4
         print(f"Motor Mass 4: {m_m:.2f} g")
         m_e = m_ESC(I_max) * 4
         print(f"ESC Mass: {m_e:.2f} g")
-        m_b = m_battery(battery_cells, battery_capacity)
+        if battery_override:
+            m_b = battery_override['mass']
+            battery_cells = battery_override['cells']
+            battery_capacity = battery_override['capacity']
+        else:
+            m_b = m_battery(battery_cells, battery_capacity)
         print(f"Battery Mass: {m_b:.2f} g")
-        m_p = m_propeller(d_p*2.54) * 4
+        m_p = m_propeller(d_p) * 4
         print(f"Propeller Mass 4: {m_p:.2f} g")
         m_f = m_frame(t_frame, l_frame)
         print(f"Frame Mass: {m_f:.2f} g")
