@@ -58,7 +58,7 @@ Recalculate component masses (especially motors, avionics, frame).
 
 Iterate until GTOW converges."""
 
-m_pl = m_payload(150, 186, 230, 0, 3) # m_dmcomm, m_navig, m_mapping, m_control, m_forensics
+m_pl = m_payload(198, 0, 230, 0, 150) # m_dmcomm, m_navig, m_mapping, m_control, m_forensics
 
 def converge_gtow(
     m_pl,
