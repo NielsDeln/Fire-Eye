@@ -6,7 +6,7 @@ def m_payload(m_dmcomm, m_navig, m_mapping, m_control, m_forensics): #g
     return  m_dmcomm + m_navig + m_mapping + m_control + m_forensics # g
 
 def m_avionics(m_0): #g
-    return 0.05*m_0 # g
+    return 0.12*m_0 # g
 
 """semi empirical equations for estimating the weight of a quadcopter"""
 def m_motor(T_max): # Maximum Thrust of Motor [gr]

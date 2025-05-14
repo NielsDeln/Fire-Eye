@@ -30,7 +30,7 @@ The optimized propeller size goes back into the GTOW estimation loop as an updat
 4. Send prop diameter back to GTOW loop"""
 
 
-prop_diameters = np.array([7.62, 10.16, 11.9, 15.4]) # cm 
+#prop_diameters = np.array([7.62, 10.16, 11.9, 15.4]) # cm 
 #prop_pitches = [4.5, 5.0, 5.5]  # example values
 
 
@@ -63,22 +63,29 @@ def evaluate_motor_prop_combo(motor, prop_diameter, mass_aircraft, prop_pitch=5.
 
 
 # Main optimization thing
-def select_best_motor_and_prop(T_motor):
-    candidates = [m for m in motor_db if m['thrust'] >= T_motor and m['efficiency'] is not None]
+def select_best_motor_and_prop(GTOW, T_motor):
+    candidates = [m for m in motor_db if m['efficiency'] is not None]
     best_combo = None
     best_metric = float('inf')
+    min_mass = float('inf')
 
     for motor in candidates:
-        for d in prop_diameters:
-            metric = evaluate_motor_prop_combo(motor, d, mass_aircraft=T_motor * 4)
+        #for d in prop_diameters:
+        propeller_diameter = motor['prop_diameter']  # cm
+        metric = evaluate_motor_prop_combo(motor, propeller_diameter, mass_aircraft=T_motor * 4)
+        motor_mass = motor['mass']
+        motor_thrust = motor['thrust']
+        
 
-            if metric < best_metric:
-                best_metric = metric
-                best_combo = {
-                    'motor': motor,
-                    'prop_diameter': d,
-                    'metric': metric
-                }
+        if metric < best_metric and motor_mass < min_mass and motor_thrust >= T_motor:
+            best_metric = metric
+            min_mass = motor_mass
+
+            best_combo = {
+                'motor': motor,
+                'prop_diameter': propeller_diameter,
+                'metric': metric
+            }
 
     if best_combo:
         #print("\nOptimal Motor-Propeller Pair Found:")
@@ -98,23 +105,23 @@ def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, 
     motor_guess = None
 
     for i in range(max_iter):
-        print(f"\n Outer Iteration {i+1}")
+        #print(f"\n Outer Iteration {i+1}")
         
         # 1. GTOW estimation (with current propeller diameter)
         gtow, T_max, T_motor = converge_gtow(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity if battery_capacity is not None else 5000, battery_override=battery_override if battery_override is not None else None, motor_override=motor_guess)
 
 
-        print(f"GTOW Estimate: {gtow:.2f} g")
-        print(f"T_max: {T_max:.2f} g | Required per motor: {T_motor:.2f} g")
+        #print(f"GTOW Estimate: {gtow:.2f} g")
+        #print(f"T_max: {T_max:.2f} g | Required per motor: {T_motor:.2f} g")
 
         # 2. Motor + Propeller Optimization
-        best_config = select_best_motor_and_prop(T_motor)
+        best_config = select_best_motor_and_prop(gtow, T_motor)
         new_d_p = best_config['prop_diameter']
-        print(f"Selected Motor: {best_config['motor']['id']} | Prop: {new_d_p} cm")
+        #print(f"Selected Motor: {best_config['motor']['id']} | Prop: {new_d_p} cm")
 
         # 3. Convergence check
         if abs(gtow - prev_gtow) < tol and abs(new_d_p - d_p) < 0.5:
-            print("\n Converged!")
+            #print("\n Converged!")
             break
         
         motor_guess = best_config["motor"]
@@ -134,7 +141,7 @@ def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, 
     print(f" - Max Thrust       : {motor['thrust']} g")
     print(f" - Efficiency       : {motor['efficiency']}")
     print(f" - Diameter         : {motor['diameter']} mm")
-    print(f"Selected Propeller  : {best_config['prop_diameter']} cm")
+    print(f"Propeller  : {best_config['prop_diameter']} cm")
     print(f"Optimization Metric : {best_config['metric']:.3f}")
     print("---------------------------------\n")
 
@@ -151,3 +158,4 @@ def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, 
 
 if __name__ == "__main__":
     result = converge_gtow_and_prop(m_pl, n_cells=4)
+    print(result)

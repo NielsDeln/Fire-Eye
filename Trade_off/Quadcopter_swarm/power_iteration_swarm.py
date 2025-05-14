@@ -87,18 +87,18 @@ if __name__ == "__main__":
     # m_payloads (m_dmcomm, m_navig, m_mapping, m_control, m_forensics)
     #####SWARM 1#####
     payloads = [
-    m_payload(150, 186, 230, 0, 0),  # Drone 1
-    m_payload(150, 186, 0, 0, 3),  # Drone 2
-    m_payload(150, 186, 0, 0, 3),  # Drone 3
+    198,  # Drone 1
+    273.593,  # Drone 2
+    193.583,  # Drone 3
     ]
-    P_payloads = [12, 0, 4] # in watts
+    P_payloads = [10, 21, 51] # in watts
 
     #####SWARM 2#####
     payloads = [
-    m_payload(150, 186, 230, 0, 0),  # Drone 1
-    m_payload(150, 186, 0, 0, 3),  # Drone 2
+    428,  # Drone 1
+    348,  # Drone 2
     ]
-    P_payloads = [12, 0] # in watts
+    P_payloads = [20, 50] # in watts
 
 
     # no margins too much
