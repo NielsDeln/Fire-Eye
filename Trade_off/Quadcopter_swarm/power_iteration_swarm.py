@@ -91,18 +91,18 @@ if __name__ == "__main__":
     273.593,  # Drone 2
     193.583,  # Drone 3
     ]
-    P_payloads = [10, 21, 51] # in watts
+    P_payloads1 = [10, 21, 51] # in watts
 
     #####SWARM 2#####
     payloads2 = [
     428,  # Drone 1
     348,  # Drone 2
     ]
-    P_payloads = [20, 50] # in watts
+    P_payloads2 = [20, 50] # in watts
 
 
     # no margins too much
-    results = full_system_loop(payloads1, P_payloads, t_flight=0.416) # hours
+    results = full_system_loop(payloads1, P_payloads1, t_flight=0.416) # hours
     
     for i, res in enumerate(results):
         print(f"\n====== Final Results for Drone {i+1} ======")

@@ -95,7 +95,6 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40):
     A_tot_prop = n_rotors * (math.pi * (result["propeller"]['diameter'] / 200) ** 2)   # m²
     disk_loading = result['GTOW'] / 1000 / A_tot_prop  # kg/m²
 
-    fuel_weight_kg = result['battery']['mass'] / 1000  # battery as energy source
     inverse_W_takeoff = 1 / (result['GTOW'] / 1000)  # 1/kg
 
     # total power to horsepower (1 HP = 745.7 W)
@@ -108,7 +107,6 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40):
         'Cruising Speed (V_crs) random number now poop': cruise_speed_kmh,
         'Disk Loading (W/S) downwash': disk_loading,
         '1/W_takeoff': inverse_W_takeoff,
-        'Fuel Weight (W_fuel)': fuel_weight_kg,
         'Power Plant Parameter (N_take-off)': power_hp
     }
 

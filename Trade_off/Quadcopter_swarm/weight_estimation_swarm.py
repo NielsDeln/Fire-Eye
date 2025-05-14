@@ -147,7 +147,7 @@ if __name__ == "__main__":
     ]
     P_payloads = [20, 50] # in watts
     results = converge_gtow(
-        payloads,
+        payloads2,
         I_max=22,
         d_p=10,       # cm
         battery_cells=4,
