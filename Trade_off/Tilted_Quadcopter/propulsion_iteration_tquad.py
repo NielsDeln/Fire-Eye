@@ -21,23 +21,23 @@ def converge_gtow_and_prop_tquad(m_pl, battery_capacity=None, n_cells=None, tol=
     motor_guess = None
 
     for i in range(max_iter):
-        print(f"\n Outer Iteration {i+1}")
+        #print(f"\n Outer Iteration {i+1}")
         
         # 1. GTOW estimation (with current propeller diameter)
         gtow, T_max, T_motor = converge_gtow_tquad(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity if battery_capacity is not None else 5000, battery_override=battery_override if battery_override is not None else None, motor_override=motor_guess if battery_override is not None else None)
 
 
-        print(f"GTOW Estimate: {gtow:.2f} g")
-        print(f"T_max: {T_max:.2f} g | Required per motor: {T_motor:.2f} g")
+        #print(f"GTOW Estimate: {gtow:.2f} g")
+        #print(f"T_max: {T_max:.2f} g | Required per motor: {T_motor:.2f} g")
 
         # 2. Motor + Propeller Optimization
         best_config = select_best_motor_and_prop(gtow, T_motor)
         new_d_p = best_config['prop_diameter']
-        print(f"Selected Motor: {best_config['motor']['id']} | Prop: {new_d_p} cm")
+        #print(f"Selected Motor: {best_config['motor']['id']} | Prop: {new_d_p} cm")
 
         # 3. Convergence check
         if abs(gtow - prev_gtow) < tol and abs(new_d_p - d_p) < 0.5:
-            print("\n Converged!")
+            #print("\n Converged!")
             break
         
         motor_guess = best_config["motor"]
@@ -48,7 +48,7 @@ def converge_gtow_and_prop_tquad(m_pl, battery_capacity=None, n_cells=None, tol=
 
     # Final output summary
     motor = best_config['motor']
-    print("\n Final Optimized Configuration:")
+    """print("\n Final Optimized Configuration:")
     print("---------------------------------")
     print(f"Total GTOW          : {gtow:.2f} g")
     print(f"Required T_max      : {T_max:.2f} g")
@@ -60,7 +60,7 @@ def converge_gtow_and_prop_tquad(m_pl, battery_capacity=None, n_cells=None, tol=
     print(f"Selected Propeller  : {best_config['prop_diameter']} cm")
     print(f"Optimization Metric : {best_config['metric']:.3f}")
     print("---------------------------------\n")
-
+"""
     return {
         'GTOW': gtow,
         'T_max': T_max,

@@ -4,7 +4,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 from Trade_off.Quadcopter_swarm.propulsion_iteration_swarm import converge_gtow_and_prop
 from Trade_off.Quadcopter_swarm.weight_estimation_swarm import  m_payload
 from Trade_off.datasets import *
-from Trade_off.Quadcopter.power_iteration import analyze_performance
+from Trade_off.Quadcopter.power_iteration import analyze_performance, print_final_summary
 
 
 P_payloads = [12, 0, 4] # in watts
@@ -103,28 +103,7 @@ if __name__ == "__main__":
 
     # no margins too much
     results = full_system_loop(payloads1, P_payloads, t_flight=0.416) # hours
+    
     for i, res in enumerate(results):
         print(f"\n====== Final Results for Drone {i+1} ======")
-        print(f"GTOW: {res['GTOW']:.2f} g")
-        print(f"Total Required Thrust  : {res['T_max']:.2f} g")
-        print(f"Per Motor Thrust       : {res['T_motor']:.2f} g")
-        
-        motor = res['motor']
-        print(f"Selected Motor         : {motor['id']}")
-        print(f" - Mass                : {motor['mass']} g")
-        print(f" - Max Thrust          : {motor['thrust']} g")
-        print(f" - Efficiency          : {motor['efficiency']}")
-        print(f" - Diameter            : {motor['diameter']} mm")
-        
-        print(f"Selected Propeller     : {res['propeller']['diameter']} cm")
-        print("=" * 40)
-
-        print(f"Total Power: {res['P_total']:.2f} W")
-        print(f"Energy Required: {res['E_required']:.2f} Wh")
-        print(f"Selected Battery: {res['battery']['id']}")
-        print(f"  - Capacity: {res['battery']['capacity']} mAh")
-        print(f"  - Voltage: {res['battery']['voltage']} V")
-        print(f"  - Mass: {res['battery']['mass']} g")
-        performance = analyze_performance(res)
-        for k, v in performance.items():
-            print(f"{k}: {v:.3f}")
+        print_final_summary(res, analyze_performance(res))

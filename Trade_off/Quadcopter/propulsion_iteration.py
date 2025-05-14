@@ -132,6 +132,7 @@ def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, 
 
     # Final output summary
     motor = best_config['motor']
+    """
     print("\n Final Optimized Configuration:")
     print("---------------------------------")
     print(f"Total GTOW          : {gtow:.2f} g")
@@ -143,7 +144,7 @@ def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, 
     print(f" - Diameter         : {motor['diameter']} mm")
     print(f"Propeller  : {motor['prop_diameter']} cm")
     print(f"Optimization Metric : {best_config['metric']:.3f}")
-    print("---------------------------------\n")
+    print("---------------------------------\n")"""
 
     return {
         'GTOW': gtow,

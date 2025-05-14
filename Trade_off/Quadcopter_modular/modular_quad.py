@@ -63,69 +63,12 @@ Recalculate component masses (especially motors, avionics, frame).
 
 Iterate until GTOW converges."""
 
-m_pl = m_payload(150, 186, 230, 0, 0) # m_dmcomm, m_navig, m_mapping, m_control, m_forensics
 
-def converge_gtow(
-    m_pl,
-    I_max=22,
-    d_p=10.16,       # cm
-    battery_cells=4,
-    battery_capacity=5000,  # mAh
-    t_frame=4,
-    l_frame=300,
-    tol=1e-2,
-    max_iter=100,
-    battery_override=None,
-    motor_override=None,
-):
-    # Initial guess for m_0 (MTOW)
-    m0_guess = m_pl / 0.4 
-
-    for i in range(max_iter):
-        # Step 1: required thrust
-        T_total = 2 * m0_guess
-        T_motor = T_total / 4
-
-        # Step 2: all component Masses
-        if motor_override:
-            m_m = motor_override['mass'] * 4
-            I_max = motor_override['peak_current']
-        else:
-            m_m = m_motor(T_motor) * 4
-        m_e = m_ESC(I_max) * 4
-        if battery_override:
-            m_b = battery_override['mass']
-            battery_cells = battery_override['cells']
-            battery_capacity = battery_override['capacity']
-        else:
-            m_b = m_battery(battery_cells, battery_capacity)
-        m_p = m_propeller(d_p) * 4
-        m_f = m_frame(t_frame, l_frame)
-        m_a = m_avionics(m0_guess)
-        # Step 3: new GTOW
-        m_total = GTOW(m_m, m_e, m_b, m_p, m_f, m_a, m_pl)
-
-        # Step 4: convergence?
-        if abs(m_total - m0_guess) < tol:
-            print(f"\n GTOW converged after {i+1} iterations.")
-            print(f"GTOW (m_0): {m_total:.2f} g")
-            print(f"Motor Mass 4: {m_m:.2f} g")
-            print(f"ESC Mass: {m_e:.2f} g")
-            print(f"Propeller Mass 4: {m_p:.2f} g")
-            print(f"Frame Mass: {m_f:.2f} g")
-            print(f"Avionics Mass: {m_a:.2f} g")
-            print(f"Battery Mass: {m_b:.2f} g")
-            print(f"Required Total Thrust (T_max): {T_total:.2f} g")
-            print(f"Required Per-Motor Thrust: {T_motor:.2f} g")
-            return m_total, T_total, T_motor
-
-        m0_guess = m_total
-
-    raise RuntimeError("GTOW did not converge")
 
 
 if __name__ == "__main__":
-    converge_gtow(
+
+    """converge_gtow(
         m_pl,
         I_max=22,
         d_p=10,       # cm
@@ -134,7 +77,8 @@ if __name__ == "__main__":
         t_frame=4,
         l_frame=300,
     )
-    result = converge_gtow_and_prop(m_pl, n_cells=4)
+    result = converge_gtow_and_prop(m_pl, n_cells=4)"""
+
     base_m_pl = m_payload(198, 19 , 230, 0, 0)  # g
     base_P_payload = 10+5+10  # watts
     t_flight = 0.416  # hours
@@ -142,16 +86,14 @@ if __name__ == "__main__":
     # Margins: -20%, baseline, +20%
     margin_factors = [0.8, 1.0, 1.2]
 
-    for m_margin in margin_factors:
-        for p_margin in margin_factors:
-            adjusted_m_pl = base_m_pl * m_margin
-            adjusted_P_payload = base_P_payload * p_margin
-            print(f"\n==== Running Analysis for m_pl {int(m_margin*100)}%, P_payload {int(p_margin*100)}% ====")
-            try:
-                results = full_system_loop(adjusted_m_pl, adjusted_P_payload, t_flight=t_flight)
-                performance = analyze_performance(results)
-                for k, v in performance.items():
-                    print(f"{k}: {v:.3f}")
-            except RuntimeError as e:
-                print(f"Failed to converge: {e}")
+    for margin in margin_factors:
+        adjusted_m_pl = base_m_pl * margin
+        adjusted_P_payload = base_P_payload * margin
+        print(f"\n==== Running Analysis for m_pl {int(margin*100)}%, P_payload {int(margin*100)}% ====")
+        try:
+            results = full_system_loop(adjusted_m_pl, adjusted_P_payload, t_flight=t_flight)
+            performance = analyze_performance(results)
+            print_final_summary(results, performance)
+        except RuntimeError as e:
+            print(f"Failed to converge: {e}")
 

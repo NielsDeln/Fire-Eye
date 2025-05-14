@@ -94,7 +94,7 @@ def converge_gtow_octo(
 
         # Step 4: convergence?
         if abs(m_total - m0_guess) < tol:
-            print(f"\n GTOW converged after {i+1} iterations.")
+            """print(f"\n GTOW converged after {i+1} iterations.")
             print(f"GTOW (m_0): {m_total:.2f} g")
             print(f"Motor Mass 4: {m_m:.2f} g")
             print(f"ESC Mass: {m_e:.2f} g")
@@ -103,7 +103,7 @@ def converge_gtow_octo(
             print(f"Avionics Mass: {m_a:.2f} g")
             print(f"Battery Mass: {m_b:.2f} g")
             print(f"Required Total Thrust (T_max): {T_total:.2f} g")
-            print(f"Required Per-Motor Thrust: {T_motor:.2f} g")
+            print(f"Required Per-Motor Thrust: {T_motor:.2f} g")"""
             return m_total, T_total, T_motor
 
         m0_guess = m_total
