@@ -1,5 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from Trade_off.Quadcopter.weight_estimation import converge_gtow
 
 """from mission profile requirements"""
 def m_payload(m_dmcomm, m_navig, m_mapping, m_control, m_forensics): #g
@@ -51,9 +55,9 @@ Recalculate component masses (especially motors, avionics, frame).
 
 Iterate until GTOW converges."""
 
-m_pl = m_payload(150, 186, 230, 0, 3) # m_dmcomm, m_navig, m_mapping, m_control, m_forensics
 
-def converge_gtow(
+
+def converge_gtow_tquad(
     m_pl,
     D_UAV=0.35,  # m
     I_max=22,
@@ -114,7 +118,8 @@ def converge_gtow(
 
 
 if __name__ == "__main__":
-    converge_gtow(
+    m_pl = m_payload(150, 186, 230, 0, 3) # m_dmcomm, m_navig, m_mapping, m_control, m_forensics
+    converge_gtow_tquad(
         m_pl,
         D_UAV=0.35,  # m
         I_max=22,

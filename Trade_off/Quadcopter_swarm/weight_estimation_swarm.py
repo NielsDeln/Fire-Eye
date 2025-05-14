@@ -58,11 +58,6 @@ Recalculate component masses (especially motors, avionics, frame).
 
 Iterate until GTOW converges."""
 
-payloads = [
-    m_payload(150, 186, 230, 0, 0),  # Drone 1
-    m_payload(150, 186, 0, 0, 3),  # Drone 2
-    m_payload(150, 186, 0, 0, 3),  # Drone 3
-]
 # m_dmcomm, m_navig, m_mapping, m_control, m_forensics
 
 def converge_gtow(
@@ -77,6 +72,7 @@ def converge_gtow(
     max_iter=100,
     battery_override=None,
     motor_override=None,
+    
 ):
     results = []
 
@@ -135,6 +131,21 @@ def converge_gtow(
     return results
 
 if __name__ == "__main__":
+    # m_payloads (m_dmcomm, m_navig, m_mapping, m_control, m_forensics)
+    #####SWARM 1#####
+    payloads = [
+    198,  # Drone 1
+    273.593,  # Drone 2
+    193.583,  # Drone 3
+    ]
+    P_payloads = [10, 21, 51] # in watts
+
+    #####SWARM 2#####
+    payloads2 = [
+    428,  # Drone 1
+    348,  # Drone 2
+    ]
+    P_payloads = [20, 50] # in watts
     results = converge_gtow(
         payloads,
         I_max=22,

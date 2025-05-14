@@ -2,7 +2,7 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from Trade_off.Quadcopter_swarm.propulsion_iteration_swarm import converge_gtow_and_prop
-from Trade_off.Quadcopter_swarm.weight_estimation_swarm import payloads, m_payload
+from Trade_off.Quadcopter_swarm.weight_estimation_swarm import  m_payload
 from Trade_off.datasets import *
 from Trade_off.Quadcopter.power_iteration import analyze_performance
 
@@ -33,12 +33,12 @@ def full_system_loop(payloads, P_payloads, t_flight, tol=1e-2, max_outer=10):
 
             # Step 2: total power consumption
             motor = result['motor']
-            T_motor = result['T_motor']  
+            T_motor = motor["thrust"]  
             #print(f"Motor Thrust: {T_motor:.2f} g")
             motor_eff = motor['efficiency'] 
             #print(f"Motor Efficiency: {motor_eff:.2f}")
 
-            P_motor = T_motor / motor_eff   # watts
+            P_motor = motor["power"]   # watts
             #print(f"Motor Power: {P_motor:.2f} W")
             P_total = 4 * P_motor + power
             #print(f"Estimated Power Use: {P_total:.2f} W")
@@ -58,7 +58,7 @@ def full_system_loop(payloads, P_payloads, t_flight, tol=1e-2, max_outer=10):
                 if b['C-rating'] is None:
                     continue
                 max_discharge_power = b['capacity'] * b['C-rating'] * b['voltage'] / 1000  # in watts
-                if usable_energy >= E_required and b['mass'] < min_mass and max_discharge_power >= P_required:
+                if usable_energy >= E_required and b['mass'] < min_mass or max_discharge_power >= P_required:
                     best_battery = b
                     min_mass = b['mass']
 
@@ -86,7 +86,7 @@ def full_system_loop(payloads, P_payloads, t_flight, tol=1e-2, max_outer=10):
 if __name__ == "__main__":
     # m_payloads (m_dmcomm, m_navig, m_mapping, m_control, m_forensics)
     #####SWARM 1#####
-    payloads = [
+    payloads1 = [
     198,  # Drone 1
     273.593,  # Drone 2
     193.583,  # Drone 3
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     P_payloads = [10, 21, 51] # in watts
 
     #####SWARM 2#####
-    payloads = [
+    payloads2 = [
     428,  # Drone 1
     348,  # Drone 2
     ]
@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
 
     # no margins too much
-    results = full_system_loop(payloads, P_payloads, t_flight=0.416) # hours
+    results = full_system_loop(payloads1, P_payloads, t_flight=0.416) # hours
     for i, res in enumerate(results):
         print(f"\n====== Final Results for Drone {i+1} ======")
         print(f"GTOW: {res['GTOW']:.2f} g")
@@ -125,7 +125,6 @@ if __name__ == "__main__":
         print(f"  - Capacity: {res['battery']['capacity']} mAh")
         print(f"  - Voltage: {res['battery']['voltage']} V")
         print(f"  - Mass: {res['battery']['mass']} g")
-        print(f"  - Energy Density: {res['battery']['energy_density']} Wh/kg")
         performance = analyze_performance(res)
         for k, v in performance.items():
             print(f"{k}: {v:.3f}")
