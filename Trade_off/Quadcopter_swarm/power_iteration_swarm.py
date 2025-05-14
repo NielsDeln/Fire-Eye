@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
 
     # no margins too much
-    results = full_system_loop(payloads1, P_payloads1, t_flight=0.416) # hours
+    results = full_system_loop(payloads2, P_payloads2, t_flight=0.416) # hours
     
     for i, res in enumerate(results):
         print(f"\n====== Final Results for Drone {i+1} ======")
