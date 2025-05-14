@@ -22,7 +22,7 @@ motor_db = [
 
 
 
-battery_db = [
+battery_dbx = [
     # Existing entries ...
     {'id': 'S 6750mAh 14.8V', 'type': '4s lipo', 'cells': 4, 'capacity': 6750, 'mass': 620, 'voltage': 14.8, 
      'energy_capacity': 99.9, 'C-rating': 25, 'energy_density': 161.13},
@@ -61,7 +61,7 @@ battery_db = [
 
 
 # battery database
-battery_dbx = [
+battery_db = [
     {'id': 'GAONENG GNB 4S 14.8V', 'type': 'Li-ion', 'cells': 4, 'capacity': 4000, 'mass': 434, 'voltage': 14.8, 
      'energy_capacity': 88.8, 'C-rating': 10, 'energy_density': 204.61},
     

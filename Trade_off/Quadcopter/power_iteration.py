@@ -6,7 +6,7 @@ from Trade_off.Quadcopter.propulsion_iteration import converge_gtow_and_prop
 from Trade_off.Quadcopter.weight_estimation import m_pl, m_payload
 import math
 
-def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=2, max_gtow=5000):
+def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow=5000):
     prev_gtow = 0
     battery_guess = battery_db[0]
 
@@ -46,7 +46,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=2, max_gtow=
         best_battery = None
         min_mass = float('inf')
 
-        P_required = P_total / 4  # to have like 4 batteries  # or any specific power required for the system
+        P_required = P_total   # or any specific power required for the system
         for b in battery_db:
             usable_energy = (b['voltage'] * b['capacity'] / 1000) * discharge_eff  # Wh
 
@@ -54,7 +54,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=2, max_gtow=
             if b['C-rating'] is None:
                 continue
             max_discharge_power = b['capacity'] * b['C-rating'] * b['voltage'] / 1000  # in watts
-            if usable_energy >= E_required and b['mass'] < min_mass and max_discharge_power >= P_required:
+            if usable_energy >= E_required and b['mass'] < min_mass or max_discharge_power >= P_required:
                 best_battery = b
                 min_mass = b['mass']
         if not best_battery:
