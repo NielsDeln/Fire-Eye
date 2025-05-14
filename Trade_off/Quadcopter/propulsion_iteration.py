@@ -72,7 +72,7 @@ def select_best_motor_and_prop(GTOW, T_motor):
     for motor in candidates:
         #for d in prop_diameters:
         propeller_diameter = motor['prop_diameter']  # cm
-        metric = evaluate_motor_prop_combo(motor, propeller_diameter, mass_aircraft=T_motor * 4)
+        metric = evaluate_motor_prop_combo(motor, propeller_diameter, mass_aircraft=GTOW)
         motor_mass = motor['mass']
         motor_thrust = motor['thrust']
         
@@ -108,7 +108,7 @@ def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, 
         #print(f"\n Outer Iteration {i+1}")
         
         # 1. GTOW estimation (with current propeller diameter)
-        gtow, T_max, T_motor = converge_gtow(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity if battery_capacity is not None else 5000, battery_override=battery_override if battery_override is not None else None, motor_override=motor_guess)
+        gtow, T_max, T_motor = converge_gtow(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity if battery_capacity is not None else 5000, battery_override=battery_override, motor_override=motor_guess, m0_guess=prev_gtow)
 
 
         #print(f"GTOW Estimate: {gtow:.2f} g")
@@ -120,7 +120,7 @@ def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, 
         #print(f"Selected Motor: {best_config['motor']['id']} | Prop: {new_d_p} cm")
 
         # 3. Convergence check
-        if abs(gtow - prev_gtow) < tol and abs(new_d_p - d_p) < 0.5:
+        if abs(gtow - prev_gtow) < tol:
             #print("\n Converged!")
             break
         
@@ -141,7 +141,7 @@ def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, 
     print(f" - Max Thrust       : {motor['thrust']} g")
     print(f" - Efficiency       : {motor['efficiency']}")
     print(f" - Diameter         : {motor['diameter']} mm")
-    print(f"Propeller  : {best_config['prop_diameter']} cm")
+    print(f"Propeller  : {motor['prop_diameter']} cm")
     print(f"Optimization Metric : {best_config['metric']:.3f}")
     print("---------------------------------\n")
 

@@ -27,13 +27,14 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=2, max_gtow=
 
         # Step 2: total power consumption
         motor = result['motor']
-        T_motor = result['T_motor']  
+        #T_motor = result['T_motor']  
+        T_motor = motor["thrust"]  # thrust per motor [g]
         print(f"Motor Thrust: {T_motor:.2f} g")
         motor_eff = motor['efficiency'] 
         print(f"Motor Efficiency: {motor_eff:.2f}")
 
-        P_motor = T_motor / motor_eff   # watts
-        #P_motor = motor["power"]
+        #P_motor = T_motor / motor_eff   # watts
+        P_motor = motor["power"]
         print(f"Motor Power: {P_motor:.2f} W")
         P_total = 4 * P_motor + P_payload
         print(f"Estimated Power Use: {P_total:.2f} W")
@@ -45,7 +46,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=2, max_gtow=
         best_battery = None
         min_mass = float('inf')
 
-        P_required = P_total  # to have like 4 batteries  # or any specific power required for the system
+        P_required = P_total / 4  # to have like 4 batteries  # or any specific power required for the system
         for b in battery_db:
             usable_energy = (b['voltage'] * b['capacity'] / 1000) * discharge_eff  # Wh
 

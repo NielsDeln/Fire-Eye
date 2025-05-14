@@ -72,9 +72,10 @@ def converge_gtow(
     max_iter=100,
     battery_override=None,
     motor_override=None,
-):
-    # Initial guess for m_0 (MTOW)
     m0_guess = m_pl / 0.4 
+):
+
+
 
     for i in range(max_iter):
         # Step 1: required thrust

@@ -22,10 +22,46 @@ motor_db = [
 
 
 
+battery_db = [
+    # Existing entries ...
+    {'id': 'S 6750mAh 14.8V', 'type': '4s lipo', 'cells': 4, 'capacity': 6750, 'mass': 620, 'voltage': 14.8, 
+     'energy_capacity': 99.9, 'C-rating': 25, 'energy_density': 161.13},
+
+    # New entries start here
+    {'id': 'Turnigy Graphene 4S 6000mAh', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 6000, 'mass': 615, 'voltage': 14.8, 
+     'energy_capacity': 88.8, 'C-rating': 65, 'energy_density': 144.4},
+
+    {'id': 'Tattu R-Line 6S 1400mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 1400, 'mass': 228, 'voltage': 22.2, 
+     'energy_capacity': 31.1, 'C-rating': 120, 'energy_density': 136.4},
+
+    {'id': 'Bonka Power 4S 8500mAh', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 8500, 'mass': 760, 'voltage': 14.8, 
+     'energy_capacity': 125.8, 'C-rating': 15, 'energy_density': 165.5},
+
+    {'id': 'Venom 6S 10000mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 10000, 'mass': 1280, 'voltage': 22.2, 
+     'energy_capacity': 222, 'C-rating': 25, 'energy_density': 173.4},
+
+    {'id': 'HRB Graphene 4S 5000mAh', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 5000, 'mass': 545, 'voltage': 14.8, 
+     'energy_capacity': 74, 'C-rating': 50, 'energy_density': 135.8},
+
+    {'id': 'CNHL G+ Plus 6S 1800mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 1800, 'mass': 280, 'voltage': 22.2, 
+     'energy_capacity': 39.96, 'C-rating': 70, 'energy_density': 142.7},
+
+    {'id': 'Lectron Pro 4S 7600mAh', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 7600, 'mass': 650, 'voltage': 14.8, 
+     'energy_capacity': 112.5, 'C-rating': 25, 'energy_density': 173.1},
+
+    {'id': 'Gens Ace 6S 5000mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 5000, 'mass': 745, 'voltage': 22.2, 
+     'energy_capacity': 111, 'C-rating': 45, 'energy_density': 149},
+
+    {'id': 'MaxAmps 4S 10900mAh', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 10900, 'mass': 840, 'voltage': 14.8, 
+     'energy_capacity': 161.3, 'C-rating': 20, 'energy_density': 192},
+
+    {'id': 'Ovonic 6S 13000mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 13000, 'mass': 1550, 'voltage': 22.2, 
+     'energy_capacity': 288.6, 'C-rating': 25, 'energy_density': 186.2}
+]
 
 
 # battery database
-battery_db = [
+battery_dbx = [
     {'id': 'GAONENG GNB 4S 14.8V', 'type': 'Li-ion', 'cells': 4, 'capacity': 4000, 'mass': 434, 'voltage': 14.8, 
      'energy_capacity': 88.8, 'C-rating': 10, 'energy_density': 204.61},
     
