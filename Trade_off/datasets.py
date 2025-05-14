@@ -15,19 +15,21 @@ motor_db = [
     {'id': 'AT2304_KV1500', 'mass': 20, 'kv': 1500, 'voltage': 11.2, 'prop_diameter': 17.78, 'thrust': 544, 'cell_count': '2-3S', 'peak_current': 10, 'power': 110.13, 'efficiency': 4.94, 'diameter': 28},
     {'id': 'BE1806_KV1800', 'mass': 20, 'kv': 1800, 'voltage': 10.94, 'prop_diameter': 20.32, 'thrust': 510, 'cell_count': '2-3S', 'peak_current': 13, 'power': 98.78, 'efficiency': 5.16, 'diameter': 28},
     {'id': 'BE1806_KV2300', 'mass': 20, 'kv': 2300, 'voltage': 6.99, 'prop_diameter': 20.32, 'thrust': 521, 'cell_count': '2-3S', 'peak_current': 15, 'power': 102.38, 'efficiency': 5.09, 'diameter': 28},
-    {'id': 'BE 1806_KV1400', 'mass': 23, 'kv': 1400, 'voltage': 14.8, 'prop_diameter': 12.7, 'thrust': 335, 'cell_count': '2-4S', 'peak_current': 5.4, 'power': 62.2, 'efficiency': 5.4, 'diameter': 23},
-    {'id': 'BE 1806_KV2300', 'mass': 23, 'kv': 2300, 'voltage': 11.1, 'prop_diameter': 12.7, 'thrust': 390, 'cell_count': '2-4S', 'peak_current': 7.6, 'power': 72.2, 'efficiency': 5.4, 'diameter': 23},
-    {'id': 'BE 1806_KV2700', 'mass': 23, 'kv': 2700, 'voltage': 14.8, 'prop_diameter': 12.7, 'thrust': 690, 'cell_count': '2-4S', 'peak_current': 16.8, 'power': 248.4, 'efficiency': 2.8, 'diameter': 23},
-    {"id": "Racerstar BR2306S 2400KV",  "mass": 33.5,  "kv": 2400,  "voltage": 14.8,  "prop_diameter": 15.24,  "thrust": 980,  "cell_count": "2-4S",  "peak_current": 33,  "power": 488,  "efficiency": 2.01,  "diameter":28.5},
-    { "id": "Emax RSII 2207 2300KV", "mass": 31.2, "kv": 2300, "voltage": 14.8, "prop_diameter": 15.24, "thrust": 1014, "cell_count": "4S", "peak_current": 34.3, "power": 497, "efficiency": 2.04, "diameter":27.9},
-    { "id": "HyperTrain Blaster 2207 2450KV", "mass": 31.3, "kv": 2450, "voltage": 14.8, "prop_diameter": 15.24, "thrust": 1006, "cell_count": "4S", "peak_current": 34.9, "power": 512, "efficiency": 1.96, "diameter":28.3},
-    { "id": "Racerstar BR2306S 2400KV", "mass": 33.5, "kv": 2400, "voltage": 14.8, "prop_diameter": 15.24, "thrust": 1027, "cell_count": "4S", "peak_current": 35.1, "power": 506, "efficiency": 2.03, "diameter":28.5},
+    {'id': 'BE_UNKNOWN_KV1400', 'mass': 23, 'kv': 1400, 'voltage': 14.8, 'prop_diameter': 12.7, 'thrust': 335, 'cell_count': '2-4S', 'peak_current': 5.4, 'power': 62.2, 'efficiency': 5.4, 'diameter': 23},
+    {'id': 'BE_UNKNOWN_KV2300', 'mass': 23, 'kv': 2300, 'voltage': 11.1, 'prop_diameter': 12.7, 'thrust': 390, 'cell_count': '2-4S', 'peak_current': 7.6, 'power': 72.2, 'efficiency': 5.4, 'diameter': 23},
+    {'id': 'BE_UNKNOWN_KV2700', 'mass': 23, 'kv': 2700, 'voltage': 14.8, 'prop_diameter': 12.7, 'thrust': 690, 'cell_count': '2-4S', 'peak_current': 16.8, 'power': 248.4, 'efficiency': 2.8, 'diameter': 23},
     {'id': 'MEPS SZ2806.6 KV1300', 'mass': 47.5, 'kv': 1300, 'voltage': 24.7, 'prop_diameter': 15.24, 'thrust': 1999.9, 'cell_count': '-', 'peak_current': 36.8, 'power': 867, 'efficiency': 2.33, 'diameter': 34.14},
     {'id': 'MEPS NEON2207 KV1950', 'mass': 36, 'kv': 1950, 'voltage': 25, 'prop_diameter': 12.95, 'thrust': 1720, 'cell_count': '-', 'peak_current': 44.2, 'power': 1087, 'efficiency': 1.6, 'diameter': 29.53},
-    {"id": "EMAX ECO Micro Series 1407 4100KV",  "mass": 13.7,  "kv": 4100,  "voltage": 14.8,  "prop_diameter": 7.64,  "thrust": 523.1,  "cell_count": "2-4S",  "peak_current": 21.6,  "power": 340,  "efficiency": 2.882,  "diameter": 18.8},
+    {"id": "Racerstar BR2306S 2400KV",  "mass": 33.5,  "kv": 2400,  "voltage": 14.8,  "prop_diameter": 15.24,  "thrust": 980,  "cell_count": "2-4S",  "peak_current": 33,  "power": 488,  "efficiency": 2.01,  "diameter": 28.5}
+    { "id": "Emax RSII 2207 2300KV", "mass": 31.2, "kv": 2300, "voltage": 14.8, "prop_diameter": 15.24, "thrust": 1014, "cell_count": "4S", "peak_current": 34.3, "power": 497, "efficiency": 2.04, "diameter": 27.9 },
+    {"id": "EMAX ECO Micro Series 1407 4100KV",  "mass": 13.7,  "kv": 4100,  "voltage": 14.8,  "prop_diameter": 7.64,  "thrust": 523.1,  "cell_count": "2-4S",  "peak_current": 21.6,  "power": 340,  "efficiency": 2.882,  "diameter": 18.8},
     { "id": "HyperTrain Blaster 2207 2450KV", "mass": 31.3, "kv": 2450, "voltage": 14.8, "prop_diameter": 15.24, "thrust": 1006, "cell_count": "4S", "peak_current": 34.9, "power": 512, "efficiency": 1.96, "diameter": 28.3},
     { "id": "Racerstar BR2306S 2400KV", "mass": 33.5, "kv": 2400, "voltage": 14.8, "prop_diameter": 15.24, "thrust": 1027, "cell_count": "4S", "peak_current": 35.1, "power": 506, "efficiency": 2.03, "diameter": 28.5},
-    { "id": "Emax RSII 2207 2300KV", "mass": 31.2, "kv": 2300, "voltage": 14.8, "prop_diameter": 15.24, "thrust": 1014, "cell_count": "4S", "peak_current": 34.3, "power": 497, "efficiency": 2.04, "diameter": 27.9 },
+    {"id": "Racerstar BR2306S 2400KV",  "mass": 33.5,  "kv": 2400,  "voltage": 14.8,  "prop_diameter": 15.24,  "thrust": 980,  "cell_count": "2-4S",  "peak_current": 33,  "power": 488,  "efficiency": 2.01,  "diameter": 28.5},
+    { "id": "Emax RSII 2207 2300KV", "mass": 31.2, "kv": 2300, "voltage": 14.8, "prop_diameter": 15.24, "thrust": 1014, "cell_count": "4S", "peak_current": 34.3, "power": 497, "efficiency": 2.04, "diameter": 27.9 },
+    { "id": "HyperTrain Blaster 2207 2450KV", "mass": 31.3, "kv": 2450, "voltage": 14.8, "prop_diameter": 15.24, "thrust": 1006, "cell_count": "4S", "peak_current": 34.9, "power": 512, "efficiency": 1.96, "diameter": 28.3 },
+    { "id": "Racerstar BR2306S 2400KV", "mass": 33.5, "kv": 2400, "voltage": 14.8, "prop_diameter": 15.24, "thrust": 1027, "cell_count": "4S", "peak_current": 35.1, "power": 506, "efficiency": 2.03, "diameter": 28.5 }
+]
 
      ]
 
