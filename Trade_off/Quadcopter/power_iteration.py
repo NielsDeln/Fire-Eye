@@ -44,7 +44,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
         #print(f"Required Energy: {E_required:.2f} Wh")
 
 
-        """# Step 4: Find best battery from database
+        # Step 4: Find best battery from database
         best_battery = None
         min_mass = float('inf')
         n_batteries = 0
@@ -60,22 +60,22 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
             if b['C-rating'] is None:
                 continue
             max_discharge_power = b['capacity'] * b['C-rating'] * b['voltage'] / 1000  # in watts
-            if usable_energy >= E_required and max_discharge_power >= P_required:
+            if usable_energy >= E_required or max_discharge_power >= P_required:
                 if b['mass'] < min_mass:
                     best_battery = b
                     min_mass = b['mass']
                     n_batteries = 1
         if not best_battery:
-            try:
+            """try:
                 lightest_battery = min(battery_db, key=lambda x: x['mass'])
                 n_batteries = math.ceil(E_required / ((lightest_battery['voltage'] * lightest_battery['capacity'] / 1000) * discharge_eff))
                 print(f"Using {n_batteries} batteries of {lightest_battery['id']} to meet energy requirements.")
                 print(f"Total mass of batteries: {n_batteries * lightest_battery['mass']} g")
                 best_battery = lightest_battery
-            except:
+            except:"""
             raise RuntimeError("No suitable battery found in the database.")
         #print(f"Selected Battery: {best_battery['id']} | {best_battery['capacity']} mAh | {best_battery['cells']}S | {best_battery['mass']} g")
-"""
+
         # Step 5: Convergence check
         if abs(result['GTOW'] - prev_gtow) < tol:
             #print("\nSYSTEM CONVERGED")
@@ -83,21 +83,21 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
                 **result,
                 'P_total': P_total,
                 'E_required': E_required,
-                #'battery': best_battery
+                'battery': best_battery
             }
 
         if result['GTOW'] > max_gtow:
             #print(f"GTOW exceeds the cap of {max_gtow} g. Stopping the iteration.")
             raise RuntimeError("GTOW exceeded the maximum limit.")
         
-        #battery_guess = best_battery
+        battery_guess = best_battery
         prev_gtow = result['GTOW']
 
     raise RuntimeError("System did not converge after all iterations.")
 
 
 
-def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40):
+def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40, rho=1.225):
     g = 9.81  # m/s²
     W_takeoff = result['GTOW'] / 1000 * g  # N
     T_max = result['T_max'] / 1000 * g  # N
@@ -110,6 +110,7 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40):
     flight_duration_hr = energy_batt / result["P_total"]  # h
 
     range_km = cruise_speed_kmh * flight_duration_hr"""
+    
 
     # disk loading
     A_prop = (math.pi * (result["propeller"]['diameter'] / 200) ** 2) 
@@ -118,11 +119,15 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40):
 
     inverse_W_takeoff = 1 / (result['GTOW'] / 1000)  # 1/kg
 
+    #v2
+    V1 = math.sqrt((W_takeoff/ n_rotors) / (2 * rho * A_prop))
+    V2 = 2 * V1
+
     # total power to horsepower (1 HP = 745.7 W)
     power_hp = result['P_total'] / 745.7
 
     # hover power 
-    P_hover = n_rotors * (result['motor']["thrust"] * 9.81 / 1000) ** (3/2) /( (2*1.225*A_prop)**0.5) # W
+    P_hover = n_rotors * (result['motor']["thrust"] * 9.81 / 1000) ** (3/2) /( (2*rho*A_prop)**0.5) # W
 
     return {
         'T/W': T_W,
@@ -132,6 +137,7 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40):
         'Disk Loading downwash': disk_loading,
         '1/W_takeoff': inverse_W_takeoff,
         'Power Plant Parameter (N_take-off)': power_hp,
+        'Downwash velocity': V2,
         "Power to hover": P_hover,
     }
 
@@ -165,14 +171,14 @@ def print_final_summary(result, performance):
     print(f"Total Power               : {result['P_total']:.2f} W")
     print(f"Energy Required           : {result['E_required']:.2f} Wh")
     
-    """battery = result['battery']
+    battery = result['battery']
     print(f"Selected Battery          : {battery['id']}")
     print(f" - Capacity               : {battery['capacity']} mAh")
     print(f" - Voltage                : {battery['voltage']} V")
     print(f" - C-rating               : {battery['C-rating']}")
     print(f" - Mass                   : {battery['mass']} g")
     print(f"Max discharge Power       : {battery['capacity'] * battery['C-rating'] * battery['voltage'] / 1000:.2f} W")
-    print(f"Usable Energy             : {(battery['voltage'] * battery['capacity'] / 1000) * 0.9:.2f} Wh")"""
+    print(f"Usable Energy             : {(battery['voltage'] * battery['capacity'] / 1000) * 0.9:.2f} Wh")
     
     print("============================================")
     print("Performance Metrics:")
