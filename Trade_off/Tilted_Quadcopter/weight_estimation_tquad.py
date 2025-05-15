@@ -110,7 +110,7 @@ def converge_gtow_tquad(
             print(f"Battery Mass: {m_b:.2f} g")
             print(f"Required Total Thrust (T_max): {T_total:.2f} g")
             print(f"Required Per-Motor Thrust: {T_motor:.2f} g")"""
-            return m_total, T_total, T_motor
+            return m_total, T_total, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl
 
         m0_guess = m_total
 

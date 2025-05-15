@@ -113,7 +113,7 @@ def converge_gtow(
             #print(f"Battery Mass: {m_b:.2f} g")
             #print(f"Required Total Thrust (T_max): {T_total:.2f} g")
             #print(f"Required Per-Motor Thrust: {T_motor:.2f} g")
-            return m_total, T_total, T_motor
+            return m_total, T_total, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl
 
         m0_guess = m_total
 
@@ -121,7 +121,7 @@ def converge_gtow(
 
 
 if __name__ == "__main__":
-    converge_gtow(
+    results = converge_gtow(
         m_pl,
         I_max=22,
         d_p=10,       # cm
@@ -130,5 +130,6 @@ if __name__ == "__main__":
         t_frame=4,
         l_frame=300,
     )
+    print(results)
 
 

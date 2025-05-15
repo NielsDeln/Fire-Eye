@@ -24,7 +24,7 @@ def converge_gtow_and_prop_tquad(m_pl, battery_capacity=None, n_cells=None, tol=
         #print(f"\n Outer Iteration {i+1}")
         
         # 1. GTOW estimation (with current propeller diameter)
-        gtow, T_max, T_motor = converge_gtow_tquad(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity if battery_capacity is not None else 5000, battery_override=battery_override if battery_override is not None else None, motor_override=motor_guess if battery_override is not None else None)
+        gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow_tquad(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity if battery_capacity is not None else 5000, battery_override=battery_override if battery_override is not None else None, motor_override=motor_guess if battery_override is not None else None)
 
 
         #print(f"GTOW Estimate: {gtow:.2f} g")
@@ -62,13 +62,20 @@ def converge_gtow_and_prop_tquad(m_pl, battery_capacity=None, n_cells=None, tol=
     print("---------------------------------\n")
 """
     return {
-        'GTOW': gtow,
-        'T_max': T_max,
-        'T_motor': T_motor,
-        'motor': motor,
-        'propeller': {
-            'diameter': best_config['prop_diameter']
-        }
+    'GTOW': gtow,
+    'T_max': T_max,
+    'T_motor': T_motor,
+    'motor': motor,
+    'propeller': {
+        'diameter': best_config['prop_diameter']
+    },
+    'm_motor': m_m,
+    'm_ESC': m_e,
+    'm_battery': m_b,
+    'm_propeller': m_p,
+    'm_frame': m_f,
+    'm_avionics': m_a,
+    'm_payload': m_pl
     }
 
 

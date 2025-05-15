@@ -43,7 +43,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
         # Step 3: Required energy
         E_required = P_total * t_flight  # Wh
 
-        # Step 4: Find best battery from database
+        """# Step 4: Find best battery from database
         best_battery = None
         min_mass = float('inf')
 
@@ -61,7 +61,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
         if not best_battery:
             raise RuntimeError("No suitable battery found in the database.")
         #print(f"Selected Battery: {best_battery['id']} | {best_battery['capacity']} mAh | {best_battery['cells']}S | {best_battery['mass']} g")
-
+"""
         # Step 5: Convergence check
         if abs(result['GTOW'] - prev_gtow) < tol:
             #print("\nSYSTEM CONVERGED")
@@ -69,14 +69,14 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
                 **result,
                 'P_total': P_total,
                 'E_required': E_required,
-                'battery': best_battery
+                #'battery': best_battery
             }
 
         if result['GTOW'] > max_gtow:
             #print(f"GTOW exceeds the cap of {max_gtow} g. Stopping the iteration.")
             raise RuntimeError("GTOW exceeded the maximum limit.")
         
-        battery_guess = best_battery
+        #battery_guess = best_battery
         prev_gtow = result['GTOW']
 
     raise RuntimeError("System did not converge after all iterations.")

@@ -41,10 +41,10 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
 
         # Step 3: Required energy
         E_required = P_total / 2 * t_flight  # Wh
-        print(f"Required Energy: {E_required:.2f} Wh")
+        #print(f"Required Energy: {E_required:.2f} Wh")
 
 
-        # Step 4: Find best battery from database
+        """# Step 4: Find best battery from database
         best_battery = None
         min_mass = float('inf')
         n_batteries = 0
@@ -66,16 +66,16 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
                     min_mass = b['mass']
                     n_batteries = 1
         if not best_battery:
-            """try:
+            try:
                 lightest_battery = min(battery_db, key=lambda x: x['mass'])
                 n_batteries = math.ceil(E_required / ((lightest_battery['voltage'] * lightest_battery['capacity'] / 1000) * discharge_eff))
                 print(f"Using {n_batteries} batteries of {lightest_battery['id']} to meet energy requirements.")
                 print(f"Total mass of batteries: {n_batteries * lightest_battery['mass']} g")
                 best_battery = lightest_battery
-            except:"""
+            except:
             raise RuntimeError("No suitable battery found in the database.")
         #print(f"Selected Battery: {best_battery['id']} | {best_battery['capacity']} mAh | {best_battery['cells']}S | {best_battery['mass']} g")
-
+"""
         # Step 5: Convergence check
         if abs(result['GTOW'] - prev_gtow) < tol:
             #print("\nSYSTEM CONVERGED")
@@ -83,14 +83,14 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
                 **result,
                 'P_total': P_total,
                 'E_required': E_required,
-                'battery': best_battery
+                #'battery': best_battery
             }
 
         if result['GTOW'] > max_gtow:
             #print(f"GTOW exceeds the cap of {max_gtow} g. Stopping the iteration.")
             raise RuntimeError("GTOW exceeded the maximum limit.")
         
-        battery_guess = best_battery
+        #battery_guess = best_battery
         prev_gtow = result['GTOW']
 
     raise RuntimeError("System did not converge after all iterations.")
@@ -103,16 +103,17 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40):
     T_max = result['T_max'] / 1000 * g  # N
     T_W = T_max / W_takeoff
 
-    battery = result['battery']
+    """battery = result['battery']
     energy_batt = (battery['voltage'] * battery['capacity'] / 1000) * 0.9
     discharg_p = battery['capacity'] * battery['C-rating'] * battery['voltage'] / 1000 # W 
     flight_duration_hr1 = result["E_required"] / discharg_p  # h
     flight_duration_hr = energy_batt / result["P_total"]  # h
 
-    range_km = cruise_speed_kmh * flight_duration_hr
+    range_km = cruise_speed_kmh * flight_duration_hr"""
 
     # disk loading
-    A_tot_prop = n_rotors * (math.pi * (result["propeller"]['diameter'] / 200) ** 2)   # m²
+    A_prop = (math.pi * (result["propeller"]['diameter'] / 200) ** 2) 
+    A_tot_prop = n_rotors * A_prop  # m²
     disk_loading = result['GTOW'] / 1000 / A_tot_prop  # kg/m²
 
     inverse_W_takeoff = 1 / (result['GTOW'] / 1000)  # 1/kg
@@ -120,19 +121,31 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40):
     # total power to horsepower (1 HP = 745.7 W)
     power_hp = result['P_total'] / 745.7
 
+    # hover power 
+    P_hover = n_rotors * (result['motor']["thrust"] * 9.81 / 1000) ** (3/2) /( (2*1.225*A_prop)**0.5) # W
+
     return {
         'T/W': T_W,
-        'Range (R)': range_km,
-        'Flight Duration': flight_duration_hr,
-        'Cruising Speed (V_crs) random number now poop': cruise_speed_kmh,
+        #'Range (R)': range_km,
+        #'Flight Duration': flight_duration_hr,
+        #'Cruising Speed (V_crs) random number now poop': cruise_speed_kmh,
         'Disk Loading downwash': disk_loading,
         '1/W_takeoff': inverse_W_takeoff,
-        'Power Plant Parameter (N_take-off)': power_hp
+        'Power Plant Parameter (N_take-off)': power_hp,
+        "Power to hover": P_hover,
     }
 
 def print_final_summary(result, performance):
     print("\n=========== FINAL SYSTEM SUMMARY ===========")
     print(f"GTOW                      : {result['GTOW']:.2f} g")
+    print(f"Payload Mass            : {result['m_payload']:.2f} g")
+    print(f"Frame Mass               : {result['m_frame']:.2f} g")
+    print(f"Avionics Mass            : {result['m_avionics']:.2f} g")
+    print(f"Propeller Mass           : {result['m_propeller']:.2f} g")
+    print(f"Motor Mass               : {result['m_motor']:.2f} g")
+    print(f"ESC Mass                 : {result['m_ESC']:.2f} g")
+    print(f"Battery Mass            : {result['m_battery']:.2f} g")
+
     print(f"Total Required Thrust     : {result['T_max']:.2f} g")
     print(f"Per Motor Thrust          : {result['T_motor']:.2f} g")
     
@@ -152,14 +165,14 @@ def print_final_summary(result, performance):
     print(f"Total Power               : {result['P_total']:.2f} W")
     print(f"Energy Required           : {result['E_required']:.2f} Wh")
     
-    battery = result['battery']
+    """battery = result['battery']
     print(f"Selected Battery          : {battery['id']}")
     print(f" - Capacity               : {battery['capacity']} mAh")
     print(f" - Voltage                : {battery['voltage']} V")
     print(f" - C-rating               : {battery['C-rating']}")
     print(f" - Mass                   : {battery['mass']} g")
     print(f"Max discharge Power       : {battery['capacity'] * battery['C-rating'] * battery['voltage'] / 1000:.2f} W")
-    print(f"Usable Energy             : {(battery['voltage'] * battery['capacity'] / 1000) * 0.9:.2f} Wh")
+    print(f"Usable Energy             : {(battery['voltage'] * battery['capacity'] / 1000) * 0.9:.2f} Wh")"""
     
     print("============================================")
     print("Performance Metrics:")
@@ -182,7 +195,14 @@ if __name__ == "__main__":
         adjusted_P_payload = base_P_payload * margin
         print(f"\n==== Running Analysis for m_pl {int(margin*100)}%, P_payload {int(margin*100)}% ====")
         try:
-            results = full_system_loop(adjusted_m_pl, adjusted_P_payload, t_flight=t_flight)
+            results = full_system_loop(
+                adjusted_m_pl,
+                adjusted_P_payload,
+                t_flight=t_flight,
+                tol=1e-2,
+                max_outer=10,
+                max_gtow=5000
+            )
             print_final_summary(results, analyze_performance(results))
         except RuntimeError as e:
             print(f"Failed to converge: {e}")

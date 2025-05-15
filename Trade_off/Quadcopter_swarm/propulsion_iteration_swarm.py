@@ -50,7 +50,7 @@ def converge_gtow_and_prop(payloads, battery_capacity=None, n_cells=None, tol=1e
                                     battery_capacity=battery_capacity if battery_capacity is not None else 5000, 
                                     battery_override=battery_override, 
                                     motor_override=motor_guess)
-            gtow, T_max, T_motor = result[idx]
+            gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = result[idx]
             #print(f"GTOW: {gtow} | T_max: {T_max} | T_motor: {T_motor}")
             # 2. Motor + Propeller Optimization
             best_config = select_best_motor_and_prop(gtow, T_motor)
@@ -58,7 +58,7 @@ def converge_gtow_and_prop(payloads, battery_capacity=None, n_cells=None, tol=1e
             #print(f"Selected Motor: {best_config['motor']['id']} | Prop: {new_d_p} cm")
 
             # 3. Convergence check
-            if abs(gtow - prev_gtow) < tol and abs(new_d_p - d_p) < 0.5:
+            if abs(gtow - prev_gtow) < tol:
                 #print("\nConverged!")
                 break
 
@@ -84,14 +84,21 @@ def converge_gtow_and_prop(payloads, battery_capacity=None, n_cells=None, tol=1e
         print("---------------------------------\n")"""
 
         results.append({
-            'GTOW': gtow,
-            'T_max': T_max,
-            'T_motor': T_motor,
-            'motor': motor_guess,
-            'propeller': {
-                'diameter': best_config['prop_diameter']
-            }
-        })
+    'GTOW': gtow,
+    'T_max': T_max,
+    'T_motor': T_motor,
+    'motor': motor,
+    'propeller': {
+        'diameter': best_config['prop_diameter']
+    },
+    'm_motor': m_m,
+    'm_ESC': m_e,
+    'm_battery': m_b,
+    'm_propeller': m_p,
+    'm_frame': m_f,
+    'm_avionics': m_a,
+    'm_payload': m_pl
+    })
     
     return results
 
