@@ -40,18 +40,21 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
         #print(f"Estimated Power Use: {P_total:.2f} W")
 
         # Step 3: Required energy
-        E_required = P_total * t_flight  # Wh
+        E_required = P_total / 2 * t_flight  # Wh
+        print(f"Required Energy: {E_required:.2f} Wh")
+
 
         # Step 4: Find best battery from database
         best_battery = None
         min_mass = float('inf')
         n_batteries = 0
 
-        P_required = P_total   # or any specific power required for the system
+        P_required = P_total / 2  # or any specific power required for the system
         print(f"Required Power: {P_required:.2f} W")
         print(f"total Power: {P_total:.2f} W")
         for b in battery_db:
             usable_energy = (b['voltage'] * b['capacity'] / 1000) * discharge_eff  # Wh
+            print(f"Battery {b['id']} - Usable Energy: {usable_energy:.2f} Wh - Num needed: {math.ceil(E_required / usable_energy)} - Mass: {math.ceil(E_required / usable_energy)*b['mass']} g")
 
             # Check if the battery can supply the required power (C-rating check)
             if b['C-rating'] is None:
@@ -168,7 +171,7 @@ def print_final_summary(result, performance):
 if __name__ == "__main__":
     base_m_pl = m_payload(198, 19, 230, 0, 150)  # g
     base_P_payload = 65  # watts
-    t_flight = 0.416  # hours
+    t_flight = 0.25  # hours
 
     # Margins: -20%, baseline, +20%
     margin_factors = [0.8, 1.0, 1.2]

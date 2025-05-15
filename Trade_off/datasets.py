@@ -35,10 +35,6 @@ motor_db = [
 
 ]
 
-
-
-
-
 # battery database
 battery_db = [
     {'id': 'GAONENG GNB 4S 14.8V', 'type': 'Li-ion', 'cells': 4, 'capacity': 4000, 'mass': 434, 'voltage': 14.8, 
@@ -74,17 +70,12 @@ battery_db = [
     {'id': 'CNHL LiPo 6s (1200mAh)', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 1200, 'mass': 204, 'voltage': 22.2, 
      'energy_capacity': 26.64, 'C-rating': 30, 'energy_density': 130.59},
 
-    {'id': 'Tattu Low Temp 14500mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 14500, 'mass': 1961, 'voltage': 22.2, 
-     'energy_capacity': 321.9, 'C-rating': 3, 'energy_density': 164.15},
+    # {'id': 'Tattu Low Temp 14500mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 14500, 'mass': 1961, 'voltage': 22.2, 
+    #  'energy_capacity': 321.9, 'C-rating': 3, 'energy_density': 164.15},  # mass > 1000, will be removed
 
-    {'id': 'Tattu 80.4Ah 4S', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 80400, 'mass': 3500, 'voltage': 11.51, 
-     'energy_capacity': 1189.92, 'C-rating': 3, 'energy_density': 339},
-
-    {'id': 'Grepow 6S 17000mAh semi-solid', 'type': '6S semi solid', 'cells': 6, 'capacity': 17000, 'mass': 1444, 'voltage': 22.2, 
-     'energy_capacity': 377.4, 'C-rating': 3, 'energy_density': 300},
-
-    {'id': 'Tattu G-Tech 6S1P', 'type': '6S1P LLiPi', 'cells': 6, 'capacity': 12000, 'mass': 1532, 'voltage': 22.2, 
-     'energy_capacity': 266.4, 'C-rating': 3, 'energy_density': 173.89},
+    # {'id': 'Tattu 80.4Ah 4S', ...},  # mass: 3500, removed
+    # {'id': 'Grepow 6S 17000mAh semi-solid', ...},  # mass: 1444, removed
+    # {'id': 'Tattu G-Tech 6S1P', ...},  # mass: 1532, removed
 
     {'id': 'Tattu G-Tech 4S 5200mAh', 'type': '4s lipo', 'cells': 4, 'capacity': 5200, 'mass': 436.5, 'voltage': 14.8, 
      'energy_capacity': 76.96, 'C-rating': 35, 'energy_density': 176.31},

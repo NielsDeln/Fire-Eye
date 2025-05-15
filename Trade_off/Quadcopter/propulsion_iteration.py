@@ -69,6 +69,8 @@ def select_best_motor_and_prop(GTOW, T_motor):
     best_metric = float('inf')
     min_mass = float('inf')
 
+    min_power = float('inf')
+
     for motor in candidates:
         #for d in prop_diameters:
         propeller_diameter = motor['prop_diameter']  # cm
@@ -77,9 +79,11 @@ def select_best_motor_and_prop(GTOW, T_motor):
         motor_thrust = motor['thrust']
         
 
-        if metric < best_metric and motor_mass < min_mass and motor_thrust >= T_motor and propeller_diameter <= 16:
-            best_metric = metric
-            min_mass = motor_mass
+        if metric < best_metric and motor_thrust >= T_motor and propeller_diameter <= 16:
+            if motor['power'] < min_power:
+                min_power = motor['power']
+                best_metric = metric
+                min_mass = motor_mass
 
             best_combo = {
                 'motor': motor,
