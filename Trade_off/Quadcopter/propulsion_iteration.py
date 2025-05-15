@@ -78,9 +78,11 @@ def select_best_motor_and_prop(GTOW, T_motor):
         motor_mass = motor['mass']
         motor_thrust = motor['thrust']
         
-
-        if metric < best_metric and motor_thrust >= T_motor and propeller_diameter <= 288:
-            if motor['power'] < min_power:
+        if motor_thrust >= T_motor and motor['power'] < min_power:
+            min_power = motor['power']
+            #print(f"Motor {motor['id']} - Thrust: {motor_thrust:.2f} g | Power: {motor['power']:.2f} W | Efficiency: {motor['efficiency']:.2f} | Mass: {motor_mass:.2f} g")
+            if metric < best_metric and propeller_diameter <= 288:
+            #if motor['power'] < min_power:
                 min_power = motor['power']
                 best_metric = metric
                 min_mass = motor_mass

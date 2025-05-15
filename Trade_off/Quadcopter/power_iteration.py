@@ -6,6 +6,7 @@ from Trade_off.Quadcopter.propulsion_iteration import converge_gtow_and_prop
 from Trade_off.Quadcopter.weight_estimation import m_pl, m_payload
 import math
 
+
 def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow=5000):
     prev_gtow = 0
     battery_guess = battery_db[0]
@@ -60,7 +61,8 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
             if b['C-rating'] is None:
                 continue
             max_discharge_power = b['capacity'] * b['C-rating'] * b['voltage'] / 1000  # in watts
-            if usable_energy >= E_required or max_discharge_power >= P_required:
+            #if usable_energy >= E_required and max_discharge_power >= P_required:
+            if b["voltage"] >= motor["voltage"] and b["capacity"] >= motor["capacity"]:
                 if b['mass'] < min_mass:
                     best_battery = b
                     min_mass = b['mass']
@@ -103,13 +105,13 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40, rho=1.225):
     T_max = result['T_max'] / 1000 * g  # N
     T_W = T_max / W_takeoff
 
-    """battery = result['battery']
+    battery = result['battery']
     energy_batt = (battery['voltage'] * battery['capacity'] / 1000) * 0.9
     discharg_p = battery['capacity'] * battery['C-rating'] * battery['voltage'] / 1000 # W 
     flight_duration_hr1 = result["E_required"] / discharg_p  # h
     flight_duration_hr = energy_batt / result["P_total"]  # h
 
-    range_km = cruise_speed_kmh * flight_duration_hr"""
+    range_km = cruise_speed_kmh * flight_duration_hr
     
 
     # disk loading
@@ -131,9 +133,9 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40, rho=1.225):
 
     return {
         'T/W': T_W,
-        #'Range (R)': range_km,
-        #'Flight Duration': flight_duration_hr,
-        #'Cruising Speed (V_crs) random number now poop': cruise_speed_kmh,
+        'Range (R)': range_km,
+        'Flight Duration': flight_duration_hr,
+        'Cruising Speed (V_crs) random number now poop': cruise_speed_kmh,
         'Disk Loading downwash': disk_loading,
         '1/W_takeoff': inverse_W_takeoff,
         'Power Plant Parameter (N_take-off)': power_hp,
