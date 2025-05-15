@@ -45,8 +45,11 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
         # Step 4: Find best battery from database
         best_battery = None
         min_mass = float('inf')
+        n_batteries = 0
 
         P_required = P_total   # or any specific power required for the system
+        print(f"Required Power: {P_required:.2f} W")
+        print(f"total Power: {P_total:.2f} W")
         for b in battery_db:
             usable_energy = (b['voltage'] * b['capacity'] / 1000) * discharge_eff  # Wh
 
@@ -54,10 +57,19 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
             if b['C-rating'] is None:
                 continue
             max_discharge_power = b['capacity'] * b['C-rating'] * b['voltage'] / 1000  # in watts
-            if usable_energy >= E_required and b['mass'] < min_mass or max_discharge_power >= P_required:
-                best_battery = b
-                min_mass = b['mass']
+            if usable_energy >= E_required and max_discharge_power >= P_required:
+                if b['mass'] < min_mass:
+                    best_battery = b
+                    min_mass = b['mass']
+                    n_batteries = 1
         if not best_battery:
+            """try:
+                lightest_battery = min(battery_db, key=lambda x: x['mass'])
+                n_batteries = math.ceil(E_required / ((lightest_battery['voltage'] * lightest_battery['capacity'] / 1000) * discharge_eff))
+                print(f"Using {n_batteries} batteries of {lightest_battery['id']} to meet energy requirements.")
+                print(f"Total mass of batteries: {n_batteries * lightest_battery['mass']} g")
+                best_battery = lightest_battery
+            except:"""
             raise RuntimeError("No suitable battery found in the database.")
         #print(f"Selected Battery: {best_battery['id']} | {best_battery['capacity']} mAh | {best_battery['cells']}S | {best_battery['mass']} g")
 
@@ -88,7 +100,12 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40):
     T_max = result['T_max'] / 1000 * g  # N
     T_W = T_max / W_takeoff
 
-    flight_duration_hr = result['E_required'] / result['P_total']  # h
+    battery = result['battery']
+    energy_batt = (battery['voltage'] * battery['capacity'] / 1000) * 0.9
+    discharg_p = battery['capacity'] * battery['C-rating'] * battery['voltage'] / 1000 # W 
+    flight_duration_hr1 = result["E_required"] / discharg_p  # h
+    flight_duration_hr = energy_batt / result["P_total"]  # h
+
     range_km = cruise_speed_kmh * flight_duration_hr
 
     # disk loading
@@ -102,10 +119,10 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40):
 
     return {
         'T/W': T_W,
-        'Range (L)': range_km,
-        'Flight Duration (T)': flight_duration_hr,
+        'Range (R)': range_km,
+        'Flight Duration': flight_duration_hr,
         'Cruising Speed (V_crs) random number now poop': cruise_speed_kmh,
-        'Disk Loading (W/S) downwash': disk_loading,
+        'Disk Loading downwash': disk_loading,
         '1/W_takeoff': inverse_W_takeoff,
         'Power Plant Parameter (N_take-off)': power_hp
     }
@@ -122,6 +139,8 @@ def print_final_summary(result, performance):
     print(f" - Max Thrust             : {motor['thrust']} g")
     print(f" - Efficiency             : {motor['efficiency']}")
     print(f" - Diameter               : {motor['diameter']} mm")
+    print(f" -  Motor Power                  : {motor['power']} W")
+    
     
     prop = result['propeller']
     print(f"Selected Propeller        : {prop['diameter']} cm")
@@ -136,6 +155,8 @@ def print_final_summary(result, performance):
     print(f" - Voltage                : {battery['voltage']} V")
     print(f" - C-rating               : {battery['C-rating']}")
     print(f" - Mass                   : {battery['mass']} g")
+    print(f"Max discharge Power       : {battery['capacity'] * battery['C-rating'] * battery['voltage'] / 1000:.2f} W")
+    print(f"Usable Energy             : {(battery['voltage'] * battery['capacity'] / 1000) * 0.9:.2f} Wh")
     
     print("============================================")
     print("Performance Metrics:")
