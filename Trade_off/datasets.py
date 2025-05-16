@@ -31,8 +31,20 @@ motor_db = [
     { "id": "Racerstar BR2306S 2400KV", "mass": 33.5, "kv": 2400, "voltage": 14.8, "prop_diameter": 15.24, "thrust": 1027, "cell_count": "4S", "peak_current": 35.1, "power": 506, "efficiency": 2.03, "diameter":28.5},
     { "id": "Multistar Elite 2306 2150KV", "mass": 33.1, "kv": 2150, "voltage": 14.8, "prop_diameter": 15.24, "thrust": 967, "cell_count": "4S", "peak_current": 32.7, "power": 470, "efficiency": 2.06, "diameter": 27.9 },
     { "id": "DYS Samguk Wei 2207 2300KV", "mass": 32.3, "kv": 2300, "voltage": 14.8, "prop_diameter": 12.7, "thrust": 903, "cell_count": "4S", "peak_current": 29.3, "power": 410, "efficiency": 2.20, "diameter": 27.7 },
-    { "id": "DYS Samguk Shu 2306 2500KV", "mass": 33.3, "kv": 2500, "voltage": 14.8, "prop_diameter": 12.7, "thrust": 949, "cell_count": "4S", "peak_current": 32.2, "power": 447, "efficiency": 2.12, "diameter":27.7}
-
+    { "id": "DYS Samguk Shu 2306 2500KV", "mass": 33.3, "kv": 2500, "voltage": 14.8, "prop_diameter": 12.7, "thrust": 949, "cell_count": "4S", "peak_current": 32.2, "power": 447, "efficiency": 2.12, "diameter":27.7},
+    {
+    "id": "E310 DJI",
+    "mass": 60,
+    "kv": 960,
+    "voltage": 17.4,
+    "prop_diameter": 9.4,
+    "thrust": 800,
+    "cell_count": "3-4s",
+    "peak_current": 30,
+    "power": 522,
+    "efficiency": 1.53256705,
+    "diameter": None
+  },
 ]
 
 # battery database
