@@ -3,14 +3,14 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from Trade_off.datasets import *
 from Trade_off.Quadcopter.propulsion_iteration import converge_gtow_and_prop
-from Trade_off.Quadcopter.weight_estimation import m_pl, m_payload
+from Trade_off.Quadcopter.weight_estimation import m_pl, m_payload, converge_gtow
 import math
 
 
 def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow=5000):
     prev_gtow = 0
     battery_guess = battery_db[0]
-    n_batteries = 1
+    n_batt = 1
 
     discharge_eff = 0.9
 
@@ -25,7 +25,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
             battery_capacity=battery_guess['capacity'],
             n_cells=battery_guess['cells'], 
             battery_override=battery_guess,
-            n_batteries=n_batteries
+            n_batteries=n_batt
         )
 
         # Step 2: total power consumption
@@ -70,7 +70,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
                 if b['mass'] < min_mass:
                     best_battery = b
                     min_mass = b['mass']
-                    n_batteries = 1
+                    n_batt = 1
         # if not best_battery:
         #     try:
         #         lightest_battery = min(battery_db, key=lambda x: x['mass'])
@@ -104,12 +104,12 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
                     if total_mass < min_total_mass:
                         best_combination = b
                         best_battery = b
-                        n_batteries = n_batt
+                        #n_batteries = n_batt
                         min_total_mass = total_mass
 
                 if best_battery is not None:
-                    print(f"Using {n_batteries}x {best_battery['id']} in parallel.")
-                    print(f"Total mass of batteries: {n_batteries * best_battery['mass']} g")
+                    print(f"Using {n_batt}x {best_battery['id']} in parallel.")
+                    print(f"Total mass of batteries: {n_batt * best_battery['mass']} g")
                 else:
                     raise RuntimeError("No suitable battery combination found.")
 
@@ -117,19 +117,21 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
                 raise RuntimeError("Battery selection failed with error: " + str(e))
 
         print(f"Selected Battery: {best_battery['id']} | {best_battery['capacity']} mAh | {best_battery['cells']}S | {best_battery['mass']} g")
-
-
+        motor_guess = result["motor"]
+        d_p = motor_guess['prop_diameter']  # cm
+        gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow(m_pl, d_p=d_p, n_batteries=n_batt, battery_override=best_battery, motor_override=motor_guess)
         # Step 5: Convergence check
         if abs(result['GTOW'] - prev_gtow) < tol:
             print("\nSYSTEM CONVERGED at iteration", i+1)
             return {
                 **result,
+                "GTOW": gtow,
                 'P_total': P_total,
                 'E_required': E_required,
                 'battery': best_battery,
-                "m_battery": best_battery['mass'] * n_batteries,
-                "usable_energy": (best_battery['voltage'] * best_battery['capacity'] / 1000) * discharge_eff * n_batteries,
-                "power_discharge": best_battery['capacity'] * best_battery['C-rating'] * best_battery['voltage'] / 1000 * n_batteries,
+                "m_battery": best_battery['mass'] * n_batt,
+                "usable_energy": (best_battery['voltage'] * best_battery['capacity'] / 1000) * discharge_eff * n_batt,
+                "power_discharge": best_battery['capacity'] * best_battery['C-rating'] * best_battery['voltage'] / 1000 * n_batt,
             }
 
         if result['GTOW'] > max_gtow:
@@ -218,7 +220,7 @@ def print_final_summary(result, performance):
     print(f" - Max Thrust             : {motor['thrust']} g")
     print(f" - Efficiency             : {motor['efficiency']}")
     print(f" - Diameter               : {motor['diameter']} mm")
-    print(f" -  Motor Power                  : {motor['power']} W")
+    print(f" -  Motor Power           : {motor['power']} W")
     
     
     prop = result['propeller']
@@ -270,6 +272,7 @@ if __name__ == "__main__":
                 max_outer=10,
                 max_gtow=5000
             )
+            #print(results)
             print_final_summary(results, analyze_performance(results))
         except RuntimeError as e:
             print(f"Failed to converge: {e}")

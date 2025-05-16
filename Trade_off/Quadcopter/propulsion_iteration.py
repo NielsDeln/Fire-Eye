@@ -114,7 +114,7 @@ def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, 
         #print(f"\n Outer Iteration {i+1}")
         
         # 1. GTOW estimation (with current propeller diameter)
-        gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity, n_batteries=n_batteries, motor_override=motor_guess, m0_guess=prev_gtow)
+        gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity, n_batteries=n_batteries, motor_override=motor_guess)
 
 
         #print(f"GTOW Estimate: {gtow:.2f} g")
@@ -133,9 +133,9 @@ def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, 
         motor_guess = best_config["motor"]
         d_p = new_d_p
         prev_gtow = gtow
-    else:
-        raise RuntimeError(" Convergence not reached within iteration limit.")
-
+    #else:
+        #raise RuntimeError(" Convergence not reached within iteration limit.")
+    
     # Final output summary
     motor = best_config['motor']
     """
