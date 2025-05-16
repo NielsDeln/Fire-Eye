@@ -53,7 +53,7 @@ Iterate until GTOW converges."""
 
 def converge_gtow_octo(
     m_pl,
-    D_UAV=0.35,  # m
+    D_UAV=0.302,  # m
     I_max=22,
     d_p=10.16,       # cm
     battery_cells=4,
