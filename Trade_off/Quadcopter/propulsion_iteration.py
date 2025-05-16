@@ -63,8 +63,8 @@ def evaluate_motor_prop_combo(motor, prop_diameter, mass_aircraft, prop_pitch=5.
 
 
 # Main optimization thing
-def select_best_motor_and_prop(GTOW, T_motor):
-    candidates = [m for m in motor_db if m['efficiency'] is not None]
+def select_best_motor_and_prop(GTOW, T_motor, motor_db1=motor_db):
+    candidates = [m for m in motor_db1 if m['efficiency'] is not None]
     best_combo = None
     best_metric = float('inf')
     min_mass = float('inf')
