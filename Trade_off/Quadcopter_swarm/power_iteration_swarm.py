@@ -15,6 +15,7 @@ P_payloads = [12, 0, 4] # in watts
 def full_system_loop(payloads, P_payloads, t_flight, tol=1e-2, max_outer=10):
     all_results = []
     discharge_eff = 0.9
+    throttle = 0.38
 
 
     for idx_p, power in enumerate(P_payloads):
@@ -48,13 +49,13 @@ def full_system_loop(payloads, P_payloads, t_flight, tol=1e-2, max_outer=10):
             #print(f"Estimated Power Use: {P_total:.2f} W")
 
             # Step 3: Required energy
-            E_required = P_total/ 2 * t_flight  # Wh
+            E_required = P_total * throttle * t_flight  # Wh
 
             # Step 4: Find best battery from database
             best_battery = None
             min_mass = float('inf')
 
-            P_required = P_total / 2  # or any specific power required for the system
+            P_required = P_total * throttle  # or any specific power required for the system
             for b in battery_db:
                 usable_energy = (b['voltage'] * b['capacity'] / 1000) * discharge_eff  # Wh
                 print(f"Battery {b['id']} - Usable Energy: {usable_energy:.2f} Wh - Num needed: {math.ceil(E_required / usable_energy)} - Mass: {math.ceil(E_required / usable_energy)*b['mass']} g")
