@@ -59,7 +59,7 @@ Iterate until GTOW converges."""
 
 def converge_gtow_tquad(
     m_pl,
-    D_UAV=0.35,  # m
+    D_UAV=0.325,  # m
     I_max=22,
     d_p=10.16,       # cm
     battery_cells=4,
