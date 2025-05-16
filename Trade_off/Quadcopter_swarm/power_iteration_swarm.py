@@ -4,6 +4,7 @@ import math
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from Trade_off.Quadcopter_swarm.propulsion_iteration_swarm import converge_gtow_and_prop
 from Trade_off.Quadcopter_swarm.weight_estimation_swarm import  m_payload
+from Trade_off.Quadcopter.weight_estimation import converge_gtow as converge_gtow_quadcopter
 from Trade_off.datasets import *
 from Trade_off.Quadcopter.power_iteration import analyze_performance, print_final_summary
 
@@ -15,9 +16,11 @@ def full_system_loop(payloads, P_payloads, t_flight, tol=1e-2, max_outer=10):
     all_results = []
     discharge_eff = 0.9
 
+
     for idx_p, power in enumerate(P_payloads):
         prev_gtow = 0
         battery_guess = battery_db[0]
+        n_batt = 1
         #print(f"\n--- Drone {idx_p+1} ---")
         for i in range(max_outer):
             #print(f"\n========================")
@@ -63,19 +66,60 @@ def full_system_loop(payloads, P_payloads, t_flight, tol=1e-2, max_outer=10):
                     if b['mass'] < min_mass:
                         best_battery = b
                         min_mass = b['mass']
+                        n_batt = 1
 
             if not best_battery:
-                raise RuntimeError("No suitable battery found in the database.")
-            #print(f"Selected Battery drone{idx_p+1}: {best_battery['id']} | {best_battery['capacity']} mAh | {best_battery['cells']}S | {best_battery['mass']} g")
+                try:
+                    # Step 1: Get top 3 batteries with highest discharge power
+                    top_batteries = sorted(
+                        [b for b in battery_db if b.get('C-rating') is not None],
+                        key=lambda b: b['capacity'] * b['C-rating'] * b['voltage'] / 1000,
+                        reverse=True
+                    )[:3]
 
+                    best_combination = None
+                    min_total_mass = float('inf')
+
+                    for b in top_batteries:
+                        usable_energy = (b['voltage'] * b['capacity'] / 1000) * discharge_eff  # Wh
+                        max_discharge_power = b['capacity'] * b['C-rating'] * b['voltage'] / 1000  # W
+                        n_needed_energy = math.ceil(E_required / usable_energy)
+                        n_needed_power = math.ceil(P_required / max_discharge_power)
+                        n_batt = max(n_needed_energy, n_needed_power)
+                        total_mass = n_batt * b['mass']
+
+                        if total_mass < min_total_mass:
+                            best_combination = b
+                            best_battery = b
+                            n_batteries = n_batt
+                            min_total_mass = total_mass
+
+                    if best_battery is not None:
+                        print(f"Using {n_batt}x {best_battery['id']} in parallel.")
+                        print(f"Total mass of batteries: {n_batt * best_battery['mass']} g")
+                    else:
+                        raise RuntimeError("No suitable battery combination found.")
+
+                except Exception as e:
+                    raise RuntimeError("Battery selection failed with error: " + str(e))
+
+            print(f"Selected Battery: {best_battery['id']} | {best_battery['capacity']} mAh | {best_battery['cells']}S | {best_battery['mass']} g")
+            motor_guess = result["motor"]
+            d_p = motor_guess['prop_diameter']  # cm
+            m_pl = payloads[idx_p]
+            gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow_quadcopter(m_pl, d_p=d_p, n_batteries=n_batt, battery_override=best_battery, motor_override=motor_guess)
             # Step 5: Convergence check
             if abs(result['GTOW'] - prev_gtow) < tol:
                 #print("\nSYSTEM CONVERGED")
                 result.update({
-                    'P_total': P_total,
-                    'E_required': E_required,
-                    'battery': best_battery
-                })
+                "GTOW": gtow,
+                'P_total': P_total,
+                'E_required': E_required,
+                'battery': best_battery,
+                "m_battery": best_battery['mass'] * n_batt,
+                "usable_energy": (best_battery['voltage'] * best_battery['capacity'] / 1000) * discharge_eff * n_batt,
+                "power_discharge": best_battery['capacity'] * best_battery['C-rating'] * best_battery['voltage'] / 1000 * n_batt,
+            })
                 all_results.append(result)
                 break  # exit outer loop for this drone
 

@@ -13,7 +13,7 @@ prop_diameters = np.array([5.0, 7.62, 10]) # cm
 
 """Send prop diameter back to GTOW loop"""
 # Outer convergence loop: GTOW ↔ Prop ↔ GTOW
-def converge_gtow_and_prop_octo(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, max_iter=10, battery_override=None):
+def converge_gtow_and_prop_octo(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, max_iter=10, battery_override=None, n_batteries=None):
     d_p = 10  # initial guess for prop diameter [cm]
     prev_gtow = 0
     motor_guess = None
@@ -22,7 +22,7 @@ def converge_gtow_and_prop_octo(m_pl, battery_capacity=None, n_cells=None, tol=1
         #print(f"\n Outer Iteration {i+1}")
         
         # 1. GTOW estimation (with current propeller diameter)
-        gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow_octo(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity if battery_capacity is not None else 5000, battery_override=battery_override if battery_override is not None else None, motor_override=motor_guess if battery_override is not None else None)
+        gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow_octo(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity if battery_capacity is not None else 5000, battery_override=battery_override if battery_override is not None else None, motor_override=motor_guess if battery_override is not None else None, n_batteries=n_batteries)
 
 
         #print(f"GTOW Estimate: {gtow:.2f} g")
