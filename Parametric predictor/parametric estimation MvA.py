@@ -3,10 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
-from sklearn.metrics import root_mean_squared_error
+from sklearn.metrics import mean_squared_error
 from mpl_toolkits.mplot3d import Axes3D
 from scipy import stats
-
 from sklearn.model_selection import train_test_split
 
 np.set_printoptions(precision=2)
@@ -14,80 +13,39 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # === Load and preview data ===
-#file_path = r'C:\Users\olivi\OneDrive\Aerospace\DSE\DJI_Drones_Compare.csv'
-#file_path = r"C:\Users\olivi\OneDrive\Aerospace\DSE\Quadcopter Database Randomised.csv"
-#file_path = r"C:\Users\olivi\OneDrive\Aerospace\DSE\Quadcopter database 0-2 kg.csv"
 file_path = r"C:\Users\olivi\OneDrive\Aerospace\DSE\DJI Quadcopter database 0-2kg.csv"
 raw = pd.read_csv(file_path)
 print(raw.head(5))
 
 # === Statistical summary of raw data ===
-# Clean column names
 raw.columns = raw.columns.str.strip().str.lower()
 
-# Columns to summarize
-cols_map = {
-    'weight (kg)': 'Weight (kg)',
-    'price ($)': 'Price ($)',
-    'advertised flight time (min)': 'Advertised Flight Time (min)',
-    'battery capacity (mah)': 'Battery capacity (mAh)',
-    'propeller area': 'Propeller Area (m^2)'
-} 
+# Clean and convert
+for col in ['weight (kg)', 'price ($)', 'advertised flight time (min)',
+            'battery capacity (mah)', 'propeller area', 'downwash']:
+    raw[col] = pd.to_numeric(raw[col], errors='coerce')
 
-summary_data = []
-for col_key, label in cols_map.items():
-    data = pd.to_numeric(raw[col_key], errors='coerce').dropna()
-    print(len(data))
-    #3
-    mean = np.mean(data)
-    std_dev = np.std(data, ddof=1)
-    conf_int = stats.t.interval(0.95, len(data)-1, loc=mean, scale=stats.sem(data))
-    
-    summary_data.append({
-        'Parameter': label,
-        'Mean': mean,
-        '95% CI Lower': conf_int[0],
-        '95% CI Upper': conf_int[1],
-        'Standard Deviation': std_dev
-    })
+# Drop missing rows for all relevant variables
+clean_raw = raw.dropna(subset=['weight (kg)', 'price ($)', 'advertised flight time (min)',
+                               'battery capacity (mah)', 'propeller area', 'downwash'])
 
-summary_df = pd.DataFrame(summary_data)
-print("\nStatistical Summary:")
-print(summary_df)
-
-# === Transform to array for regression ===
-# raw_array = np.array(raw)
-# train_data = raw_array[:15, :]
-# val_data = raw_array[15:, :]
-
-# train_weight, train_price, train_ft, train_bp = train_data[:,2], train_data[:,1], train_data[:,4], train_data[:,5]
-# val_weight, val_price, val_ft, val_bp = val_data[:,2], val_data[:,1], val_data[:,4], val_data[:,5]
-# Convert necessary columns to numeric
-raw['weight (kg)'] = pd.to_numeric(raw['weight (kg)'], errors='coerce')
-raw['price ($)'] = pd.to_numeric(raw['price ($)'], errors='coerce')
-raw['advertised flight time (min)'] = pd.to_numeric(raw['advertised flight time (min)'], errors='coerce')
-raw['battery capacity (mah)'] = pd.to_numeric(raw['battery capacity (mah)'], errors='coerce')
-raw['propeller area'] = pd.to_numeric(raw['propeller area'], errors='coerce')
-
-# Drop rows with missing values in the relevant columns
-clean_raw = raw.dropna(subset=['weight (kg)', 'price ($)', 'advertised flight time (min)', 'battery capacity (mah)', 'propeller area'])
-
-# Extract the features and targets
+# Extract individual variables
 weights = clean_raw['weight (kg)'].values
 prices = clean_raw['price ($)'].values
 flight_times = clean_raw['advertised flight time (min)'].values
 battery_powers = clean_raw['battery capacity (mah)'].values
 propeller_areas = clean_raw['propeller area'].values
+downwash = clean_raw['downwash'].values
 
-# Use train_test_split to split the data (60% train, 40% validation)
+# === Train-test split ===
 train_weight, val_weight, train_price, val_price = train_test_split(weights, prices, test_size=0.4, random_state=42)
 _, _, train_ft, val_ft = train_test_split(weights, flight_times, test_size=0.4, random_state=42)
 _, _, train_bp, val_bp = train_test_split(weights, battery_powers, test_size=0.4, random_state=42)
 _, _, train_prop_area, val_prop_area = train_test_split(weights, propeller_areas, test_size=0.4, random_state=42)
+_, _, train_downwash, val_downwash = train_test_split(weights, downwash, test_size=0.4, random_state=42)
 
 # === Polynomial regression analysis ===
-# Polynomial regression analysis with equations and R^2
-params = ['price', 'flight time', 'battery capacity', 'propeller area']
+params = ['price', 'battery capacity', 'propeller area', 'downwash']
 rmse_results = []
 equation_results = []
 
@@ -99,13 +57,13 @@ for param in params:
         X2 = val_weight
         xaxis_label = 'Weight (kg)'
         yaxis_label = 'Price ($)'
-    elif param == 'flight time':
-        train_param = train_ft
-        val_param = val_ft
-        X1 = train_bp
-        X2 = val_bp
-        xaxis_label = 'Battery capacity (mAh)'
-        yaxis_label = 'Flight Time (min)'
+    # elif param == 'flight time':
+    #     train_param = train_ft
+    #     val_param = val_ft
+    #     X1 = train_bp
+    #     X2 = val_bp
+    #     xaxis_label = 'Battery capacity (mAh)'
+    #     yaxis_label = 'Flight Time (min)'
     elif param == 'battery capacity':
         train_param = train_bp
         val_param = val_bp
@@ -113,13 +71,20 @@ for param in params:
         X2 = val_weight
         xaxis_label = 'Weight (kg)'
         yaxis_label = 'Battery capacity (mAh)'
+    elif param == 'downwash':
+        X1 = train_weight
+        X2 = val_weight
+        train_param = train_downwash
+        val_param = val_downwash
+        xaxis_label = 'Weight (kg)'
+        yaxis_label = 'Downwash (m/s)'
     elif param == 'propeller area':
-        train_param = train_weight
-        val_param = val_weight
-        X1 = train_prop_area
-        X2 = val_prop_area
-        xaxis_label = 'Propeller Area (m²)'
-        yaxis_label = 'Weight (kg)'
+        train_param = train_prop_area
+        val_param = val_prop_area
+        X1 = train_weight
+        X2 = val_weight
+        xaxis_label = 'Weight (kg)'
+        yaxis_label = 'Propeller Area (m^2)'
 
     degrees = [1, 2]
     colors = ['green', 'blue']
@@ -137,7 +102,7 @@ for param in params:
 
         poly = PolynomialFeatures(degree=i)
         X_train_poly = poly.fit_transform(X1.reshape(-1, 1))
-        X_val_poly = poly.fit_transform(X2.reshape(-1, 1))
+        X_val_poly = poly.transform(X2.reshape(-1, 1))
 
         model = LinearRegression()
         model.fit(X_train_poly, train_param)
@@ -166,7 +131,6 @@ for param in params:
         terms = [f"{coef:.3f}" if power == 0 else f"{coef:.3f}·x^{power}" 
                  for power, coef in enumerate(coefs)]
         equation = " + ".join(terms).replace('+ -', '- ')
-
         equation_results.append({
             'Parameter': param,
             'Degree': i,
@@ -186,7 +150,56 @@ for param in params:
     plt.tight_layout(rect=[0, 0, 1, 0.92])
     plt.show()
 
-# === Final Tables ===
+# === New Section: Flight Time Prediction from Weight & Battery ===
+print("\n=== Flight Time Prediction: Weight & Battery Capacity ===")
+X_full = clean_raw[['weight (kg)', 'battery capacity (mah)']].values
+y_full = clean_raw['advertised flight time (min)'].values
+
+X_train, X_val, y_train, y_val = train_test_split(X_full, y_full, test_size=0.4, random_state=42)
+
+for degree in [1, 2]:
+    poly = PolynomialFeatures(degree=degree)
+    X_train_poly = poly.fit_transform(X_train)
+    X_val_poly = poly.transform(X_val)
+
+    model = LinearRegression()
+    model.fit(X_train_poly, y_train)
+
+    y_train_pred = model.predict(X_train_poly)
+    y_val_pred = model.predict(X_val_poly)
+
+    rmse_train = mean_squared_error(y_train, y_train_pred, squared=False)
+    rmse_val = mean_squared_error(y_val, y_val_pred, squared=False)
+    r2_train = model.score(X_train_poly, y_train)
+    r2_val = model.score(X_val_poly, y_val)
+
+    print(f"\nPolynomial Degree {degree}:")
+    print(f"  Train RMSE = {rmse_train:.2f}, R² = {r2_train:.2f}")
+    print(f"  Validation RMSE = {rmse_val:.2f}, R² = {r2_val:.2f}")
+
+    # Equation
+    feature_names = poly.get_feature_names_out(['weight', 'battery'])
+    coefs = model.coef_
+    coefs[0] = model.intercept_
+    equation = " + ".join([f"{coef:.3e}*{name}" if name != "1" else f"{coef:.3e}" 
+                           for coef, name in zip(coefs, feature_names)])
+    print(f"  Equation: y = {equation}")
+
+    # 3D plot
+    fig = plt.figure(figsize=(10, 6))
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter(X_val[:, 0], X_val[:, 1], y_val, c='red', marker='^', label='Validation Data')
+    ax.scatter(X_train[:, 0], X_train[:, 1], y_train_pred, c='green', marker='o', label='Predicted (Train)')
+
+    ax.set_xlabel('Weight (kg)')
+    ax.set_ylabel('Battery Capacity (mAh)')
+    ax.set_zlabel('Flight Time (min)')
+    ax.set_title(f'Flight Time Prediction (Degree {degree})')
+    ax.legend()
+    plt.tight_layout()
+    plt.show()
+
+# === Summary Tables ===
 rmse_df = pd.DataFrame(rmse_results)
 equation_df = pd.DataFrame(equation_results)
 
