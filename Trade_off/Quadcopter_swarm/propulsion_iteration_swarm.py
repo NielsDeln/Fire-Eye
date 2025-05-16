@@ -33,7 +33,7 @@ prop_diameters = np.array([7.62, 10.16, 11.9, 15.4]) # cm
 #prop_pitches = [4.5, 5.0, 5.5]  # example values
 
 # Outer convergence loop: GTOW ↔ Prop ↔ GTOW
-def converge_gtow_and_prop(payloads, battery_capacity=None, n_cells=None, tol=1e-2, max_iter=10, battery_override=None):
+def converge_gtow_and_prop(payloads, battery_capacity=None, n_cells=None, tol=1e-2, max_iter=10, battery_override=None, n_batteries=None):  
     results = []
     for idx, payload in enumerate(payloads):
         #print(f"\n--- Drone {idx+1} ---")
@@ -48,7 +48,8 @@ def converge_gtow_and_prop(payloads, battery_capacity=None, n_cells=None, tol=1e
             # 1. GTOW estimation (with current propeller diameter)
             result = converge_gtow(payloads, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, 
                                     battery_capacity=battery_capacity if battery_capacity is not None else 5000, 
-                                    battery_override=battery_override, 
+                                    battery_override=battery_override,
+                                    n_batteries=n_batteries, 
                                     motor_override=motor_guess)
             gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = result[idx]
             #print(f"GTOW: {gtow} | T_max: {T_max} | T_motor: {T_motor}")
