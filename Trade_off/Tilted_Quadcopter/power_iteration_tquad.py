@@ -113,6 +113,8 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
             return {
                 **result,
                 "GTOW": gtow,
+                "T_max": T_max,
+                "T_motor": T_motor,
                 'P_total': P_total,
                 'E_required': E_required,
                 'battery': best_battery,
