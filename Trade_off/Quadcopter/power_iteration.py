@@ -150,7 +150,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
 
 
 
-def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40, rho=1.225):
+def analyze_performance(result, n_rotors=4, cruise_speed_kmh=7.2, rho=1.225, tilt_angle=None):
     g = 9.81  # m/s²
     W_takeoff = result['GTOW'] / 1000 * g  # N
     T_max = result['T_max'] / 1000 * g  # N
@@ -184,8 +184,15 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=40, rho=1.225):
     inverse_W_takeoff = 1 / (result['GTOW'] / 1000)  # 1/kg
 
     #v2
+    
+
     V1 = math.sqrt((W_takeoff/ n_rotors) / (2 * rho * A_prop))
-    V2 = 2 * V1
+    
+    if tilt_angle:
+        V2 = 2 * V1 * math.cos(math.radians(tilt_angle))
+    else: 
+        V2 = 2 * V1
+
 
     # total power to horsepower (1 HP = 745.7 W)
     power_hp = result['P_total'] / 745.7

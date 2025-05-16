@@ -144,7 +144,7 @@ if __name__ == "__main__":
         print(f"\n==== Running Analysis for m_pl {int(margin*100)}%, P_payload {int(margin*100)}% ====")
         try:
             results = full_system_loop(adjusted_m_pl, adjusted_P_payload, t_flight=t_flight)
-            performance = analyze_performance(results, n_rotors=8)
+            performance = analyze_performance(results, n_rotors=8, tilt_angle=30)
             print_final_summary(results, performance)
         except RuntimeError as e:
             print(f"Failed to converge: {e}")
