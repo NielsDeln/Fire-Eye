@@ -73,12 +73,13 @@ def converge_gtow(
     battery_override=None,
     n_batteries=None,
     motor_override=None,
-    
+    m0_guess=None
 ):
 
-    m0_guess = m_pl / 0.4 
+    m0_guess = m_pl / 0.4
 
     for i in range(max_iter):
+        
         # Step 1: required thrust
         T_total = 2 * m0_guess
         T_motor = T_total / 4
@@ -104,7 +105,7 @@ def converge_gtow(
         #m_total = m_m+ m_e+ m_b+ m_p+ m_f+ m_a+ m_pl
 
         # Step 4: convergence?
-        #if abs(m_total - m0_guess) < tol:
+        if abs(m_total - m0_guess) < tol:
             #print(f"\n GTOW converged after {i+1} iterations.")
             #print(f"GTOW (m_0): {m_total:.2f} g")
             #print(f"Motor Mass 4: {m_m:.2f} g")
@@ -115,8 +116,7 @@ def converge_gtow(
             #print(f"Battery Mass: {m_b:.2f} g")
             #print(f"Required Total Thrust (T_max): {T_total:.2f} g")
             #print(f"Required Per-Motor Thrust: {T_motor:.2f} g")
-        return m_total, T_total, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl
-
+            return m_total, T_total, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl
         m0_guess = m_total
 
     raise RuntimeError("GTOW did not converge")
