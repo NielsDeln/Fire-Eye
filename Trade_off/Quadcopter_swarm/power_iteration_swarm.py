@@ -114,6 +114,8 @@ def full_system_loop(payloads, P_payloads, t_flight, tol=1e-2, max_outer=10):
                 #print("\nSYSTEM CONVERGED")
                 result.update({
                 "GTOW": gtow,
+                "T_max": T_max,
+                "T_motor": T_motor,
                 'P_total': P_total,
                 'E_required': E_required,
                 'battery': best_battery,

@@ -6,6 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 from Trade_off.Quadcopter_swarm.weight_estimation_swarm import converge_gtow, m_payload
 from Trade_off.Quadcopter.propulsion_iteration import evaluate_motor_prop_combo, select_best_motor_and_prop
 from Trade_off.datasets import *
+from Trade_off.Quadcopter.weight_estimation import converge_gtow as converge_gtow_quadcopter
 """ITERATION"""
 
 """
@@ -70,6 +71,9 @@ def converge_gtow_and_prop(payloads, battery_capacity=None, n_cells=None, tol=1e
             print(f"Iteration {i+1} did not converge. Retrying...")
         # Final output summary
         motor = best_config['motor']
+        d_p = motor['prop_diameter']  # cm
+        gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow_quadcopter(m_pl, d_p=d_p, n_batteries=n_batteries, battery_override=battery_override, motor_override=motor)
+    
         """
         print(f"\n Final Optimized Configuration drone {idx +1}:")
         print("---------------------------------")

@@ -48,6 +48,9 @@ def converge_gtow_and_prop_tquad(m_pl, battery_capacity=None, n_cells=None, tol=
 
     # Final output summary
     motor = best_config['motor']
+    d_p = motor['prop_diameter']  # cm
+    gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow_tquad(m_pl, d_p=d_p, n_batteries=n_batteries, battery_override=battery_override, motor_override=motor)
+    
     """print("\n Final Optimized Configuration:")
     print("---------------------------------")
     print(f"Total GTOW          : {gtow:.2f} g")
