@@ -78,7 +78,7 @@ def select_best_motor_and_prop(GTOW, T_motor, motor_db=motor_db):
         motor_mass = motor['mass']
         motor_thrust = motor['thrust']
         
-        if motor_thrust >= T_motor and motor['power'] < min_power and propeller_diameter <= 222:
+        if motor_thrust >= T_motor and motor['power'] < min_power and propeller_diameter <= 16:
             min_power = motor['power']
             #print(f"Motor {motor['id']} - Thrust: {motor_thrust:.2f} g | Power: {motor['power']:.2f} W | Efficiency: {motor['efficiency']:.2f} | Mass: {motor_mass:.2f} g")
             if metric < best_metric:
@@ -114,7 +114,7 @@ def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, 
         #print(f"\n Outer Iteration {i+1}")
         
         # 1. GTOW estimation (with current propeller diameter)
-        gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity, n_batteries=n_batteries, motor_override=motor_guess, m0_guess=prev_gtow, battery_override=battery_override)
+        gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity, n_batteries=n_batteries, motor_override=motor_guess, battery_override=battery_override)
 
 
         #print(f"GTOW Estimate: {gtow:.2f} g")

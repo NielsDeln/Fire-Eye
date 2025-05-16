@@ -72,8 +72,7 @@ def converge_gtow(
     max_iter=100,
     battery_override=None,
     n_batteries=None,
-    motor_override=None,
-    m0_guess=None
+    motor_override=None
 ):
 
     m0_guess = m_pl / 0.4
