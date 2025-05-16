@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
     base_m_pl = m_payload(198, 19 , 230, 0, 0)  # g
     base_P_payload = 10+5+10  # watts
-    t_flight = 0.416  # hours
+    t_flight = 0.25  # hours
 
     # Margins: -20%, baseline, +20%
     margin_factors = [0.8, 1.0, 1.2]

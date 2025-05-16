@@ -135,7 +135,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
 if __name__ == "__main__":
     base_m_pl = m_payload(198, 19, 230, 0, 150)  # g
     base_P_payload = 65  # watts
-    t_flight = 0.416  # hours
+    t_flight = 0.25  # hours
 
     # Margins: -20%, baseline, +20%
     margin_factors = [0.8, 1.0, 1.2]
