@@ -8,7 +8,7 @@ from Trade_off.Quadcopter import propulsion_iteration
 from Trade_off.Quadcopter import weight_estimation
 from Trade_off.Quadcopter import power_iteration
 
-class TestPropulsionIteration(unittest.TestCase):
+class TestWeightEstimation(unittest.TestCase):
     def setUp(self):
         pass 
     
@@ -90,6 +90,11 @@ class TestPropulsionIteration(unittest.TestCase):
         expected_result = m_m + m_e + m_b + m_p + m_f + m_a + m_pl
         result = weight_estimation.GTOW(m_m, m_e, m_b, m_p, m_f, m_a, m_pl)
         self.assertAlmostEqual(result, expected_result)
+
+
+class TestPropulsionIteration(unittest.TestCase):
+    def setUp(self):
+        pass
     
     def test_evaluate_motor_prop_combo(self):
         mass_aircraft = 1000
@@ -131,6 +136,11 @@ class TestPropulsionIteration(unittest.TestCase):
         best_combo = propulsion_iteration.select_best_motor_and_prop(GTOW, T_motor, motor_db)
         self.assertIsNotNone(best_combo)
         self.assertEqual(best_combo['motor']['id'], 'motor2')
+
+
+class TestPowerIteration(unittest.TestCase):
+    def setUp(self):
+        pass
 
     def test_analyze_performance(self):
         drone = {
