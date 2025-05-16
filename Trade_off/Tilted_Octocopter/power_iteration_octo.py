@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from Trade_off.Tilted_Octocopter.propulsion_iteration_octo import converge_gtow_and_prop_octo
 from Trade_off.Tilted_Octocopter.weight_estimation_octo import  m_payload
@@ -41,27 +42,29 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
         #print(f"Estimated Power Use: {P_total:.2f} W")
 
         # Step 3: Required energy
-        E_required = P_total * t_flight  # Wh
+        E_required = P_total / 2 * t_flight  # Wh
 
-        """# Step 4: Find best battery from database
+        # Step 4: Find best battery from database
         best_battery = None
         min_mass = float('inf')
 
-        P_required = P_total   # or any specific power required for the system
+        P_required = P_total / 2  # or any specific power required for the system
         for b in battery_db:
             usable_energy = (b['voltage'] * b['capacity'] / 1000) * discharge_eff  # Wh
-
-            # Check if the battery can supply the required power (C-rating check)
             if b['C-rating'] is None:
                 continue
             max_discharge_power = b['capacity'] * b['C-rating'] * b['voltage'] / 1000  # in watts
-            if usable_energy >= E_required and b['mass'] < min_mass or max_discharge_power >= P_required:
-                best_battery = b
-                min_mass = b['mass']
+            print(f"Battery {b['id']} - Usable Energy: {usable_energy:.2f} Wh - Maximum discharge power: {max_discharge_power:.2f}W - Num needed: {math.ceil(E_required / usable_energy)} - Mass: {math.ceil(E_required / usable_energy)*b['mass']} g")
+
+            if usable_energy >= E_required and max_discharge_power >= P_required:
+            #if b["voltage"] >= motor["voltage"] and b["capacity"] >= motor["capacity"]:
+                if b['mass'] < min_mass:
+                    best_battery = b
+                    min_mass = b['mass']
         if not best_battery:
             raise RuntimeError("No suitable battery found in the database.")
         #print(f"Selected Battery: {best_battery['id']} | {best_battery['capacity']} mAh | {best_battery['cells']}S | {best_battery['mass']} g")
-"""
+
         # Step 5: Convergence check
         if abs(result['GTOW'] - prev_gtow) < tol:
             #print("\nSYSTEM CONVERGED")
@@ -69,14 +72,14 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
                 **result,
                 'P_total': P_total,
                 'E_required': E_required,
-                #'battery': best_battery
+                'battery': best_battery
             }
 
         if result['GTOW'] > max_gtow:
             #print(f"GTOW exceeds the cap of {max_gtow} g. Stopping the iteration.")
             raise RuntimeError("GTOW exceeded the maximum limit.")
         
-        #battery_guess = best_battery
+        battery_guess = best_battery
         prev_gtow = result['GTOW']
 
     raise RuntimeError("System did not converge after all iterations.")

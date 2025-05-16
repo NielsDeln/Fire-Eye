@@ -36,7 +36,7 @@ motor_db = [
 ]
 
 # battery database
-battery_db = [
+battery_db1 = [
     {'id': 'GAONENG GNB 4S 14.8V', 'type': 'Li-ion', 'cells': 4, 'capacity': 4000, 'mass': 434, 'voltage': 14.8, 
      'energy_capacity': 88.8, 'C-rating': 10, 'energy_density': 204.61},
     
@@ -70,13 +70,6 @@ battery_db = [
     {'id': 'CNHL LiPo 6s (1200mAh)', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 1200, 'mass': 204, 'voltage': 22.2, 
      'energy_capacity': 26.64, 'C-rating': 30, 'energy_density': 130.59},
 
-    # {'id': 'Tattu Low Temp 14500mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 14500, 'mass': 1961, 'voltage': 22.2, 
-    #  'energy_capacity': 321.9, 'C-rating': 3, 'energy_density': 164.15},  # mass > 1000, will be removed
-
-    # {'id': 'Tattu 80.4Ah 4S', ...},  # mass: 3500, removed
-    # {'id': 'Grepow 6S 17000mAh semi-solid', ...},  # mass: 1444, removed
-    # {'id': 'Tattu G-Tech 6S1P', ...},  # mass: 1532, removed
-
     {'id': 'Tattu G-Tech 4S 5200mAh', 'type': '4s lipo', 'cells': 4, 'capacity': 5200, 'mass': 436.5, 'voltage': 14.8, 
      'energy_capacity': 76.96, 'C-rating': 35, 'energy_density': 176.31},
 
@@ -99,3 +92,25 @@ battery_db = [
 
     {'id': 'Ovonic 6S 1300mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 1300, 'mass': 180, 'voltage': 22.2, 'C-rating': 130},
 ]
+
+battery_db = [
+    {'id': 'GAONENG GNB 4S 14.8V',     'type': 'Li-ion', 'cells': 4, 'capacity': 4000,  'mass': 292,   'voltage': 14.8, 'energy_capacity': 59.2,    'C-rating': 10,  'energy_density': 202.74},
+    {'id': 'GAONENG LiHV 6S 22.8V',     'type': 'LiPo',   'cells': 6, 'capacity': 1100,  'mass': 177,   'voltage': 22.8, 'energy_capacity': 25.08,   'C-rating': 160, 'energy_density': 141.69},
+    {'id': 'DJI TB55 (Matrice)',        'type': 'LiPo',   'cells': 6, 'capacity': 7660,  'mass': 885,   'voltage': 22.8, 'energy_capacity': 174.65,  'C-rating': None,'energy_density': 197.00},
+    {'id': 'DJI TB51 (Inspire 3)',      'type': 'LiPo',   'cells': 4, 'capacity': 4280,  'mass': 470,   'voltage': 23.1, 'energy_capacity': 98.87,   'C-rating': None,'energy_density': 210.00},
+    {'id': 'DJI Mavic 3',               'type': 'LiPo',   'cells': 4, 'capacity': 5000,  'mass': 335.5, 'voltage': 15.4, 'energy_capacity': 77.0,    'C-rating': None,'energy_density': 230.00},
+    {'id': 'DJI Air 3',                 'type': 'LiHV',   'cells': 4, 'capacity': 4241,  'mass': 267,   'voltage': 14.76,'energy_capacity': 62.60,   'C-rating': None,'energy_density': 234.00},
+    {'id': 'GRPB042104',                'type': 'LiHV',   'cells': 1, 'capacity': 7100,  'mass': 102,   'voltage': 4.4,  'energy_capacity': 31.24,   'C-rating': 5,   'energy_density': 306.00},
+    {'id': 'GRP8674133',                'type': 'Li-ion', 'cells': 1, 'capacity': 12000, 'mass': 176,   'voltage': 4.4,  'energy_capacity': 52.8,    'C-rating': 5,   'energy_density': 300.00},
+    {'id': 'DJI Air 3S',                'type': 'LiPo',   'cells': 4, 'capacity': 4276,  'mass': 247,   'voltage': 14.6, 'energy_capacity': 62.43,   'C-rating': None,'energy_density': 253.00},
+    {'id': 'CNHL LiPo 6S 1300mAh',      'type': 'LiPo',   'cells': 6, 'capacity': 1300,  'mass': 230,   'voltage': 22.2, 'energy_capacity': 28.86,   'C-rating': 100, 'energy_density': 125.48},
+    {'id': 'CNHL LiPo 6S 1200mAh',      'type': 'LiPo',   'cells': 6, 'capacity': 1200,  'mass': 216,   'voltage': 22.2, 'energy_capacity': 26.64,   'C-rating': 100, 'energy_density': 123.33},
+    # {'id': 'Tattu 6S 14500mAh',         'type': 'LiPo',   'cells': 6, 'capacity': 14500, 'mass': 1961,  'voltage': 22.2, 'energy_capacity': 321.9,   'C-rating': 30,  'energy_density': 164.15},
+    # {'id': 'Tattu 4S 80.4Ah',           'type': 'LiPo',   'cells': 4, 'capacity': 80400, 'mass': 3500,  'voltage': 14.8, 'energy_capacity': 1189.92,'C-rating': 5,   'energy_density': 339.98},
+    # {'id': 'Grepow 6S 17000mAh',        'type': 'LiPo',   'cells': 6, 'capacity': 17000, 'mass': 1432,  'voltage': 22.2, 'energy_capacity': 377.4,   'C-rating': 3,   'energy_density': 263.55},
+    # {'id': 'Tattu G-Tech 6S 12000mAh',  'type': 'LiPo',   'cells': 6, 'capacity': 12000, 'mass': 1532,  'voltage': 22.2, 'energy_capacity': 266.4,   'C-rating': 3,   'energy_density': 173.89},
+    {'id': 'Tattu G-Tech 4S 5200mAh',   'type': 'LiPo',   'cells': 4, 'capacity': 5200,  'mass': 436.5, 'voltage': 14.8, 'energy_capacity': 76.96,   'C-rating': 35,  'energy_density': 176.31},
+    {'id': 'Tattu 4S 6750mAh 25C',      'type': 'LiPo',   'cells': 4, 'capacity': 6750,  'mass': 620,   'voltage': 14.8, 'energy_capacity': 99.9,    'C-rating': 25,  'energy_density': 161.13}
+]
+
+

@@ -78,10 +78,10 @@ def select_best_motor_and_prop(GTOW, T_motor):
         motor_mass = motor['mass']
         motor_thrust = motor['thrust']
         
-        if motor_thrust >= T_motor and motor['power'] < min_power:
+        if motor_thrust >= T_motor and motor['power'] < min_power and propeller_diameter <= 16:
             min_power = motor['power']
             #print(f"Motor {motor['id']} - Thrust: {motor_thrust:.2f} g | Power: {motor['power']:.2f} W | Efficiency: {motor['efficiency']:.2f} | Mass: {motor_mass:.2f} g")
-            if metric < best_metric and propeller_diameter <= 288:
+            if metric < best_metric:
             #if motor['power'] < min_power:
                 min_power = motor['power']
                 best_metric = metric
@@ -105,7 +105,7 @@ def select_best_motor_and_prop(GTOW, T_motor):
 
 """Send prop diameter back to GTOW loop"""
 # Outer convergence loop: GTOW ↔ Prop ↔ GTOW
-def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, max_iter=10, battery_override=None):
+def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, max_iter=10, battery_override=None, n_batteries=None, motor_override=None):
     d_p = 10  # initial guess for prop diameter [cm]
     prev_gtow = 0
     motor_guess = None
@@ -114,7 +114,7 @@ def converge_gtow_and_prop(m_pl, battery_capacity=None, n_cells=None, tol=1e-2, 
         #print(f"\n Outer Iteration {i+1}")
         
         # 1. GTOW estimation (with current propeller diameter)
-        gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_p = converge_gtow(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity, motor_override=motor_guess, m0_guess=prev_gtow)
+        gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow(m_pl, d_p=d_p, battery_cells=n_cells if n_cells is not None else 4, battery_capacity=battery_capacity, n_batteries=n_batteries, motor_override=motor_guess, m0_guess=prev_gtow)
 
 
         #print(f"GTOW Estimate: {gtow:.2f} g")
