@@ -28,6 +28,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
             battery_capacity=battery_guess['capacity'],
             n_cells=battery_guess['cells'], 
             battery_override=battery_guess,
+            #n_batteries=n_batt
         )
 
         # Step 2: total power consumption
@@ -62,12 +63,24 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
             # Check if the battery can supply the required power (C-rating check)
 
     
-            if usable_energy >= E_required and max_discharge_power >= P_required:
+            """if usable_energy >= E_required and max_discharge_power >= P_required:
             #if b["voltage"] >= motor["voltage"] and b["capacity"] >= motor["capacity"]:
                 if b['mass'] < min_mass:
                     best_battery = b
                     min_mass = b['mass']
-                    n_batt = 1
+                    n_batt = 1"""
+            if usable_energy > 0 and max_discharge_power > 0:
+                n_needed_energy = math.ceil(E_required / usable_energy)
+                n_needed_power = math.ceil(P_required / max_discharge_power)
+                n_batt_temp = max(n_needed_energy, n_needed_power)
+                total_mass = n_batt_temp * b['mass']
+
+                if usable_energy * n_batt_temp >= E_required and max_discharge_power * n_batt_temp >= P_required:
+                    if total_mass < min_mass:
+                        best_battery = b
+                        min_mass = total_mass
+                        n_batt = n_batt_temp
+
         if not best_battery:
             try:
                 # Step 1: Get top 3 batteries with highest discharge power
@@ -92,6 +105,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
                         best_combination = b
                         best_battery = b
                         #n_batteries = n_batt
+                        n_batt = n_batt
                         min_total_mass = total_mass
 
                 if best_battery is not None:

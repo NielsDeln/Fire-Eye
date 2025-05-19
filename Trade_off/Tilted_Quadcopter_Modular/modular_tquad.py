@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from Trade_off.Tilted_Quadcopter.weight_estimation_tquad import *
 from Trade_off.Tilted_Quadcopter.propulsion_iteration_tquad import *
 from Trade_off.Tilted_Quadcopter.power_iteration_tquad import *
 
