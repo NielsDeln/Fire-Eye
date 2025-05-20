@@ -22,6 +22,7 @@ n_rotors = 4              # Total number of rotors
 blade_pitch = math.radians(16)          # Blade pitch angle in degrees
 
 # Inputs
+tot_width = 0.38 # outermost size of the quadcopter [m]
 R = 12.7/2 / 100              # Propeller radius [m]
 D = R * 2                 # Propeller diameter [m]
 R0 = 0.0013                # Root radius [m], hub clearance 1.3cm
@@ -32,6 +33,10 @@ V_forward = 7.2 / 3.6     # Cruise speed (m/s)
 L = 0.015                   # Distance from shaft to torque arm [m] small torque arm, consistent with the motor geometry.
 RPM = 27600               # RPM for 2207 2300KV @ 14.8
 Omega = RPM * 2 * np.pi / 60  # Angular velocity [rad/s]
+
+alt = 1.5 # altitude we want to fly at [m]
+max_v = 1.5
+
 
 # Blade element parameters
 n_elements = 100
@@ -94,7 +99,7 @@ T_total = T_single * n_rotors
 Q_total = Q_single * n_rotors
 
 #TILTED
-tilt_angle_deg = 30
+tilt_angle_deg = 45
 tilt_angle = math.radians(tilt_angle_deg)
 
 T_vertical_single = T_single * math.cos(tilt_angle)
@@ -180,87 +185,141 @@ print("=" * 60)
 
 
 #DOWNWASH CALCULATIONS
-def downwash_V2(T_single, D, z=0, tilt_angle=0): # one rotor thrust (kg * m / s^2), one rotor diameter (m), air density (kg/m^3), distance (vertically downwards) from rotor (m)
+def downwash_V(T_single, D, z=3.5355*D, tilt_angle=0): # one rotor thrust (kg * m / s^2), one rotor diameter (m), air density (kg/m^3), distance (vertically downwards) from rotor (m)
     A = math.pi/4 * D**2 # single rotor area
     T_vert = T_single * math.cos(tilt_angle)
     vi = math.sqrt(2 * T_vert / (rho * A))  # vertical induced velocity
-    vz = (10 / z) * vi * math.sqrt(A / (2 * math.pi))   # projected downwash
-    return vz, vi
+    velocity = (10 / z) * vi * math.sqrt(A / (2 * math.pi))   # projected downwash
+    return velocity
 
 
-def outwash_V(downwash_V2):
-    return (7.2 / 2) * downwash_V2 
+def outwash_V(vd, d=0): # d  = distance from rotor (m)
+    K = 1 if d <= D else (D/d)
+    return (7.2 / 2) * K * vd 
 
 
-def z_req(downwash_V2, D, max_v = 1.5): # max velocity at ground (default 1.5 m/s), one rotor diameter (m)
-    reduction_factor = max_v / downwash_V2 
-    z_req = (10/(2*math.sqrt(2))) * D * (1/reduction_factor)
-    return z_req
+# def z_req(vo, D): # outwash velocity, one rotor diameter, max velocity at ground (default 1.5 m/s)
+#     reduction_factor = max_v / vo
+#     z_req = (10/(2*math.sqrt(2))) * D * (1/reduction_factor)
+#     return z_req
 
 
-vz, vi = downwash_V2(T_single, D, z=3.5355*D)
-vz_tilted, vi_tilted = downwash_V2(T_single, D, z=3.5355*D, tilt_angle=tilt_angle)
+vi = downwash_V(T_single, D, z=3.5355*D)    # MAX downwash velocity, occurs at z = 3.5355*D
+vd = downwash_V(T_single, D, z=alt)         # downwash velocity AT altitude defined at start of this script
+vi_tilted = downwash_V(T_single, D, z=3.5355*D, tilt_angle=tilt_angle)
+vd_tilted = downwash_V(T_single, D, z=alt, tilt_angle=tilt_angle)
 
-outwash = outwash_V(vz)
-outwash_tilted = outwash_V(vz_tilted)
 
-z_rq = z_req(vz, D)
-z_tilted = z_req(vz_tilted, D)
+def plot_outwash_vs_dis():
+    z_vals = np.linspace(3.5355*D, 3, 20)         # vertical distance increments from rotor [m]
+    print(z_vals)
+    vd_vals = []
+    for z_val in z_vals:
+        vd_vals.append(downwash_V(T_single, D, z=z_val))   # downwash velocity at distance from rotor
+
+
+    dis = np.linspace(0, 5, 6)             # horizontal distance increments from rotor  [m]
+    outwash_vals = []
+
+    for vd_val in vd_vals:
+        temp = []
+        for d in dis:  
+            temp.append(outwash_V(vd_val, d*D))   # outwash velocity at distance from rotor
+        outwash_vals.append(temp)
+
+
+    for outwash_at_alt in outwash_vals:
+        print(outwash_at_alt)
+        plt.plot(dis, outwash_at_alt, label=f"z = {z_vals[outwash_vals.index(outwash_at_alt)]:.2f} m")
+
+
+    plt.axhline(y=1.5, color='green', linestyle='--', label="Max Ground Wind Velocity")
+
+    plt.xlabel("Distance from Rotor Axis (Center) [# of Rotor Diameters]")
+    plt.ylabel("Outwash Velocity [m/s]")
+    plt.title("Outwash Velocity vs Distance from Rotor at different flight altitudes")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+
+plot_outwash_vs_dis()
+
+vo = outwash_V(vd, 0) # MAXIMUM outwash velocity at ground when flying at z = alt
+disturbance_dist = (7.2 / 2) * (D / max_v) * vd # horizontal distance around rotor axis where vo > 1/5
+disturbance_area = (tot_width + disturbance_dist * 2 - D) ** 2
+
+
+# z_rq = z_req(vi, D)
+# z_tilted = z_req(vi_tilted, D)
 
 print("\n======== DOWNWASH PERFORMANCE RESULTS ========")
 print(f"{'Parameter':<45} {'Non-Tilted':>15} {'Tilted (' + str(tilt_angle_deg) + '°)':>15}")
 print("-" * 75)
-print(f"{'Induced Velocity (vi) why diff other[m/s]':<45} {vi:>15.2f} {vi_tilted:>15.2f}")
-print(f"{'Projected Downwash Velocity (vz) [m/s]':<45} {vz:>15.2f} {vz_tilted:>15.2f}")
-print(f"{'Outwash Velocity [m/s]':<45} {outwash:>15.2f} {outwash_tilted:>15.2f}")
-print(f"{'Required Altitude for 1.5 m/s Ground Wind [m]':<45} {z_rq:>15.2f} {z_tilted:>15.2f}")
+print(f"{'Max Downwash Velocity (vi)[m/s]':<45} {vi:>15.2f} {vi_tilted:>15.2f}")
+print(f"{'Downwash Velocity (z = ' + str(alt) + 'm) (vz) [m/s]':<45} {vd:>15.2f} {vd_tilted:>15.2f}")
+print(f"{'Outwash Velocity (z = ' + str(alt) + 'm) (vo) [m/s]':<45} {vo:>15.2f}")
+print(f"{'Hoz. dist. around rotor where vo > ' + str(max_v) + 'm/s [m]':<45} {disturbance_dist:>15.2f}")
+print(f"{'Disturbance Area Estimate [m^2]':<45} {disturbance_area:>15.2f}")
+# print(f"{'Required Altitude for 1.5 m/s Ground Wind [m]':<45} {z_rq:>15.2f} {z_tilted:>15.2f}")
 print("=" * 75)
 
 
 
+
 # Plotting the effect of tilt angle on poop
-tilt_angles = np.linspace(0, 45, 100)
-T_vert_tot_list, vi_list, vz_list, outwash_list, zreq_list = [], [], [], [], []
+def plot_tilt_effect():
+    tilt_angles = np.linspace(0, 45, 100)
+    T_vert_tot_list, vi_list, vz_list, outwash_list, zreq_list = [], [], [], [], []
 
-for tilt in tilt_angles:
-    T_vertical_total = T_single * math.cos(math.radians(tilt)) * n_rotors   
-    vi,  vz = downwash_V2(T_single, D, z=3.5355*D, tilt_angle=math.radians(tilt))
-    out = outwash_V(vi)
-    zreq = z_req(vi, D)
+    for tilt in tilt_angles:
+        T_vertical_total = T_single * math.cos(math.radians(tilt)) * n_rotors   
+        vi = downwash_V(T_single, D, z=3.5355*D, tilt_angle=math.radians(tilt))
+        vz = downwash_V(T_single, D, z=alt, tilt_angle=math.radians(tilt))
+        out = outwash_V(vi)
+        # zreq = z_req(vi, D)
 
-    T_vert_tot_list.append(T_vertical_total)
-    vi_list.append(vi)
-    vz_list.append(vz if vz else 0)
-    outwash_list.append(out)
-    zreq_list.append(zreq)
+        T_vert_tot_list.append(T_vertical_total)
+        vi_list.append(vi)
+        vz_list.append(vz if vz else 0)
+        outwash_list.append(out)
+        # zreq_list.append(zreq)
 
-plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(12, 6))
 
-plt.subplot(2, 2, 1)
-plt.plot(tilt_angles, vz_list, label="Downwash (vz)", color='purple')
-plt.xlabel("Tilt Angle (deg)")
-plt.ylabel("Downwash velocity at z = 3.5355D (m/s)")
-plt.grid(True)
+    plt.subplot(2, 2, 1)
+    plt.plot(tilt_angles, vz_list, label="Downwash (vi)", color='purple')
+    plt.xlabel("Tilt Angle (deg)")
+    plt.ylabel("Max Downwash velocity (m/s)")
+    plt.grid(True)
 
-plt.subplot(2, 2, 2)
-plt.plot(tilt_angles, outwash_list, label="Outwash Velocity", color='magenta')
-plt.xlabel("Tilt Angle (deg)")
-plt.ylabel("Outwash velocity (m/s)")
-plt.grid(True)
+    plt.subplot(2, 2, 2)
+    plt.plot(tilt_angles, vz_list, label="Downwash (vz)", color='orange')
+    plt.xlabel("Tilt Angle (deg)")
+    plt.ylabel("Downwash velocity at z = " + str(alt) + "m (m/s)")
+    plt.grid(True)
 
-plt.subplot(2, 2, 3)
-plt.plot(tilt_angles, zreq_list, label="Required Altitude", color='orange')
-plt.xlabel("Tilt Angle (deg)")
-plt.ylabel("z for max ground wind = 1.5 m/s (m)")
-plt.grid(True)
+    plt.subplot(2, 2, 3)
+    plt.plot(tilt_angles, outwash_list, label="Outwash Velocity", color='magenta')
+    plt.xlabel("Tilt Angle (deg)")
+    plt.ylabel("Outwash velocity (m/s)")
+    plt.grid(True)
 
-plt.subplot(2, 2, 4)
-plt.plot(tilt_angles, T_vert_tot_list, label="Total Vertical Thrust", color='pink')
-plt.xlabel("Tilt Angle (deg)")
-plt.ylabel("Total Vertical Thrust (N)")
-plt.grid(True)
+    # plt.subplot(2, 2, 3)
+    # plt.plot(tilt_angles, zreq_list, label="Required Altitude", color='orange')
+    # plt.xlabel("Tilt Angle (deg)")
+    # plt.ylabel("z for max ground wind = 1.5 m/s (m)")
+    # plt.grid(True)
 
-plt.tight_layout()
-plt.suptitle("Effect of Tilt Angle on Rotor Flow Characteristics", fontsize=14, y=1.05)
-plt.show()
+    plt.subplot(2, 2, 4)
+    plt.plot(tilt_angles, T_vert_tot_list, label="Total Vertical Thrust", color='pink')
+    plt.xlabel("Tilt Angle (deg)")
+    plt.ylabel("Total Vertical Thrust (N)")
+    plt.grid(True)
+
+    plt.tight_layout()
+    plt.suptitle("Effect of Tilt Angle on Rotor Flow Characteristics", fontsize=14, y=1.05)
+    plt.show()
+
+plot_tilt_effect()
 
