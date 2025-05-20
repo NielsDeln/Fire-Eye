@@ -122,7 +122,16 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
         #print(f"Selected Battery: {best_battery['id']} | {best_battery['capacity']} mAh | {best_battery['cells']}S | {best_battery['mass']} g")
         motor_guess = result["motor"]
         d_p = motor_guess['prop_diameter']  # cm
-        gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow(m_pl, d_p=d_p, n_batteries=n_batt, battery_override=best_battery, motor_override=motor_guess)
+        gtow, T_max, T_motor, motor, propeller, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow_and_prop(m_pl, battery_capacity=battery_guess['capacity'], n_cells=battery_guess['cells'],  battery_override=battery_guess, motor_override=motor_guess,n_batteries=n_batt)
+        """gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow(
+            m_pl,
+            d_p=d_p,
+            battery_cells=best_battery['cells'],
+            battery_capacity=best_battery['capacity'],
+            n_batteries=n_batt,
+            battery_override=best_battery,
+            motor_override=motor_guess
+        )"""
         #prev_gtow = gtow
         # Step 5: Convergence check
         if abs(result['GTOW'] - prev_gtow) < tol:
@@ -132,7 +141,9 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
                 "GTOW": gtow,
                 "T_max": T_max,
                 "T_motor": T_motor,
-                "m_motor": m_m,
+                #'motor': motor,
+                #'propeller': {'diameter': motor['prop_diameter']},
+                #"m_motor": m_m,
                 "m_ESC": m_e,
                 "m_battery": m_b,
                 "m_propeller": m_p,
@@ -142,7 +153,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
                 'P_total': P_total,
                 'E_required': E_required,
                 'battery': best_battery,
-                "m_battery": best_battery['mass'] * n_batt,
+                #"m_battery": best_battery['mass'] * n_batt,
                 "usable_energy": (best_battery['voltage'] * best_battery['capacity'] / 1000) * discharge_eff * n_batt,
                 "power_discharge": best_battery['capacity'] * best_battery['C-rating'] * best_battery['voltage'] / 1000 * n_batt,
             }
@@ -210,14 +221,14 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=7.2, rho=1.225, til
 
     return {
         'T/W': T_W,
-        'Range (R)': range_km,
-        'Flight Duration': flight_duration_hr,
-        'Cruising Speed (V_crs)': cruise_speed_kmh,
+        'Range (R) m': range_km*1000,
+        'Flight Duration min': flight_duration_hr*60,
+        'Cruising Speed (V_crs) km/h': cruise_speed_kmh,
         'Disk Loading downwash': disk_loading,
         '1/W_takeoff': inverse_W_takeoff,
-        'Power Plant Parameter (N_take-off)': power_hp,
-        'Downwash velocity': V2,
-        "Power to hover": P_hover,
+        'Power Plant Parameter (N_take-off) w': power_hp,
+        'Downwash velocity m/s': V2,
+        "Power to hover W": P_hover,
     }
 
 def print_final_summary(result, performance):

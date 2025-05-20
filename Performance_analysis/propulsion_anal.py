@@ -10,7 +10,11 @@ import matplotlib.pyplot as plt
 g = 9.81                 # Acceleration due to gravity (m/s^2)
 rho = 1.225              # Air density (kg/m^3)
 mu = 1.8247e-5           # Dynamic viscosity (Pa.s)
-vf = 2                   # Freestream velocity (m/s)
+vf = 13                   # Freestream velocity (m/s) assumed to be 0 for hover
+v_gust = 5           # Gust velocity (m/s) max from requirements
+v_g = v_gust + vf
+
+
 alpha_deg = 5           # Angle of attack in degrees
 alpha = math.radians(alpha_deg)  # Convert to radians
 n_blades = 2              # Number of blades per rotor
@@ -33,12 +37,12 @@ Omega = RPM * 2 * np.pi / 60  # Angular velocity [rad/s]
 n_elements = 100
 r = np.linspace(R0, R, n_elements)
 dr = (R - R0) / n_elements
-W = np.sqrt((Omega * r)**2 + V_up**2)  # Relative velocity at each blade element
-
+W = np.sqrt((Omega * r)**2 + vf**2)  # Relative velocity at each blade element
+W_gust = np.sqrt((Omega * r)**2 + v_g**2)
 
 
 # calculate the Reynolds number
-def Re(vf , rho , b, mu):
+def Re(vf , rho , R, b, mu):
     """  
     b_tip = b - b_root  
     l = b_root + 0.75 * (b_tip - b_root) # chord at 75% R
@@ -50,11 +54,16 @@ def Re(vf , rho , b, mu):
     l = b_root + 0.75 * (b_tip - b_root) # chord at 75% R 
     r_75 = 0.75 * R
     V_local = Omega * r_75  # m/s
-    return rho * V_local * l / mu
+    v_eff = math.sqrt(vf**2 + V_local**2)
+
+    return rho * v_eff * l / mu
 
 
-Re = Re(vf, rho, R, mu)  # Reynolds number at the tip of the blade
-print(f"Reynolds number: {Re:.2f}")
+Re_hover = Re(vf , rho , R, b,  mu)  # Reynolds number at the tip of the blade
+print(f"Reynolds number: {Re_hover:.2f}") # 101137.11
+
+Re_gust = Re(v_g , rho , R, b,  mu)  # Reynolds number at the tip of the blade
+print(f"Reynolds number with gust: {Re_gust:.2f}") # 104493.82
 
 # Retrieve Cl and Cd from airfoil data (based on Re)  manually look them up from airfoiltools.com
 # max cl/cd 36.7 at α=5°
@@ -62,10 +71,15 @@ Cd = 0.01674              # Drag coefficient at alpha=5°, Re~100k
 Cl = 0.6141               # Lift coefficient at alpha=5°, Re~100k
 
 
+
 # Aerodynamic forces
 S = b * dr                   # local surface area
 dY = 0.5 * Cl * rho * W**2 * S
 dX = 0.5 * Cd * rho * W**2 * S
+
+dY_gust = 0.5 * Cl * rho * W_gust**2 * S
+dX_gust = 0.5 * Cd * rho * W_gust**2 * S
+
 
 # Thrust and Torque per blade
 epsilon = blade_pitch - alpha
@@ -88,6 +102,14 @@ T_horizontal_single = T_single * math.sin(tilt_angle)
 T_vertical_total =  T_vertical_single * n_rotors
 T_horizontal_total = T_horizontal_single * n_rotors
 T_net_tilted = np.sqrt(T_vertical_total**2 + T_horizontal_total**2)
+
+# GUST
+dT_gust = np.cos(epsilon) * dY_gust - np.sin(epsilon) * dX_gust
+dQ_gust = np.sin(epsilon) * dY_gust - np.cos(epsilon) * dX_gust
+T_single_gust = np.sum(dT_gust)
+T_vertical_single_gust = T_single_gust * math.cos(tilt_angle)
+T_horizontal_single_gust = T_single_gust * math.sin(tilt_angle)
+Q_single_gust = np.sum(dQ_gust)
 
 # Induced velocity
 def calc_Vi(T_single, R, R0, g=9.81, a=0.99): #a: loss of T correction factor
@@ -135,8 +157,15 @@ print(f"{'Vertical Thrust Total[N]':<30} {'—':>15} {T_vertical_total:>15.2f}")
 print(f"{'Horizontal Thrust Total [N]':<30} {'—':>15} {T_horizontal_total:>15.2f}")
 print("-" * 60)
 
+
 print(f"{'Torque per rotor [Nm]':<30} {Q_single:>20.2f} ")
 print(f"{'Total Torque (net) [Nm]':<30} {Q_total:>20.2f} ")
+print("-" * 60)
+
+print(f"{'Thrust for a rotor with gust [N]':<30} {T_single_gust:>15.2f} {T_vertical_single_gust:>15.2f}")
+print(f"{'Thrust for a rotor with gust [g]':<30} {T_single_gust *1000 / 9.81:>15.2f} {T_vertical_single_gust *1000 / 9.81:>15.2f}")
+print(f"{'Torque for a rotor with gust [Nm]':<30} {Q_single_gust:>15.2f}")
+
 print("-" * 60)
 
 print(f"{'Induced Velocity Vi [m/s]':<30} {Vi:>15.2f} {Vi_tilted:>15.2f}")
