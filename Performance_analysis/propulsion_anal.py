@@ -99,7 +99,7 @@ T_total = T_single * n_rotors
 Q_total = Q_single * n_rotors
 
 #TILTED
-tilt_angle_deg = 45
+tilt_angle_deg = 30
 tilt_angle = math.radians(tilt_angle_deg)
 
 T_vertical_single = T_single * math.cos(tilt_angle)
