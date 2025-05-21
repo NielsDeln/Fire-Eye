@@ -43,22 +43,8 @@ CFRP = {
     "sigma_Comp": 1680e6,         # Pa  (ultimate compressive strength)
     "sigma_Tens": 1620e6          # Pa  (ultimate tensile strength)
 }
-GF_PA6_30 = {
-    "rho":          1360,      # kg/m^3  
-    "E":            9.6e9,     # Pa      (tensile modulus) 
-    "G":            3.5e9,     # Pa      (≈ E / 2(1+ν), ν≈0.38)
-    "sigma_UTS":    185e6,     # Pa      (stress at break) 
-    "sigma_y":      None,      # PA-6 shows no distinct yield before break
-    "tau_allow":    None,      # shear allowables rarely published for short-GF
-    "Tg":           None,      # semicrystalline; use Tm & HDT instead
-    "T_melt":       220,       # °C      :contentReference
-    "HDT_1.8MPa":   210,       # °C      heat-deflection temp 
-    "alpha_parallel": 25e-6,   # 1/K     CLTE parallel to flow 
-    "notes": (
-        "Short-fibre injection grade; properties nearly isotropic. "
-        "Values drop ~35 % in high-humidity (conditioned) state."
-    )
-}
+
+
 def calc_nvm(L=0.17889, h=3.175, Tz=-4.429, Ty=-7.6716, Wr=1.6527888, PLOT=True):
     """
     Cantilever beam (drone arm) with three tip-loads:
@@ -116,7 +102,7 @@ def calc_mmoi_rec(b, h, t,):
     c = h / 2culate the moment of inertia of a rectangular beam
     """
     I_rec = (b * h**3) / 12 - (b - 2*t) * (h - 2*t)**3 / 12
-    A = b * h - (b - t) * (h - t)
+    A = b * h - (b - 2*t) * (h - 2*t)
     return I_rec, A
 
 
@@ -181,7 +167,7 @@ if __name__ == "__main__":
     P = Wr + Ty # Total load on the beam in Newtons
 
     # Plot the NVM diagrams
-    N, V, M = calc_nvm(L, h, Tz, Ty, Wr, PLOT=True)
+    N, V, M = calc_nvm(L, h, Tz, Ty, Wr, PLOT=False)
 
     # Define the dimensions
     b = 0.01
@@ -190,12 +176,13 @@ if __name__ == "__main__":
 
     rect_dict = {}
     circ_dict = {} 
+    # , 0.002, 0.004, 0.006
     # Test the moment of inertia calculation for different wall thicknesses
-    for material in ["CFRP", "Al2024_T3", "CF_PEEK", "GF_PA6_30"]:
-        E = CFRP["E_tens"] if material == "CFRP" else Al2024_T3["E"] if material == "Al2024_T3" else CF_PEEK["E_long"] if material == "CF_PEEK" else GF_PA6_30["E"]
-        rho = CFRP["rho"] if material == "CFRP" else Al2024_T3["rho"] if material == "Al2024_T3" else CF_PEEK["rho"] if material == "CF_PEEK" else GF_PA6_30["rho"]
+    for material in ["CFRP", "Al2024_T3", "CF_PEEK"]:
+        E = CFRP["E_tens"] if material == "CFRP" else Al2024_T3["E"] if material == "Al2024_T3" else CF_PEEK["E_long"]
+        rho = CFRP["rho"] if material == "CFRP" else Al2024_T3["rho"] if material == "Al2024_T3" else CF_PEEK["rho"]
         for beam in ["rect", "circ"]:
-            for t in [0.001, 0.002, 0.004, 0.006]:
+            for t in [0.001]:
                 sub_dict = {}
 
                 # Calculate moment of inertia and area
@@ -250,34 +237,15 @@ if __name__ == "__main__":
                 print(f"  Mass: {data['Mass'] * 1e3:.3f} gg")
                 print("==========================")
     
-        
-    # plt.figure(figsize=(6,3))
-    # for t, data in rect_dict.items():
-    #     plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
-    # plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
-    # plt.title("Bending Displacement of Rectangular Beam")
-    # plt.xlabel("Beam length x  [m]")
-    # plt.ylabel("Displacement [m]")
-    # plt.gca().invert_yaxis()
-    # plt.legend()
-    # plt.grid(False)
-    # plt.show()
-
-    # plt.figure(figsize=(6,3))
-    # for t, data in circ_dict.items():
-    #     plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
-    # plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
-    # plt.title("Bending Displacement of Circular Beam")
-    # plt.xlabel("Beam length x  [m]")
-    # plt.ylabel("Displacement [m]")
-    # plt.gca().invert_yaxis()
-    # plt.legend()
-    # plt.grid(False)
-    # plt.show()
-    # for t, data in rect_dict.items():
-    #     print(f"Maximum stress state for rectangular beam with t={t:.3f} m: {np.max(data['Max Stress State'])*10**(-6):.3f} MPa")
-    #     print(f"Minimum stress state for rectangular beam with t={t:.3f} m: {np.min(data['Min Stress State'])*10**(-6):.3f} MPa")
-    # print("==========================")
-    # for t, data in circ_dict.items():
-    #     print(f"Maximum stress state for circular beam with t={t:.3f} m: {np.max(data['Max Stress State'])*10**(-6):.3f} MPa")
-    #     print(f"Minimum stress state for circular beam with t={t:.3f} m: {np.min(data['Min Stress State'])*10**(-6):.3f} MPa")
+    for beam in ["rect", "circ"]:
+        plt.figure(figsize=(6,3))
+        for t, data in (rect_dict if beam == "rect" else circ_dict).items():
+            plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
+        plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
+        plt.title("Bending Displacement of Rectangular Beam")
+        plt.xlabel("Beam length x  [m]")
+        plt.ylabel("Displacement [m]")
+        plt.gca().invert_yaxis()
+        plt.legend()
+        plt.grid(False)
+        plt.show()
