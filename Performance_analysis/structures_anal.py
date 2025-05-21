@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 # -------------------------------------------------------------
 CF_PEEK = {
     # PHYSICAL
-    "rho"           : 1.550,           # density ρ  [kg/m³]
+    "rho"           : 1550,           # density ρ  [kg/m³]
 
     # ELASTIC MODULI  (use the one that matches your lay-up)
     "E_long"        : 150 * 10**9,           # UD 0° modulus  [Pa]
@@ -19,29 +19,47 @@ CF_PEEK = {
     "sigma_t_allow" : 2.5 *10** 8,           # tensile allow (0°)  [Pa]
     "sigma_c_allow" : 2.0 *10** 8,           # compressive allow (0°) [Pa]
     "tau_allow"     : 9.0 *10** 7,           # in-plane shear allow  [Pa]
-
-    # THERMAL
-    "Tg"            : 143,             # glass-transition temperature  [°C]
-    "Tservice_max"  : 250,             # recommended continuous service [°C]
-    "alpha_long"    : 0.5 *10** -6,          # CTE along fibre  [1/K]
-
-    # TOUGHNESS / IMPACT
-    "Charpy_unnotched" : 80 *10** 3,         # [J/m²]
-
-    # PROCESSING (thermoplastic)
-    "T_melt"        : 380,             # melting / processing temp [°C]
-    "weldable"      : True,            # thermoplastic welding possible
-
-    # NOTES / SOURCE
-    "notes" : (
-        "Values typical for pultruded or thermo-stamped CF/PEEK with "
-        "~55 % fibre volume.\n"
-        "For short-fibre (30 wt %) PEEK pellets use: "
-        "E ≈ 9-25 GPa, simga ≈ 150-250 MPa, rho ≈ 1 410 kg/m³."
-    )
 }
 
-def calc_nvm(L=0.08839, Tz=-4.429, Ty=-7.6716, Wr=1.6527888, PLOT=True):
+# 2024-T3 aluminium (sheet) – key room-temperature properties
+Al2024_T3 = {
+    "rho": 2780,              # kg/m^3
+    "E": 73e9,                    # Pa  (Young’s modulus)
+    "G": 27e9,                    # Pa  (shear modulus)
+    "melting_range": (502, 638),  # °C  (solidus, liquidus)
+    "Tg": None,                   # not applicable – fully crystalline
+    "sigma_y": 345e6,             # Pa  (0.2 % yield strength)
+    "sigma_UTS": 483e6            # Pa  (ultimate tensile strength)
+}
+
+# CFRP (carbon-fibre reinforced polymer) – key properties
+CFRP = {
+    "rho": 1560,              # kg/m^3
+    "E_flex": 4.1e9,              # Pa  (Flexural modulus)
+    "E_tens": 131e9,              # Pa  (Tensile modulus 0°)
+    "E_comp": 128e9,              # Pa  (Compressive modulus 0°)
+    "G": 128e9,                   # Pa  (shear modulus)
+    "Tg": 194,                    # °C  (glass-transition temperature)
+    "sigma_Comp": 1680e6,         # Pa  (ultimate compressive strength)
+    "sigma_Tens": 1620e6          # Pa  (ultimate tensile strength)
+}
+GF_PA6_30 = {
+    "rho":          1360,      # kg/m^3  
+    "E":            9.6e9,     # Pa      (tensile modulus) 
+    "G":            3.5e9,     # Pa      (≈ E / 2(1+ν), ν≈0.38)
+    "sigma_UTS":    185e6,     # Pa      (stress at break) 
+    "sigma_y":      None,      # PA-6 shows no distinct yield before break
+    "tau_allow":    None,      # shear allowables rarely published for short-GF
+    "Tg":           None,      # semicrystalline; use Tm & HDT instead
+    "T_melt":       220,       # °C      :contentReference
+    "HDT_1.8MPa":   210,       # °C      heat-deflection temp 
+    "alpha_parallel": 25e-6,   # 1/K     CLTE parallel to flow 
+    "notes": (
+        "Short-fibre injection grade; properties nearly isotropic. "
+        "Values drop ~35 % in high-humidity (conditioned) state."
+    )
+}
+def calc_nvm(L=0.17889, h=3.175, Tz=-4.429, Ty=-7.6716, Wr=1.6527888, PLOT=True):
     """
     Cantilever beam (drone arm) with three tip-loads:
         Tz : horizontal (rightwards positive) tip force  [N]
@@ -54,7 +72,7 @@ def calc_nvm(L=0.08839, Tz=-4.429, Ty=-7.6716, Wr=1.6527888, PLOT=True):
     # ---- fixed-end reactions ----
     Rz = Tz                 # horizontal reaction at root
     Ry = Ty - Wr            # vertical reaction  (↑ if +ve)
-    Mr = (Ty - Wr) * L      # reaction moment   (counter-clockwise +)
+    Mr = (Ty - Wr) * L + h * Tz    # reaction moment   (counter-clockwise +)
 
     # discretise beam for plotting
     x  = np.linspace(0, L, 400)
@@ -145,92 +163,93 @@ def calc_normal_stress(N, A):
     return N / A
 
 
-def calc_mass(A, L, rho):
+def calc_mass(A, L, h, rho):
     """
     Calculate the mass of a beam
     """
-    return A * L * rho
+    return A * L * rho + A * h * rho
 
 
 if __name__ == "__main__":
-    L = 0.1626345597 # Length of the beam in meters
+    L = 0.17889 # Length of the beam in meters
+    h = 0.005175  # Height of the beam in meters
     x = np.linspace(0, L, 100) # Discretize the beam length
     Tz = -4.429 # Horizontal force in Newtons
     Ty = -7.6716 # Vertical force in Newtons
     Wr = 1.6527888 # Motor + ESC + propellor weight in Newtons
-    E = 70e9 # Young's modulus in Pascals (for aluminum)
 
     P = Wr + Ty # Total load on the beam in Newtons
 
     # Plot the NVM diagrams
-    N, V, M = calc_nvm(L, Tz, Ty, Wr, PLOT=False)
+    N, V, M = calc_nvm(L, h, Tz, Ty, Wr, PLOT=True)
 
     # Define the dimensions
-    b = 0.0075
-    h = 0.0075
-    d0 = 0.0075
+    b = 0.01
+    h = 0.01
+    d0 = 0.01
 
     rect_dict = {}
     circ_dict = {} 
-    # 0.001, 0.002, 0.006, 0.01]
     # Test the moment of inertia calculation for different wall thicknesses
-    for t in [0.004]:
-        rect_sub_dict = {}
-        # Rectangular beam
-        I, A = calc_mmoi_rec(b, h, t)
-        rect_sub_dict["MMOI"] = I
+    for material in ["CFRP", "Al2024_T3", "CF_PEEK", "GF_PA6_30"]:
+        E = CFRP["E_tens"] if material == "CFRP" else Al2024_T3["E"] if material == "Al2024_T3" else CF_PEEK["E_long"] if material == "CF_PEEK" else GF_PA6_30["E"]
+        rho = CFRP["rho"] if material == "CFRP" else Al2024_T3["rho"] if material == "Al2024_T3" else CF_PEEK["rho"] if material == "CF_PEEK" else GF_PA6_30["rho"]
+        for beam in ["rect", "circ"]:
+            for t in [0.001, 0.002, 0.004, 0.006]:
+                sub_dict = {}
 
-        if np.abs(Tz) > calc_buckling_load(E, I, L):
-            print("The beam is buckling")
-            rect_sub_dict["Buckling"] = True
-            continue
-        else: 
-            rect_sub_dict["Buckling"] = False
-        delta, delta_y, slope = calc_bending_displacement(P, I, L, E)
-        rect_sub_dict["Max Displacement"] = delta
-        rect_sub_dict["Slope"] = slope
-        rect_sub_dict["Displacement"] = delta_y
-        norm_stress = calc_normal_stress(N, A)
-        comp_bend_stress = calc_bending_stress(M, I, d0/2)
-        tens_bend_stress = calc_bending_stress(M, I, -d0/2)
-        rect_sub_dict["Max Stress State"] = np.max(tens_bend_stress + norm_stress)
-        rect_sub_dict["Min Stress State"] = np.min(comp_bend_stress + norm_stress)
-        rect_sub_dict["Mass"] = calc_mass(A, L, CF_PEEK["rho"])
-        rect_dict[t] = rect_sub_dict
+                # Calculate moment of inertia and area
+                if beam == "rect":
+                    # Rectangular beam
+                    I, A = calc_mmoi_rec(b, h, t)
+                else:
+                    # Circular beam
+                    I, A = calc_mmoi_circ(d0, t)
+                sub_dict["MMOI"] = I
 
-        # Circular beam
-        circ_sub_dict = {}
-        I, A = calc_mmoi_circ(d0, t)
-        circ_sub_dict["MMOI"] = I
+                # Calculate buckling load of the beam
+                sub_dict["Buckling"] = calc_buckling_load(E, I, L)
 
-        if np.abs(Tz) > calc_buckling_load(E, I, L):
-            print("The beam is buckling")
-            circ_sub_dict["Buckling"] = True
-        else: 
-            circ_sub_dict["Buckling"] = False
-        delta, delta_y, slope = calc_bending_displacement(P, I, L, E)
-        circ_sub_dict["Max Displacement"] = delta
-        circ_sub_dict["Slope"] = slope
-        circ_sub_dict["Displacement"] = delta_y
-        norm_stress = calc_normal_stress(N, A)
-        comp_bend_stress = calc_bending_stress(M, I, h/2)
-        tens_bend_stress = calc_bending_stress(M, I, -h/2)
-        circ_sub_dict["Max Stress State"] = np.max(tens_bend_stress + norm_stress)
-        circ_sub_dict["Min Stress State"] = np.min(comp_bend_stress + norm_stress)
-        circ_sub_dict["Mass"] = calc_mass(A, L, CF_PEEK["rho"])
-        circ_dict[t] = circ_sub_dict
+                # Calculate bending displacement and slope
+                delta, delta_y, slope = calc_bending_displacement(P, I, L, E)
+                sub_dict["Max Displacement"] = delta
+                sub_dict["Slope"] = slope
+                sub_dict["Displacement"] = delta_y
+
+                # Calculate normal and bending stress
+                norm_stress = calc_normal_stress(N, A)
+                if beam == "rect":
+                    comp_bend_stress = calc_bending_stress(M, I, h/2)
+                    tens_bend_stress = calc_bending_stress(M, I, -h/2)
+                else:
+                    comp_bend_stress = calc_bending_stress(M, I, d0/2)
+                    tens_bend_stress = calc_bending_stress(M, I, -d0/2)
+                sub_dict["Max Stress State"] = np.max(tens_bend_stress + norm_stress)
+                sub_dict["Min Stress State"] = np.min(comp_bend_stress + norm_stress)
+
+                # Calculate mass of the beam
+                sub_dict["Mass"] = calc_mass(A, L, h, rho)
+
+                # Store the results in the dictionary
+                if beam == "rect":
+                    rect_dict[t] = sub_dict
+                else:
+                    circ_dict[t] = sub_dict
+        
+        # Print the results
+        for beam in ["rect", "circ"]:
+            for t, data in (rect_dict if beam == "rect" else circ_dict).items():
+                print(f"{beam} beam with t={t:.3f} m:")
+                print(f"  Material: {material}")
+                print(f"  Moment of Inertia: {data['MMOI'] * 1e12:.3e} mm^4")
+                print(f"  Buckling Load: {data['Buckling']:.3e} N")
+                print(f"  Max Displacement: {np.max(data['Max Displacement']) * 1e3:.3e} mm")
+                print(f"  Slope: {data['Slope']:.3e} rad")
+                print(f"  Max Stress State: {np.max(data['Max Stress State']) * 10**(-6):.3f} MPa")
+                print(f"  Min Stress State: {np.min(data['Min Stress State']) * 10**(-6):.3f} MPa")
+                print(f"  Mass: {data['Mass'] * 1e3:.3f} gg")
+                print("==========================")
     
-    print(f'Moment of inertia of rectangular beam: {rect_dict[0.004]["MMOI"]*10**(12)} mm^4')
-    print(f'Moment of inertia of circular beam: {circ_dict[0.004]["MMOI"]*10**(12)} mm^4')
-    print(f'Maximum displacement of rectangular beam: {np.max(rect_dict[0.004]["Max Displacement"])*10**(3)} mm')
-    print(f'Maximum displacement of circular beam: {np.max(circ_dict[0.004]["Max Displacement"])*10**(3)} mm')
-    print(f'Maximum stress state of rectangular beam: {np.max(rect_dict[0.004]["Max Stress State"])*10**(-6):.3f} MPa')
-    print(f'Maximum stress state of circular beam: {np.max(circ_dict[0.004]["Max Stress State"])*10**(-6):.3f} MPa')
-    print(f'Minimum stress state of rectangular beam: {np.min(rect_dict[0.004]["Min Stress State"])*10**(-6):.3f} MPa')
-    print(f'Minimum stress state of circular beam: {np.min(circ_dict[0.004]["Min Stress State"])*10**(-6):.3f} MPa')
-    print(f'Mass of rectangular beam: {rect_dict[0.004]["Mass"]*10**(3)} g')
-    print(f'Mass of circular beam: {circ_dict[0.004]["Mass"]*10**(3)} g')
-
         
     # plt.figure(figsize=(6,3))
     # for t, data in rect_dict.items():
