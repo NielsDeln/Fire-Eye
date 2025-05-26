@@ -88,24 +88,49 @@ def calc_nvm(L=0.17889, h=3.175, Tz=-4.429, Ty=-7.6716, Wr=1.6527888, PLOT=True)
     print("===============================\n")
 
     if PLOT:
+        colours = ["#26547C",  # YInMn Blue
+                   "#A6808C",  # Mountbatten Pink
+                   "#EAC435"]  # Saffron
         # ----- plots -----
-        for data, title, ylabel in [
-            (N, "Axial-Force Diagram (N)", "N(z)  [N]"),
-            (V, "Shear-Force Diagram (V)", "V(z)  [N]"),
-            (M, "Bending-Moment Diagram (M)", "M(z)  [N·m]")
-        ]:
-            plt.figure(figsize=(6,3))
-            plt.plot(x, data, linewidth=2)
+        for (data, title, ylabel), col in zip(
+            [(N, "Axial-Force Diagram (N)",     "N(z)  [N]"),
+            (V, "Shear-Force Diagram (V)",     "V(z)  [N]"),
+            (M, "Bending-Moment Diagram (M)", "M(z)  [N·m]")],
+            colours):
+        # for data, title, ylabel in [
+        #     (N, "Axial-Force Diagram (N)", "N(z)  [N]"),
+        #     (V, "Shear-Force Diagram (V)", "V(z)  [N]"),
+        #     (M, "Bending-Moment Diagram (M)", "M(z)  [N·m]")
+        # ]:
+            plt.figure(figsize=(6, 3))
+            plt.plot(x, data, linewidth=2, color=col)          # main curve
             plt.axhline(0, color="gray", linestyle="--", linewidth=0.8)
-            plt.fill_between(x, data, color='lightblue')
-            plt.title(title)
+            plt.fill_between(x, data, color=col, alpha=0.30)   # lighter tint
+            # plt.title(title)
             plt.xlim(0, L)
-            plt.ylim(-np.max(np.abs(data)) * 1.1, np.max(np.abs(data)) * 1.1)
-            plt.gca().invert_yaxis() # negative values plotted upwards     
-            plt.xlabel("Beam length x  [m]")
-            plt.ylabel(ylabel)
+            plt.ylim(-np.max(np.abs(data))*1.1,
+                      np.max(np.abs(data))*1.1)
+            plt.gca().invert_yaxis()
+            plt.xlabel("Beam length x  [m]", fontsize=30)  # axis title
+            plt.ylabel(ylabel, fontsize=30)
+            plt.tick_params(axis='both', which='major', labelsize=30)  # tick numbers
+            
+            # plt.xlabel("Beam length x  [m]")
+            # plt.ylabel(ylabel)
             plt.grid(False)
             plt.show()
+            # plt.figure(figsize=(6,3))
+            # plt.plot(x, data, linewidth=2)
+            # plt.axhline(0, color="gray", linestyle="--", linewidth=0.8)
+            # plt.fill_between(x, data, color='lightblue')
+            # plt.title(title)
+            # plt.xlim(0, L)
+            # plt.ylim(-np.max(np.abs(data)) * 1.1, np.max(np.abs(data)) * 1.1)
+            # plt.gca().invert_yaxis() # negative values plotted upwards     
+            # plt.xlabel("Beam length x  [m]")
+            # plt.ylabel(ylabel)
+            # plt.grid(False)
+            # plt.show()
     
     return N, V, M
 
@@ -116,7 +141,7 @@ def calc_mmoi_rec(b, h, t,):
     c = h / 2culate the moment of inertia of a rectangular beam
     """
     I_rec = (b * h**3) / 12 - (b - 2*t) * (h - 2*t)**3 / 12
-    A = b * h - (b - t) * (h - t)
+    A = b * h - (b - 2* t) * (h - 2* t)
     return I_rec, A
 
 
@@ -181,7 +206,7 @@ if __name__ == "__main__":
     P = Wr + Ty # Total load on the beam in Newtons
 
     # Plot the NVM diagrams
-    N, V, M = calc_nvm(L, h, Tz, Ty, Wr, PLOT=True)
+    N, V, M = calc_nvm(L, h, Tz, Ty, Wr, PLOT=False)
 
     # Define the dimensions
     b = 0.01
@@ -191,9 +216,9 @@ if __name__ == "__main__":
     rect_dict = {}
     circ_dict = {} 
     # Test the moment of inertia calculation for different wall thicknesses
-    for material in ["CFRP", "Al2024_T3", "CF_PEEK", "GF_PA6_30"]:
-        E = CFRP["E_tens"] if material == "CFRP" else Al2024_T3["E"] if material == "Al2024_T3" else CF_PEEK["E_long"] if material == "CF_PEEK" else GF_PA6_30["E"]
-        rho = CFRP["rho"] if material == "CFRP" else Al2024_T3["rho"] if material == "Al2024_T3" else CF_PEEK["rho"] if material == "CF_PEEK" else GF_PA6_30["rho"]
+    for material in ["CFRP", "Al2024_T3", "CF_PEEK"]:
+        E = CFRP["E_tens"] if material == "CFRP" else Al2024_T3["E"] if material == "Al2024_T3" else CF_PEEK["E_long"]
+        rho = CFRP["rho"] if material == "CFRP" else Al2024_T3["rho"] if material == "Al2024_T3" else CF_PEEK["rho"]
         for beam in ["rect", "circ"]:
             for t in [0.001, 0.002, 0.004, 0.006]:
                 sub_dict = {}
@@ -251,33 +276,40 @@ if __name__ == "__main__":
                 print("==========================")
     
         
-    # plt.figure(figsize=(6,3))
-    # for t, data in rect_dict.items():
-    #     plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
-    # plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
+    plt.figure(figsize=(6,3))
+    for t, data in rect_dict.items():
+        plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
+    plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
     # plt.title("Bending Displacement of Rectangular Beam")
-    # plt.xlabel("Beam length x  [m]")
-    # plt.ylabel("Displacement [m]")
-    # plt.gca().invert_yaxis()
-    # plt.legend()
-    # plt.grid(False)
-    # plt.show()
+    # plt.xlabel("Beam length x  [m]", fontsize=18)  # axis title
+    #         plt.ylabel(ylabel, fontsize=18)
+    #         plt.tick_params(axis='both', which='major', labelsize=16)  # tick numbers
+    plt.xlabel("Beam length z  [m]", fontsize=30)  # axis title
+    plt.ylabel("Displacement [m]", fontsize=30)
+    plt.tick_params(axis='both', which='major', labelsize=25)  # tick numbers
+    plt.ylabel("Displacement [m]")
+    plt.gca().invert_yaxis()
+    plt.legend(fontsize=27)
+    plt.grid(False)
+    plt.show()
 
-    # plt.figure(figsize=(6,3))
-    # for t, data in circ_dict.items():
-    #     plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
-    # plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
+    plt.figure(figsize=(6,3))
+    for t, data in circ_dict.items():
+        plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
+    plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
     # plt.title("Bending Displacement of Circular Beam")
-    # plt.xlabel("Beam length x  [m]")
-    # plt.ylabel("Displacement [m]")
-    # plt.gca().invert_yaxis()
-    # plt.legend()
-    # plt.grid(False)
-    # plt.show()
-    # for t, data in rect_dict.items():
-    #     print(f"Maximum stress state for rectangular beam with t={t:.3f} m: {np.max(data['Max Stress State'])*10**(-6):.3f} MPa")
-    #     print(f"Minimum stress state for rectangular beam with t={t:.3f} m: {np.min(data['Min Stress State'])*10**(-6):.3f} MPa")
-    # print("==========================")
-    # for t, data in circ_dict.items():
-    #     print(f"Maximum stress state for circular beam with t={t:.3f} m: {np.max(data['Max Stress State'])*10**(-6):.3f} MPa")
-    #     print(f"Minimum stress state for circular beam with t={t:.3f} m: {np.min(data['Min Stress State'])*10**(-6):.3f} MPa")
+    plt.xlabel("Beam length z  [m]", fontsize=30)  # axis title
+    plt.ylabel("Displacement [m]", fontsize=30)
+    plt.tick_params(axis='both', which='major', labelsize=25)  # tick numbers
+    plt.ylabel("Displacement [m]")
+    plt.gca().invert_yaxis()
+    plt.legend(fontsize=27)
+    plt.grid(False)
+    plt.show()
+    for t, data in rect_dict.items():
+        print(f"Maximum stress state for rectangular beam with t={t:.3f} m: {np.max(data['Max Stress State'])*10**(-6):.3f} MPa")
+        print(f"Minimum stress state for rectangular beam with t={t:.3f} m: {np.min(data['Min Stress State'])*10**(-6):.3f} MPa")
+    print("==========================")
+    for t, data in circ_dict.items():
+        print(f"Maximum stress state for circular beam with t={t:.3f} m: {np.max(data['Max Stress State'])*10**(-6):.3f} MPa")
+        print(f"Minimum stress state for circular beam with t={t:.3f} m: {np.min(data['Min Stress State'])*10**(-6):.3f} MPa")
