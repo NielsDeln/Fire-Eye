@@ -83,40 +83,18 @@ def calc_nvm(L=0.17889, h=3.175, Tz=-4.429, Ty=-7.6716, Wr=1.6527888, PLOT=True)
             (V, "Shear-Force Diagram (V)",     "V(z)  [N]"),
             (M, "Bending-Moment Diagram (M)", "M(z)  [N·m]")],
             colours):
-        # for data, title, ylabel in [
-        #     (N, "Axial-Force Diagram (N)", "N(z)  [N]"),
-        #     (V, "Shear-Force Diagram (V)", "V(z)  [N]"),
-        #     (M, "Bending-Moment Diagram (M)", "M(z)  [N·m]")
-        # ]:
             plt.figure(figsize=(6, 3))
             plt.plot(x, data, linewidth=2, color=col)          # main curve
             plt.axhline(0, color="gray", linestyle="--", linewidth=0.8)
             plt.fill_between(x, data, color=col, alpha=0.30)   # lighter tint
-            # plt.title(title)
+            plt.title(title)
             plt.xlim(0, L)
-            plt.ylim(-np.max(np.abs(data))*1.1,
-                      np.max(np.abs(data))*1.1)
+            plt.ylim(-np.max(np.abs(data))*1.1, np.max(np.abs(data))*1.1)
             plt.gca().invert_yaxis()
-            plt.xlabel("Beam length x  [m]", fontsize=30)  # axis title
+            plt.xlabel(r"Beam length $z$  [m]", fontsize=30)  # axis title
             plt.ylabel(ylabel, fontsize=30)
             plt.tick_params(axis='both', which='major', labelsize=30)  # tick numbers
-            
-            # plt.xlabel("Beam length x  [m]")
-            # plt.ylabel(ylabel)
             plt.grid(False)
-            plt.show()
-            # plt.figure(figsize=(6,3))
-            # plt.plot(x, data, linewidth=2)
-            # plt.axhline(0, color="gray", linestyle="--", linewidth=0.8)
-            # plt.fill_between(x, data, color='lightblue')
-            # plt.title(title)
-            # plt.xlim(0, L)
-            # plt.ylim(-np.max(np.abs(data)) * 1.1, np.max(np.abs(data)) * 1.1)
-            # plt.gca().invert_yaxis() # negative values plotted upwards     
-            # plt.xlabel("Beam length x  [m]")
-            # plt.ylabel(ylabel)
-            # plt.grid(False)
-            # plt.show()
     
     return N, V, M
 
@@ -187,12 +165,12 @@ if __name__ == "__main__":
     x = np.linspace(0, L, 100) # Discretize the beam length
     Tz = -4.429 # Horizontal force in Newtons
     Ty = -7.6716 # Vertical force in Newtons
-    Wr = 1.6527888 # Motor + ESC + propellor weight in Newtons
+    Wr = 0.7012188 # Motor + ESC + propellor weight in Newtons
 
     P = Wr + Ty # Total load on the beam in Newtons
 
     # Plot the NVM diagrams
-    N, V, M = calc_nvm(L, h, Tz, Ty, Wr, PLOT=False)
+    N, V, M = calc_nvm(L, h, Tz, Ty, Wr, PLOT=True)
 
     # Define the dimensions
     b = 0.01
@@ -257,58 +235,51 @@ if __name__ == "__main__":
                 print(f"  Buckling Load: {data['Buckling']:.3e} N")
                 print(f"  Max Displacement: {np.max(data['Max Displacement']) * 1e3:.3e} mm")
                 print(f"  Slope: {data['Slope']:.3e} rad")
-                print(f"  Max Stress State: {np.max(data['Max Stress State']) * 10**(-6):.3f} MPa")
-                print(f"  Min Stress State: {np.min(data['Min Stress State']) * 10**(-6):.3f} MPa")
+                print(f"  Max Stress State: {np.max(data['Max Stress State']) * 1e-6:.3f} MPa")
+                print(f"  Min Stress State: {np.min(data['Min Stress State']) * 1e-6:.3f} MPa")
                 print(f"  Mass: {data['Mass'] * 1e3:.3f} gg")
                 print("==========================")
     
-    for beam in ["rect", "circ"]:
+    for beam in ["rectangular", "circular"]:
         plt.figure(figsize=(6,3))
-        for t, data in (rect_dict if beam == "rect" else circ_dict).items():
+        for t, data in (rect_dict if beam == "rectangular" else circ_dict).items():
             plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
         plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
-        plt.title("Bending Displacement of Rectangular Beam")
-        plt.xlabel("Beam length x  [m]")
+        plt.title(f"Bending Displacement of {beam} Beam")
+        plt.xlabel(r"Beam length $z$  [m]")
         plt.ylabel("Displacement [m]")
         plt.gca().invert_yaxis()
         plt.legend()
         plt.grid(False)
         plt.show()
         
-    plt.figure(figsize=(6,3))
-    for t, data in rect_dict.items():
-        plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
-    plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
-    # plt.title("Bending Displacement of Rectangular Beam")
-    # plt.xlabel("Beam length x  [m]", fontsize=18)  # axis title
-    #         plt.ylabel(ylabel, fontsize=18)
-    #         plt.tick_params(axis='both', which='major', labelsize=16)  # tick numbers
-    plt.xlabel("Beam length z  [m]", fontsize=30)  # axis title
-    plt.ylabel("Displacement [m]", fontsize=30)
-    plt.tick_params(axis='both', which='major', labelsize=25)  # tick numbers
-    plt.ylabel("Displacement [m]")
-    plt.gca().invert_yaxis()
-    plt.legend(fontsize=27)
-    plt.grid(False)
-    plt.show()
+    # plt.figure(figsize=(6,3))
+    # for t, data in rect_dict.items():
+    #     plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
+    # plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
+    # # plt.title("Bending Displacement of Rectangular Beam")
+    # # plt.xlabel("Beam length x  [m]", fontsize=18)  # axis title
+    # #         plt.ylabel(ylabel, fontsize=18)
+    # #         plt.tick_params(axis='both', which='major', labelsize=16)  # tick numbers
+    # plt.xlabel(r"Beam length $z$  [m]", fontsize=30)  # axis title
+    # plt.ylabel("Displacement [m]", fontsize=30)
+    # plt.tick_params(axis='both', which='major', labelsize=25)  # tick numbers
+    # plt.ylabel("Displacement [m]")
+    # plt.gca().invert_yaxis()
+    # plt.legend(fontsize=27)
+    # plt.grid(False)
+    # plt.show()
 
-    plt.figure(figsize=(6,3))
-    for t, data in circ_dict.items():
-        plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
-    plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
-    # plt.title("Bending Displacement of Circular Beam")
-    plt.xlabel("Beam length z  [m]", fontsize=30)  # axis title
-    plt.ylabel("Displacement [m]", fontsize=30)
-    plt.tick_params(axis='both', which='major', labelsize=25)  # tick numbers
-    plt.ylabel("Displacement [m]")
-    plt.gca().invert_yaxis()
-    plt.legend(fontsize=27)
-    plt.grid(False)
-    plt.show()
-    for t, data in rect_dict.items():
-        print(f"Maximum stress state for rectangular beam with t={t:.3f} m: {np.max(data['Max Stress State'])*10**(-6):.3f} MPa")
-        print(f"Minimum stress state for rectangular beam with t={t:.3f} m: {np.min(data['Min Stress State'])*10**(-6):.3f} MPa")
-    print("==========================")
-    for t, data in circ_dict.items():
-        print(f"Maximum stress state for circular beam with t={t:.3f} m: {np.max(data['Max Stress State'])*10**(-6):.3f} MPa")
-        print(f"Minimum stress state for circular beam with t={t:.3f} m: {np.min(data['Min Stress State'])*10**(-6):.3f} MPa")
+    # plt.figure(figsize=(6,3))
+    # for t, data in circ_dict.items():
+    #     plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
+    # plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
+    # # plt.title("Bending Displacement of Circular Beam")
+    # plt.xlabel(r"Beam length $z$  [m]", fontsize=30)  # axis title
+    # plt.ylabel("Displacement [m]", fontsize=30)
+    # plt.tick_params(axis='both', which='major', labelsize=25)  # tick numbers
+    # plt.ylabel("Displacement [m]")
+    # plt.gca().invert_yaxis()
+    # plt.legend(fontsize=27)
+    # plt.grid(False)
+    # plt.show()
