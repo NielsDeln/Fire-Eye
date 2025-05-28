@@ -48,7 +48,7 @@ motor_db = [
 ]
 
 # battery database
-battery_db1 = [
+battery_dbx = [
     {'id': 'GAONENG GNB 4S 14.8V', 'type': 'Li-ion', 'cells': 4, 'capacity': 4000, 'mass': 434, 'voltage': 14.8, 
      'energy_capacity': 88.8, 'C-rating': 10, 'energy_density': 204.61},
     
@@ -103,6 +103,21 @@ battery_db1 = [
     {'id': 'MaxAmps 4S 10900mAh', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 10900, 'mass': 950, 'voltage': 16.8, 'C-rating': 30},
 
     {'id': 'Ovonic 6S 1300mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 1300, 'mass': 180, 'voltage': 22.2, 'C-rating': 130},
+    {
+    'id': 'Unnamed LiPo 3S 3500mAh (11.55V)',
+    'type': 'LiPo 3s',
+    'cells': 3,
+    'capacity': 3500,               # mAh
+    'mass': 198,                    # g
+    'voltage': 11.55,               # V
+    'energy_capacity': 40.42,       # Wh
+    'C-rating': None,               # Not provided
+    'energy_density': round(40.42 * 1000 / 198, 2),  # ≈ 204.14 Wh/kg
+    'charging_voltage_limit': 13.2, # V
+    'charging_temperature_range': '5° to 40°C',
+    'max_charging_power': 38        # W
+}
+    
 ]
 
 battery_db = [
@@ -122,7 +137,21 @@ battery_db = [
     # {'id': 'Grepow 6S 17000mAh',        'type': 'LiPo',   'cells': 6, 'capacity': 17000, 'mass': 1432,  'voltage': 22.2, 'energy_capacity': 377.4,   'C-rating': 3,   'energy_density': 263.55},
     # {'id': 'Tattu G-Tech 6S 12000mAh',  'type': 'LiPo',   'cells': 6, 'capacity': 12000, 'mass': 1532,  'voltage': 22.2, 'energy_capacity': 266.4,   'C-rating': 3,   'energy_density': 173.89},
     {'id': 'Tattu G-Tech 4S 5200mAh',   'type': 'LiPo',   'cells': 4, 'capacity': 5200,  'mass': 436.5, 'voltage': 14.8, 'energy_capacity': 76.96,   'C-rating': 35,  'energy_density': 176.31},
-    {'id': 'Tattu 4S 6750mAh 25C',      'type': 'LiPo',   'cells': 4, 'capacity': 6750,  'mass': 620,   'voltage': 14.8, 'energy_capacity': 99.9,    'C-rating': 25,  'energy_density': 161.13}
+    {'id': 'Tattu 4S 6750mAh 25C',      'type': 'LiPo',   'cells': 4, 'capacity': 6750,  'mass': 620,   'voltage': 14.8, 'energy_capacity': 99.9,    'C-rating': 25,  'energy_density': 161.13},
+    {
+    'id': 'Unnamed LiPo 3S 3500mAh (11.55V)',
+    'type': 'LiPo 3s',
+    'cells': 3,
+    'capacity': 3500,               # mAh
+    'mass': 198,                    # g
+    'voltage': 11.55,               # V
+    'energy_capacity': 40.42,       # Wh
+    'C-rating': None,               # Not provided
+    'energy_density': round(40.42 * 1000 / 198, 2),  # ≈ 204.14 Wh/kg
+    'charging_voltage_limit': 13.2, # V
+    'charging_temperature_range': '5° to 40°C',
+    'max_charging_power': 38        # W
+}
 ]
 
 
