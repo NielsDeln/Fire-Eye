@@ -282,12 +282,15 @@ def print_final_summary(result, performance):
 
 
 if __name__ == "__main__":
-    base_m_pl = m_payload(198, 19, 230, 0, 150)  # g
-    base_P_payload = 65  # watts
+    #base_m_pl = m_payload(198, 19, 230, 0, 150)  # g
+    #base_P_payload = 65  # wattsh
+    base_m_pl = m_payload(228, 0, 0, 0, 0)  # g
+    base_P_payload = 40.42  # wattsh
     t_flight = 0.25  # hours
 
     # Margins: -20%, baseline, +20%
-    margin_factors = [0.8, 1.0, 1.2]
+    #margin_factors = [0.8, 1.0, 1.2]
+    margin_factors = [1]
 
     for margin in margin_factors:
 
