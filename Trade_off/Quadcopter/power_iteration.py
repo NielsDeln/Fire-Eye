@@ -27,7 +27,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
             battery_capacity=battery_guess['capacity'],
             n_cells=battery_guess['cells'], 
             battery_override=battery_guess,
-            #n_batteries=n_batt,
+            n_batteries=n_batt,
         )
 
         # Step 2: total power consumption
@@ -122,8 +122,8 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
         #print(f"Selected Battery: {best_battery['id']} | {best_battery['capacity']} mAh | {best_battery['cells']}S | {best_battery['mass']} g")
         motor_guess = result["motor"]
         d_p = motor_guess['prop_diameter']  # cm
-        gtow, T_max, T_motor, motor, propeller, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow_and_prop(m_pl, battery_capacity=battery_guess['capacity'], n_cells=battery_guess['cells'],  battery_override=battery_guess, motor_override=motor_guess,n_batteries=n_batt)
-        """gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow(
+        #gtow, T_max, T_motor, motor, propeller, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow_and_prop(m_pl, battery_capacity=battery_guess['capacity'], n_cells=battery_guess['cells'],  battery_override=battery_guess, motor_override=motor_guess,n_batteries=n_batt)
+        gtow, T_max, T_motor, m_m, m_e, m_b, m_p, m_f, m_a, m_pl = converge_gtow(
             m_pl,
             d_p=d_p,
             battery_cells=best_battery['cells'],
@@ -131,11 +131,11 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
             n_batteries=n_batt,
             battery_override=best_battery,
             motor_override=motor_guess
-        )"""
+        )
         #prev_gtow = gtow
         # Step 5: Convergence check
         if abs(result['GTOW'] - prev_gtow) < tol:
-            print("\nSYSTEM CONVERGED at iteration", i+1)
+            #print("\nSYSTEM CONVERGED at iteration", i+1)
             return {
                 **result,
                 "GTOW": gtow,
@@ -220,46 +220,46 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=7.2, rho=1.225, til
     P_hover = n_rotors * (result['motor']["thrust"] * 9.81 / 1000) ** (3/2) /( (2*rho*A_prop)**0.5) # W
 
     return {
-        'T/W': T_W,
-        'Range (R) m': range_km*1000,
+        #'T/W': T_W,
+        #'Range (R) m': range_km*1000,
         'Flight Duration min': flight_duration_hr*60,
         'Cruising Speed (V_crs) km/h': cruise_speed_kmh,
-        'Disk Loading downwash': disk_loading,
-        '1/W_takeoff': inverse_W_takeoff,
-        'Power Plant Parameter (N_take-off) w': power_hp,
+        #'Disk Loading downwash': disk_loading,
+        #'1/W_takeoff': inverse_W_takeoff,
+        #'Power Plant Parameter (N_take-off) w': power_hp,
         'Downwash velocity m/s': V2,
-        "Power to hover W": P_hover,
+        #"Power to hover W": P_hover,
     }
 
 def print_final_summary(result, performance):
     print("\n=========== FINAL SYSTEM SUMMARY ===========")
     print(f"GTOW                      : {result['GTOW']:.2f} g")
-    print(f"Payload Mass            : {result['m_payload']:.2f} g")
-    print(f"Frame Mass               : {result['m_frame']:.2f} g")
-    print(f"Avionics Mass            : {result['m_avionics']:.2f} g")
-    print(f"Propeller Mass           : {result['m_propeller']:.2f} g")
-    print(f"Motor Mass               : {result['m_motor']:.2f} g")
-    print(f"ESC Mass                 : {result['m_ESC']:.2f} g")
+    #print(f"Payload Mass            : {result['m_payload']:.2f} g")
+    #print(f"Frame Mass               : {result['m_frame']:.2f} g")
+    #print(f"Avionics Mass            : {result['m_avionics']:.2f} g")
+    #print(f"Propeller Mass           : {result['m_propeller']:.2f} g")
+    #print(f"Motor Mass               : {result['m_motor']:.2f} g")
+    #print(f"ESC Mass                 : {result['m_ESC']:.2f} g")
     print(f"Battery Mass            : {result['m_battery']:.2f} g")
 
-    print(f"Total Required Thrust     : {result['T_max']:.2f} g")
-    print(f"Per Motor Thrust          : {result['T_motor']:.2f} g")
+    #print(f"Total Required Thrust     : {result['T_max']:.2f} g")
+    #print(f"Per Motor Thrust          : {result['T_motor']:.2f} g")
     
     motor = result['motor']
-    print(f"Selected Motor            : {motor['id']}")
-    print(f" - Mass                   : {motor['mass']} g")
-    print(f" - Max Thrust             : {motor['thrust']} g")
-    print(f" - Efficiency             : {motor['efficiency']}")
-    print(f" - Diameter               : {motor['diameter']} mm")
-    print(f" -  Motor Power           : {motor['power']} W")
+    #print(f"Selected Motor            : {motor['id']}")
+    #print(f" - Mass                   : {motor['mass']} g")
+    #print(f" - Max Thrust             : {motor['thrust']} g")
+    #print(f" - Efficiency             : {motor['efficiency']}")
+    #print(f" - Diameter               : {motor['diameter']} mm")
+    #print(f" -  Motor Power           : {motor['power']} W")
     
     
     prop = result['propeller']
-    print(f"Selected Propeller        : {prop['diameter']} cm")
+    #print(f"Selected Propeller        : {prop['diameter']} cm")
     
     print("============================================")
-    print(f"Total Power               : {result['P_total']:.2f} W")
-    print(f"Energy Required           : {result['E_required']:.2f} Wh")
+    #print(f"Total Power               : {result['P_total']:.2f} W")
+    #print(f"Energy Required           : {result['E_required']:.2f} Wh")
     
     battery = result['battery']
     print(f"Selected Battery          : {battery['id']}")
@@ -268,10 +268,10 @@ def print_final_summary(result, performance):
     print(f" - C-rating               : {battery['C-rating']}")
     print(f" - Mass                   : {battery['mass']} g")
     print(f"Number of Batteries       : {result['m_battery'] / battery['mass']:.2f}")
-    print(f"Max discharge Power       : {battery['capacity'] * battery['C-rating'] * battery['voltage'] / 1000:.2f} W")
-    print(f"Usable Energy             : {(battery['voltage'] * battery['capacity'] / 1000) * 0.9:.2f} Wh")
-    print(f"Total Usable Energy       : {result['usable_energy']:.2f} Wh")
-    print(f"Total Discharge Power     : {result['power_discharge']:.2f} W")
+    #print(f"Max discharge Power       : {battery['capacity'] * battery['C-rating'] * battery['voltage'] / 1000:.2f} W")
+    #print(f"Usable Energy             : {(battery['voltage'] * battery['capacity'] / 1000) * 0.9:.2f} Wh")
+    #print(f"Total Usable Energy       : {result['usable_energy']:.2f} Wh")
+    #print(f"Total Discharge Power     : {result['power_discharge']:.2f} W")
     
     
     print("============================================")
