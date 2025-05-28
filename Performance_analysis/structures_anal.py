@@ -10,7 +10,7 @@ CF_PEEK = {
     "rho"           : 1550,           # density ρ  [kg/m³]
 
     # ELASTIC MODULI  (use the one that matches your lay-up)
-    "E_long"        : 150 * 10**9,           # UD 0° modulus  [Pa]
+    "E"        : 150 * 10**9,           # UD 0° modulus  [Pa]
     "E_quasi_iso"   : 75 *10**9,            # quasi-isotropic laminate  [Pa]
     "G_in_plane"    : 5.0 *10**9,           # shear modulus  ±45° laminate [Pa]
     "nu"            : 0.3,             # Poisson’s ratio  (average)
@@ -36,7 +36,7 @@ Al2024_T3 = {
 CFRP = {
     "rho": 1560,              # kg/m^3
     "E_flex": 4.1e9,              # Pa  (Flexural modulus)
-    "E_tens": 131e9,              # Pa  (Tensile modulus 0°)
+    "E": 131e9,              # Pa  (Tensile modulus 0°)
     "E_comp": 128e9,              # Pa  (Compressive modulus 0°)
     "G": 128e9,                   # Pa  (shear modulus)
     "Tg": 194,                    # °C  (glass-transition temperature)
@@ -44,6 +44,77 @@ CFRP = {
     "sigma_Tens": 1620e6          # Pa  (ultimate tensile strength)
 }
 
+# Acrylonitrile Butadiene Styrene (ABS), unfilled
+ABS = {
+  "rho": 1020,           # kg/m³
+  "E_flex": 2.3e9,       # Pa  (Flexural modulus)
+  "E": 2.1e9,       # Pa  (Tensile modulus 0°)
+  "E_comp": 2.4e9,       # Pa  (Compressive modulus 0°)
+  "G": 0.9e9,            # Pa  (Shear modulus)
+  "Tg": 105,             # °C  (Glass‑transition temperature)
+  "sigma_Comp": 62e6,    # Pa  (Ultimate compressive strength)
+  "sigma_Tens": 40e6     # Pa  (Ultimate tensile strength)
+}
+
+# Polypropylene (PP), molded
+PP = {
+  "rho": 900,            # kg/m³
+  "E_flex": 1.5e9,       # Pa  (Flexural modulus)
+  "E": 1.5e9,       # Pa  (Tensile modulus 0°)
+  "E_comp": 1.6e9,       # Pa  (Compressive modulus 0°)
+  "G": 0.7e9,            # Pa  (Shear modulus)
+  "Tg": 0,               # °C  (Glass‑transition temperature)
+  "sigma_Comp": 45e6,    # Pa  (Ultimate compressive strength)
+  "sigma_Tens": 30e6     # Pa  (Ultimate tensile strength)
+}
+# Liquid Crystal Polymer (LCP), e.g. Vectra A950
+LCP = {
+  "rho": 1650,            # kg/m³
+  "E_flex": 22e9,         # Pa  (Flexural modulus)
+  "E": 12e9,         # Pa  (Tensile modulus 0°)
+  "E_comp": 18e9,         # Pa  (Compressive modulus 0°)
+  "G": 4e9,               # Pa  (Shear modulus)
+  "Tg": 260,              # °C  (Glass‑transition temperature)
+  "sigma_Comp": 200e6,    # Pa  (Ultimate compressive strength)
+  "sigma_Tens": 250e6     # Pa  (Ultimate tensile strength)
+}
+
+# Polycarbonate (PC), unfilled, injection‑molded
+PC = {
+  "rho": 1200,            # kg/m³
+  "E_flex": 2.4e9,        # Pa  (Flexural modulus)
+  "E": 2.2e9,        # Pa  (Tensile modulus 0°)
+  "E_comp": 2.3e9,        # Pa  (Compressive modulus 0°)
+  "G": 0.8e9,             # Pa  (Shear modulus)
+  "Tg": 147,              # °C  (Glass‑transition temperature)
+  "sigma_Comp": 90e6,     # Pa  (Ultimate compressive strength)
+  "sigma_Tens": 65e6      # Pa  (Ultimate tensile strength)
+}
+
+# Nylon 6 (PA6), unfilled, injection‑molded
+PA6 = {
+  "rho": 1140,            # kg/m³
+  "E_flex": 2.7e9,        # Pa  (Flexural modulus)
+  "E": 2.9e9,        # Pa  (Tensile modulus 0°)
+  "E_comp": 3.1e9,        # Pa  (Compressive modulus 0°)
+  "G": 1.0e9,             # Pa  (Shear modulus)
+  "Tg": 50,               # °C  (Glass‑transition temperature)
+  "sigma_Comp": 80e6,     # Pa  (Ultimate compressive strength)
+  "sigma_Tens": 70e6      # Pa  (Ultimate tensile strength)
+}
+
+# Polyether Ether Ketone (PEEK), unfilled
+PEEK = {
+  "rho": 1320,            # kg/m³
+  "E_flex": 3.6e9,        # Pa  (Flexural modulus)
+  "E": 3.4e9,        # Pa  (Tensile modulus 0°)
+  "E_comp": 4.3e9,        # Pa  (Compressive modulus 0°)
+  "G": 1.5e9,             # Pa  (Shear modulus)
+  "Tg": 143,              # °C  (Glass‑transition temperature)
+  "sigma_Comp": 100e6,    # Pa  (Ultimate compressive strength)
+  "sigma_Tens": 90e6      # Pa  (Ultimate tensile strength)
+}
+mat_dict = {"PEEK": PEEK, "PA6": PA6, "PC": PC, "LCP": LCP, "ABS": ABS, "PP": PP, "Al2024_T3": Al2024_T3, "CFRP": CFRP, "CF_PEEK": CF_PEEK}
 
 def calc_nvm(L=0.17889, h=3.175, Tz=-4.429, Ty=-7.6716, Wr=1.6527888, PLOT=True):
     """
@@ -173,19 +244,19 @@ if __name__ == "__main__":
     N, V, M = calc_nvm(L, h, Tz, Ty, Wr, PLOT=True)
 
     # Define the dimensions
-    b = 0.01
-    h = 0.01
-    d0 = 0.01
+    b = 0.02
+    h = 0.02
+    d0 = 0.02
 
     rect_dict = {}
     circ_dict = {} 
     # , 0.002, 0.004, 0.006
     # Test the moment of inertia calculation for different wall thicknesses
-    for material in ["CFRP", "Al2024_T3", "CF_PEEK"]:
-        E = CFRP["E_tens"] if material == "CFRP" else Al2024_T3["E"] if material == "Al2024_T3" else CF_PEEK["E_long"]
-        rho = CFRP["rho"] if material == "CFRP" else Al2024_T3["rho"] if material == "Al2024_T3" else CF_PEEK["rho"]
+    for material in ["CFRP", "Al2024_T3", "CF_PEEK", "PEEK", "ABS", "PC", "PA6", "LCP"]:
+        E = mat_dict[material]['E']
+        rho = mat_dict[material]['rho']
         for beam in ["rect", "circ"]:
-            for t in [0.001]:
+            for t in [0.001, 0.002, 0.004, 0.006]:
                 sub_dict = {}
 
                 # Calculate moment of inertia and area
