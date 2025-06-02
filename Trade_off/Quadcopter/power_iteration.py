@@ -188,7 +188,7 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=7.2, rho=1.225, til
     n_batt = result['m_battery'] / battery['mass']  # sanity check
     #print("POOPIE ENERGY BAT " , n_batt * energy_batt)
     #print("POOPIE P req" , result['P_total'] / 2)
-    flight_duration_hr = energy_batt * n_batt / (result["P_total"] / 2)  # h
+    flight_duration_hr = energy_batt * n_batt / (result["P_total"] / 1)  # h
 
     # wrong ones:
     # flight_duration_hr1 = result["E_required"] / discharg_p  # h
@@ -223,8 +223,10 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=7.2, rho=1.225, til
     P_hover = n_rotors * (result['motor']["thrust"] * 9.81 / 1000) ** (3/2) /( (2*rho*A_prop)**0.5) # W
 
     #duav
+    ratio = 0.325 / 0.13
     d = result["motor"]["diameter"] / 100  # m
-    duav = d + 12.667 / 100
+    #duav = d + 12.667 / 100
+    duav = d * ratio
 
     return {
         'T/W': T_W,
@@ -387,5 +389,7 @@ if __name__ == "__main__":
     performance = analyze_performance(results, n_rotors=4)
     for k, v in performance.items():
         print(f"{k}: {v:.3f}")"""
+
+
 
     
