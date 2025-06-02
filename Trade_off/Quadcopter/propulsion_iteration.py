@@ -50,7 +50,7 @@ def evaluate_motor_prop_combo(motor, prop_diameter, mass_aircraft, prop_pitch=5.
     A = np.pi * (d_m / 2)**2  # rotor disc area in m²
     
     # induced velocity V1 under rotor
-    V1 = np.sqrt((M * 9.81) / (2 * rho * A))
+    V1 = np.sqrt((M * 9.81/4) / (2 * rho * A))
     V2 = 2 * V1
     
     # penalty terms 
@@ -58,7 +58,7 @@ def evaluate_motor_prop_combo(motor, prop_diameter, mass_aircraft, prop_pitch=5.
     mass_penalty = 0.001 * motor['mass']
     
     metric = V2 + mass_penalty - 0.2 * thrust_efficiency  
-    return metric
+    return V2
 
 
 
@@ -78,8 +78,7 @@ def select_best_motor_and_prop(GTOW, T_motor, motor_db=motor_db):
         motor_mass = motor['mass']
         motor_thrust = motor['thrust']
         
-        if motor_thrust >= T_motor and motor['power'] < min_power and propeller_diameter <= 222:
-            min_power = motor['power']
+        if motor_thrust >= T_motor   and motor['power'] < min_power and propeller_diameter >= 15:
             #print(f"Motor {motor['id']} - Thrust: {motor_thrust:.2f} g | Power: {motor['power']:.2f} W | Efficiency: {motor['efficiency']:.2f} | Mass: {motor_mass:.2f} g")
             if metric < best_metric:
             #if motor['power'] < min_power:

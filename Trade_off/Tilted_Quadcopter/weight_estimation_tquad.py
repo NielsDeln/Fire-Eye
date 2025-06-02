@@ -87,8 +87,8 @@ def converge_gtow_tquad(
         else:
             m_m = m_motor(T_motor) * 4
         m_e = m_ESC(I_max, battery_cells) * 4
-        if battery_override and n_batteries:
-            m_b = battery_override['mass'] * n_batteries
+        if battery_override:
+            m_b = battery_override['mass'] * n_batteries if n_batteries else battery_override['mass']
             battery_cells = battery_override['cells']
             battery_capacity = battery_override['capacity']
         else:
@@ -120,7 +120,7 @@ def converge_gtow_tquad(
 
 if __name__ == "__main__":
     m_pl = m_payload(150, 186, 230, 0, 3) # m_dmcomm, m_navig, m_mapping, m_control, m_forensics
-    converge_gtow_tquad(
+    res=converge_gtow_tquad(
         m_pl,
         D_UAV=0.35,  # m
         I_max=22,
@@ -130,5 +130,6 @@ if __name__ == "__main__":
         t_frame=4,
         l_frame=300,
     )
+    print(res)
 
 

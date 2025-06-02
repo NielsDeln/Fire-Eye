@@ -1,6 +1,8 @@
 import os
 import sys
+import numpy as np
 import math
+import matplotlib.pyplot as plt
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from Trade_off.Tilted_Quadcopter.propulsion_iteration_tquad import converge_gtow_and_prop_tquad
 from Trade_off.Tilted_Quadcopter.weight_estimation_tquad import  m_payload, converge_gtow_tquad
@@ -28,7 +30,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
             battery_capacity=battery_guess['capacity'],
             n_cells=battery_guess['cells'], 
             battery_override=battery_guess,
-            #n_batteries=n_batt
+            n_batteries=n_batt
         )
 
         # Step 2: total power consumption
@@ -40,19 +42,19 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
         #print(f"Motor Efficiency: {motor_eff:.2f}")
 
         #P_motor = T_motor / motor_eff   # watts
-        P_motor = motor["power"]
+        P_motor = motor["power"] * throttle
         #print(f"Motor Power: {P_motor:.2f} W")
-        P_total = 4 * P_motor + P_payload
+        P_total = 4 * P_motor + P_payload 
         #print(f"Estimated Power Use: {P_total:.2f} W")
 
         # Step 3: Required energy
-        E_required = P_total * throttle * t_flight  # Wh
+        E_required = P_total  * t_flight #* throttle # Wh
 
         # Step 4: Find best battery from database
         best_battery = None
         min_mass = float('inf')
 
-        P_required = P_total * throttle   # or any specific power required for the system
+        P_required = P_total #* throttle   # or any specific power required for the system
         for b in battery_db:
             usable_energy = (b['voltage'] * b['capacity'] / 1000) * discharge_eff  # Wh
             if b['C-rating'] is None:
@@ -129,6 +131,13 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
                 "GTOW": gtow,
                 "T_max": T_max,
                 "T_motor": T_motor,
+                "m_motor": m_m,
+                "m_ESC": m_e,
+                "m_battery": m_b,
+                "m_propeller": m_p,
+                "m_frame": m_f,
+                "m_avionics": m_a,
+                "m_payload": m_pl,
                 'P_total': P_total,
                 'E_required': E_required,
                 'battery': best_battery,
@@ -152,7 +161,8 @@ if __name__ == "__main__":
     t_flight = 0.25  # hours
 
     # Margins: -20%, baseline, +20%
-    margin_factors = [0.8, 1.0, 1.2]
+    #margin_factors = [0.8, 1.0, 1.2]
+    margin_factors = [1.0]
 
     for margin in margin_factors:
         adjusted_m_pl = base_m_pl * margin
@@ -164,3 +174,42 @@ if __name__ == "__main__":
             print_final_summary(results, performance)
         except RuntimeError as e:
             print(f"Failed to converge: {e}")
+
+
+    payloads = np.linspace(0, 500, 100)  # g
+    results_list = []
+    performance_list = []
+    for payload in payloads:
+        try:
+            results = full_system_loop(payload, base_P_payload, t_flight=t_flight)
+            performance = analyze_performance(results, n_rotors=4, tilt_angle=30)
+            print_final_summary(results, performance)
+            results_list.append(results)
+            performance_list.append(performance)
+        except RuntimeError as e:
+            print(f"Failed to converge for payload {payload} g: {e}")
+
+
+    gtow = []
+    duav = []
+
+    for i, res in enumerate(results_list):
+        try:
+            d_p = res['motor']['prop_diameter'] / 100  # convert cm to meters
+            k = 1.2  # margin factor for motor clearance
+            arm_length = k * d_p / 2  # radius from center to one motor
+            duav_val = arm_length * math.sqrt(2) * 2  # full diagonal
+            #duav.append(duav_val)
+            duav.append(performance_list[i]['duav'])
+            gtow.append(res['GTOW'])
+        except Exception as e:
+            print(f"Error processing result: {e}")
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(duav, gtow, 'o-', color='teal')
+    plt.title('DUAV vs. GTOW')
+    plt.xlabel('Motor-to-Motor Distance (DUAV) [m]')
+    plt.ylabel('GTOW [g]')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()

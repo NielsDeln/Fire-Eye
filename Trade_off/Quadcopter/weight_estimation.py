@@ -90,8 +90,8 @@ def converge_gtow(
         else:
             m_m = m_motor(T_motor) * 4
         m_e = m_ESC(I_max) * 4
-        if battery_override and n_batteries:
-            m_b = battery_override['mass'] * n_batteries
+        if battery_override:
+            m_b = battery_override['mass'] * n_batteries if n_batteries else 1
             battery_cells = battery_override['cells']
             battery_capacity = battery_override['capacity']
         else:
