@@ -355,7 +355,7 @@ if __name__ == "__main__":
                 max_gtow=5000
             )
             performance = analyze_performance(results)
-            #print_final_summary(results, performance)
+            print_final_summary(results, performance)
             battery = results['battery']
             num_batt = results['m_battery'] / battery['mass']
             table.add_row([
