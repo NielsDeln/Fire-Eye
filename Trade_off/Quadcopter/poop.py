@@ -1,11 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
 from sklearn.preprocessing import PolynomialFeatures
 
-
-# Convert actual weight and downwash to NumPy arrays and filter out None values
+# Data
 actual_weight_g = np.array([
     0.57, 0.595, 0.6, 0.72, 0.724, 0.75, 0.75, 0.835, 0.895, 0.895, 0.895,
     0.898, 0.898, 0.907, 0.958, 1.15, 1.388, 1.42, 1.5, 1.62, 1.063, 2.2, 2.3, 2.5
@@ -24,18 +22,6 @@ advertised_flight_time_min = np.array([
     32, 32, 31, 43, 40, 30, 49, 20, 42, 45, 32, 65, 6
 ])
 
-actual_weight_filtered = []
-actual_downwash_filtered = []
-for w, d in zip(actual_weight_g, actual_downwash_m_s):
-    if d is not None:
-        actual_weight_filtered.append(w)
-        actual_downwash_filtered.append(d)
-
-# Convert to numpy arrays
-actual_weight_filtered = np.array(actual_weight_filtered)
-actual_downwash_filtered = np.array(actual_downwash_filtered)
-
-# Estimated values
 estimated_weight_g = np.array([
     1046.106, 1057.47, 1059.742, 1322.81, 1324.629, 1336.447, 1336.447,
     1384.629, 1699.402, 1699.402, 1699.402, 1204.742, 1413.266, 1208.833,
@@ -55,58 +41,63 @@ estimated_flight_time_min = np.array([
     37.163, 37.399, 26.866, 53.333, 4.979
 ])
 
+# Filter valid data
+actual_weight_filtered = []
+actual_downwash_filtered = []
+actual_flight_time_filtered = []
+for w, d, f in zip(actual_weight_g, actual_downwash_m_s, advertised_flight_time_min):
+    if d is not None:
+        actual_weight_filtered.append(w)
+        actual_downwash_filtered.append(d)
+        actual_flight_time_filtered.append(f)
 
-#Linear features
-linear = PolynomialFeatures(degree=1)
-X_train_poly = linear.fit_transform(actual_weight_filtered.reshape(-1,1))
-X_val_poly = linear.transform(estimated_weight_g.reshape(-1,1))
+actual_weight_filtered = np.array(actual_weight_filtered)
+actual_downwash_filtered = np.array(actual_downwash_filtered)
+actual_flight_time_filtered = np.array(actual_flight_time_filtered)
 
-#linear regressor
-linear_mod = LinearRegression()
-linear_mod.fit(X_train_poly, actual_downwash_filtered)
+# Dataset pairs to process
+datasets = [
+    ("Downwash (m/s)", actual_downwash_filtered, estimated_downwash_m_s),
+    ("Flight Time (min)", actual_flight_time_filtered, estimated_flight_time_min)
+]
 
-#RMSE
-train_predictions = linear_mod.predict(X_train_poly)
-val_predictions = linear_mod.predict(X_val_poly)
+# Plotting and RMSE calculation
+for i, (ylabel, actual_data, estimated_data) in enumerate(datasets):
+    # Polynomial features
+    poly = PolynomialFeatures(degree=1)
+    X_train_poly = poly.fit_transform(actual_weight_filtered.reshape(-1, 1))
+    X_val_poly = poly.transform(estimated_weight_g.reshape(-1, 1))
 
-train_rmse = np.std(train_predictions - actual_downwash_filtered, ddof=1)
-validation_rmse =np.std(val_predictions - estimated_downwash_m_s, ddof=1)
+    # Linear regression
+    linear_mod = LinearRegression()
+    linear_mod.fit(X_train_poly, actual_data)
 
-print(f'RMSE of actual data is {train_rmse}')
-print(f'RMSE of simulated data is {validation_rmse}')
+    # Predictions
+    train_predictions = linear_mod.predict(X_train_poly)
+    val_predictions = linear_mod.predict(X_val_poly)
 
-sorted_indices = np.argsort(actual_weight_filtered)
-slope = actual_weight_filtered[sorted_indices]
-predictions = train_predictions[sorted_indices]
+    # RMSE
+    train_rmse = np.std(train_predictions - actual_data, ddof=1)
+    validation_rmse = np.std(val_predictions - estimated_data, ddof=1)
 
-# fig, ax = plt.subplots(figsize=(10, 6))
-# ax.scatter(actual_weight_g, estimated_weight_g, label='Actual', color='orange', alpha=0.7)
-# plt.show()
+    print(f"--- {ylabel} ---")
+    print(f"RMSE of actual data: {train_rmse:.3f}")
+    print(f"RMSE of simulated data: {validation_rmse:.3f}")
 
-fig, ax = plt.subplots(figsize=(10, 6))
+    # Plot
+    sorted_indices = np.argsort(actual_weight_filtered)
+    sorted_weight = actual_weight_filtered[sorted_indices]
+    sorted_predictions = train_predictions[sorted_indices]
 
-ax.scatter(actual_weight_filtered, actual_downwash_filtered, label='Actual', color='orange', alpha=0.7)
-ax.scatter(estimated_weight_g, estimated_downwash_m_s, label='Estimated', color='pink', alpha=0.7)
-ax.plot(slope, predictions, color='b', label=f"Degree 1")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.scatter(actual_weight_filtered, actual_data, label='Actual', color='orange', alpha=0.7)
+    ax.scatter(estimated_weight_g, estimated_data, label='Estimated', color='pink', alpha=0.7)
+    ax.plot(sorted_weight, sorted_predictions, color='b', label='Degree 1 Fit')
 
-ax.set_title('Weight vs. Downwash')
-ax.set_xlabel('Weight (g)')
-ax.set_ylabel('Downwash (m/s)')
-ax.legend()
-ax.grid(True)
-plt.tight_layout()
-plt.show()
-
-
-# fig, ax = plt.subplots(figsize=(10, 6))
-
-# ax.scatter(actual_weight_g, advertised_flight_time_min, label='Actual', color='orange', alpha=0.7)
-# ax.scatter(estimated_weight_g, estimated_flight_time_min, label='Estimated', color='pink', alpha=0.7)
-
-# ax.set_title('Weight vs. Flight Time')
-# ax.set_xlabel('Weight (g)')
-# ax.set_ylabel('Flight Time (min)')
-# ax.legend()
-# ax.grid(True)
-# plt.tight_layout()
-# plt.show()
+    ax.set_title(f'Weight vs. {ylabel}')
+    ax.set_xlabel('Weight (g)')
+    ax.set_ylabel(ylabel)
+    ax.legend()
+    ax.grid(True)
+    plt.tight_layout()
+    plt.show()
