@@ -158,9 +158,9 @@ def calc_nvm(L=0.17889, h=3.175, Tz=-4.429, Ty=-7.6716, Wr=1.6527888, PLOT=True)
             plt.plot(x, data, linewidth=2, color=col)          # main curve
             plt.axhline(0, color="gray", linestyle="--", linewidth=0.8)
             plt.fill_between(x, data, color=col, alpha=0.30)   # lighter tint
-            plt.title(title)
+            # plt.title(title)
             plt.xlim(0, L)
-            plt.ylim(-np.max(np.abs(data))*1.1, np.max(np.abs(data))*1.1)
+            plt.ylim(-np.max(np.abs(data))*1.1, np.max(np.abs(data))*0.5)
             plt.gca().invert_yaxis()
             plt.xlabel(r"Beam length $z$  [m]", fontsize=30)  # axis title
             plt.ylabel(ylabel, fontsize=30)
@@ -317,40 +317,10 @@ if __name__ == "__main__":
             plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
         plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
         plt.title(f"Bending Displacement of {beam} Beam")
-        plt.xlabel(r"Beam length $z$  [m]")
-        plt.ylabel("Displacement [m]")
+        plt.xlabel(r"Beam length $z$  [m]", fontsize=20)
+        plt.ylabel("Displacement [m]", fontsize=20)
+        plt.tick_params(axis='both', which='major', labelsize=20)
         plt.gca().invert_yaxis()
-        plt.legend()
+        plt.legend(fontsize=20)
         plt.grid(False)
         plt.show()
-        
-    # plt.figure(figsize=(6,3))
-    # for t, data in rect_dict.items():
-    #     plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
-    # plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
-    # # plt.title("Bending Displacement of Rectangular Beam")
-    # # plt.xlabel("Beam length x  [m]", fontsize=18)  # axis title
-    # #         plt.ylabel(ylabel, fontsize=18)
-    # #         plt.tick_params(axis='both', which='major', labelsize=16)  # tick numbers
-    # plt.xlabel(r"Beam length $z$  [m]", fontsize=30)  # axis title
-    # plt.ylabel("Displacement [m]", fontsize=30)
-    # plt.tick_params(axis='both', which='major', labelsize=25)  # tick numbers
-    # plt.ylabel("Displacement [m]")
-    # plt.gca().invert_yaxis()
-    # plt.legend(fontsize=27)
-    # plt.grid(False)
-    # plt.show()
-
-    # plt.figure(figsize=(6,3))
-    # for t, data in circ_dict.items():
-    #     plt.plot(x, data["Displacement"], label=f"t={t:.3f} m")
-    # plt.plot(x, np.zeros(100), color="gray", label="Zero Displacement")
-    # # plt.title("Bending Displacement of Circular Beam")
-    # plt.xlabel(r"Beam length $z$  [m]", fontsize=30)  # axis title
-    # plt.ylabel("Displacement [m]", fontsize=30)
-    # plt.tick_params(axis='both', which='major', labelsize=25)  # tick numbers
-    # plt.ylabel("Displacement [m]")
-    # plt.gca().invert_yaxis()
-    # plt.legend(fontsize=27)
-    # plt.grid(False)
-    # plt.show()

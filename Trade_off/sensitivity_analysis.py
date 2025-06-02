@@ -19,9 +19,10 @@ def sensitivity_analysis(designs, criteria_weight, change_value):
 def plot_sensitivity_analysis(scores):
     plt.figure(figsize=(10, 6)) 
     plt.boxplot(scores.values(), labels=scores.keys(), showmeans=True)
-    plt.title('Sensitivity Analysis of Design Scores')
-    plt.xlabel('Designs')
-    plt.ylabel('Scores')
+    # plt.title('Sensitivity Analysis of Design Scores')
+    plt.xlabel('Designs', fontsize=18)
+    plt.ylabel('Scores', fontsize=18)
+    plt.tick_params(axis='both', which='major', labelsize=16)
     plt.grid()
     plt.show()
 
@@ -31,15 +32,17 @@ if __name__ == "__main__":
     change_value = 0.05
 
     # Scores for each design in each criterion
-    designs = {'design1': [ 4, 4, 4, 4, 4], 
-            'design2': [ 1, 1, 1, 1, 1], 
-            'design3': [ 4, 3, 1, 3, 4],
-            'design4': [ 1, 2, 4, 3, 1],}
+    designs = {'C1': [90, 65, 50, 65, 90], 
+            'C2': [90, 75, 50, 90, 50], 
+            'C3': [90, 60, 75, 80, 75],
+            'C4': [25, 75, 75, 75, 50],
+            'C5': [75, 65, 0, 90, 50]}
 
     # Resulting score after sensitivity analysis
-    scores = {'design1': [],
-            'design2': [],
-            'design3': [],
-            'design4': []}
+    scores = {'C1': [],
+            'C2': [],
+            'C3': [],
+            'C4': [],
+            'C5': []}
     result = sensitivity_analysis(designs, criteria_weight, change_value)
     plot_sensitivity_analysis(result)
