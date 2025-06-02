@@ -224,9 +224,9 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=7.2, rho=1.225, til
 
     #duav
     ratio = 0.325 / 0.13
-    d = result["motor"]["diameter"] / 100  # m
+    #d = result["motor"]["diameter"] / 100  # m
     #duav = d + 12.667 / 100
-    duav = d * ratio
+    #duav = d * ratio
 
     return {
         'T/W': T_W,
@@ -238,7 +238,7 @@ def analyze_performance(result, n_rotors=4, cruise_speed_kmh=7.2, rho=1.225, til
         'Power Plant Parameter (N_take-off) w': power_hp,
         'Downwash velocity m/s': V2,
         "Power to hover W": P_hover,
-        "duav": duav,
+        #"duav": duav,
     }
 
 def print_final_summary(result, performance):

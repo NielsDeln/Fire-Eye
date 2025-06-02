@@ -38,7 +38,7 @@ for m_payload_grams, P_payload, t_flight_min in payload_data:
 # get data poop
 payloads = [r["m_payload"] for r in results_list]
 gtow = [r["GTOW"] for r in results_list]
-duav = [p["duav"] for p in performance_list]
+#duav = [p["duav"] for p in performance_list]
 downwash = [p["Downwash velocity m/s"] for p in performance_list]
 flight_time = [p["Flight Duration min"] for p in performance_list]
 
@@ -148,6 +148,7 @@ def make_plot(x_est, y_est, x_actual=None, y_actual=None, xlabel='', ylabel='', 
     plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
+    plt.ylim(0,25)
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
