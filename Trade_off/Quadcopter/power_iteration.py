@@ -336,7 +336,7 @@ if __name__ == "__main__":
      # mass, power, time flight min
 
     table = PrettyTable()
-    table.field_names = ["Total Weight (g)", "Flight Time (min)", "Downwash (m/s)", "Battery Mass (g)", "Battery Capacity (mAh)", "Num batt (sanity check)"]
+    table.field_names = ["Tot Weight (g)", "Flight Time (min)", "Downwash (m/s)", "Battery Mass (g)", "Battery Capacity (mAh)", "Num batt", "Thrust req (g)", "Diameter prop (cm)"]
 
     #t_flight = 0.25  
 
@@ -355,16 +355,18 @@ if __name__ == "__main__":
                 max_gtow=5000
             )
             performance = analyze_performance(results)
-            print_final_summary(results, performance)
+            #print_final_summary(results, performance)
             battery = results['battery']
             num_batt = results['m_battery'] / battery['mass']
             table.add_row([
-            round(results['GTOW'], 3),
-            round(performance['Flight Duration min'], 3),
-            round(performance['Downwash velocity m/s'], 3),
+            round(results['GTOW'], 2),
+            round(performance['Flight Duration min'], 2),
+            round(performance['Downwash velocity m/s'], 2),
             round(results['m_battery'], 2),
             results['battery']['capacity'],
-            num_batt
+            round(num_batt, 1),
+            round(results["T_max"], 2),
+            round(results["propeller"]["diameter"], 2)
         ])
         except RuntimeError as e:
             print(f"Failed to converge for payload {m_payload_grams} g: {e}")
