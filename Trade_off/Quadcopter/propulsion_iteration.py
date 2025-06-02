@@ -50,7 +50,7 @@ def evaluate_motor_prop_combo(motor, prop_diameter, mass_aircraft, prop_pitch=5.
     A = np.pi * (d_m / 2)**2  # rotor disc area in m²
     
     # induced velocity V1 under rotor
-    V1 = np.sqrt((M * 9.81) / (2 * rho * A))
+    V1 = np.sqrt((M * 9.81/4) / (2 * rho * A))
     V2 = 2 * V1
     
     # penalty terms 
@@ -58,7 +58,7 @@ def evaluate_motor_prop_combo(motor, prop_diameter, mass_aircraft, prop_pitch=5.
     mass_penalty = 0.001 * motor['mass']
     
     metric = V2 + mass_penalty - 0.2 * thrust_efficiency  
-    return metric
+    return V2
 
 
 
