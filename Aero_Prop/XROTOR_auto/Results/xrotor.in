@@ -1,0 +1,24 @@
+aero
+read "C:\\Users\\helen\\Downloads\\TU DELFT\\Y3\\DSE-FireEYE\\Propulsion\\XFOIL6.99\\naca0012.pol"
+desi
+inpu
+B 2
+RT 0.2000
+RH 0.0250
+RW 0.0260
+V 20.0
+A 0
+RPM 5000.0
+T 0
+P 67.0
+CC 0.5
+
+
+oper
+velo 20.0
+rpm 5000.0
+disp
+addc
+disp
+writ naca0012.pol_motor1_prop1_0.txt
+quit

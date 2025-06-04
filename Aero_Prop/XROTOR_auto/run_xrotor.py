@@ -11,28 +11,6 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 
-"""OPTIMAL:
-for prop in props:
-    for motor in motors:
-        for voltage in allowed_voltages(motor):
-            rpm = motor["kv"] * voltage
-            for tilt_angle in tilt_configs:
-                run_xrotor_with(rpm, prop)
-                get_thrust_and_power()
-
-                # project thrust based on tilt
-                T_v = T_total * cos(tilt)
-                T_h = T_total * sin(tilt)
-                score = (T_v / power) + (T_h / power) * cruise_weight
-
-                if score > best[regime]:
-                    save_optimal_config()
-
-
-"""
-
-
-
 """LOAD DATA"""
 
 PROJECT_ROOT = Path(__file__).parent.resolve()
@@ -40,13 +18,11 @@ AIRFOIL_DIR = PROJECT_ROOT / "airfoils"
 PROP_DIR = PROJECT_ROOT / "propellers"
 MOTOR_DIR = PROJECT_ROOT / "motors"
 RESULTS_DIR = PROJECT_ROOT / "Results"
-OPTIMAL_DIR = RESULTS_DIR / "optimal_configs"
+OPTIMAL_DIR = PROJECT_ROOT / "Optimal_configs"
 
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 OPTIMAL_DIR.mkdir(parents=True, exist_ok=True)
 
-with open('tilt_configs.json') as f:
-    tilt_angles = json.load(f)
 
 TOP_N = 5
 
@@ -82,38 +58,72 @@ def compute_thrust_components(thrust, tilt_deg):
     }
 
 # To run XROTOR
-def generate_input_file(airfoil, motor, prop, tilt, voltage, rpm, file_path):
+def generate_input_file(airfoil, motor, prop, tilt, voltage, rpm, file_path, output_file):
     with open(file_path, "w") as f:
         f.write(f"aero\n")
-        f.write(f"read {AIRFOIL_DIR / airfoil}\n") # change airfoil first
+        #f.write(f"read {AIRFOIL_DIR / airfoil}\n") # change airfoil first
+        # airfoil_name = Path(airfoil).name
+        # f.write(f"read {airfoil_name}\n")
+        f.write(f'read "{airfoil}"\n')
         f.write("desi\n") # start input propeller
         f.write("inpu\n")
         f.write(f"B {prop['blades']}\n")
-        f.write(f"RT {prop['diameter_m']/2:.4f}\n")
-        f.write(f"RH {prop['hub_diameter_m']/2:.4f}\n")
-        f.write(f"RW {prop['hub_wake displacement_body_radius']:.4f}\n")
-        f.write(f"V 10.0\n") # AIRSPEED TO BE CHANGED
+        f.write(f"RT {prop['radius_m']:.4f}\n")
+        f.write(f"RH {prop['hub_radius_m']:.4f}\n")
+        f.write(f"RW {prop['hub_wake displacement_body_radius_m']:.4f}\n")
+        f.write(f"V 20.0\n") # AIRSPEED TO BE CHANGED
         f.write(f"A 0\n")
         f.write(f"RPM {rpm:.1f}\n")
         f.write(f"T 0\n")
         f.write(f"P {motor['power']:.1f}\n")
-        f.write(f"CC 0.6\n") # balanced for moderate thrust & efficiency
+        f.write(f"CC 0.5\n") # balanced for moderate thrust & efficiency
         f.write(f"\n")  # trigger design
         f.write(f"\n") # Enter twice
         f.write("oper\n")
-        f.write("velo 10.0\n") # AIRSPEED TO BE CHANGED
+        f.write("velo 20.0\n") # AIRSPEED TO BE CHANGED
         f.write(f"rpm {rpm:.1f}\n")
         f.write("disp\n")
         f.write("addc\n")
         f.write("disp\n")
-        # ADD VELO THIMNG UUUUUUGHGHGHHG
-        f.write(f"writ {RESULTS_DIR / f'{airfoil}_{motor['name']}_{prop['name']}_{tilt}.txt'}\n")
+        #f.write(f"writ {output_file}\n")
+        # f.write(f"writ {str(output_file).replace(os.sep, '/')}\n")
+        f.write(f"writ {output_file.name}\n")
+        #f.write(f"writ {RESULTS_DIR / f'{airfoil}_{motor['name']}_{prop['name']}_{tilt}.txt'}\n"
+
+        # ADD VELO THIMNG UUUUUUGHGHGHH
+        #f.write(f"x_rotor\n")
+        
         f.write("quit\n")
 
+XROTOR_EXECUTABLE = r"C:\Users\helen\Downloads\TU DELFT\Y3\DSE-FireEYE\Propulsion\xrotor7.69.exe\xrotor.exe"
+
 def run_xrotor(input_file):
-    result = subprocess.run(f"xrotor < {input_file}", shell=True, capture_output=True, text=True)
+    with open(input_file, "r") as f:
+        input_data = f.read()
+    result = subprocess.run(
+        [XROTOR_EXECUTABLE],
+        input=input_data,
+        text=True,
+        capture_output=True,
+        cwd=RESULTS_DIR
+    )
+    #print("STDOUT:", result.stdout)
+    #print("STDERR:", result.stderr)
+    #print("Return code:", result.returncode)
     return result.stdout
 
+# def run_xrotor(input_file):
+#     result = subprocess.run(
+#         f'"{XROTOR_EXECUTABLE}" < {input_file.name}',
+#         shell=True,
+#         capture_output=True,
+#         text=True,
+#         cwd=RESULTS_DIR
+#     )
+#     #print("STDOUT:", result.stdout)
+#     #print("STDERR:", result.stderr)
+#     #print("Return code:", result.returncode)
+#     return result.stdout
 
 def parse_output(output_path):
     with open(output_path, "r") as f:
@@ -171,15 +181,17 @@ def hash_config(a, m, p, tilt, v):
 def main():
     motors = load_json_files_from_folder(MOTOR_DIR)
     props = load_json_files_from_folder(PROP_DIR)
-    airfoils = load_airfoils()
-
+    #airfoils = load_airfoils()
+    #airfoils = [r"C:\Users\helen\Downloads\TU DELFT\Y3\DSE-FireEYE\Propulsion\XFOIL6.99\naca0012.pol"] # list airfoils
+    #airfoils = [r"C:/Users/helen/Downloads/TU DELFT/Y3/DSE-FireEYE/Propulsion/XFOIL6.99/naca0012.pol"]
+    airfoils = [r"C:\\Users\\helen\\Downloads\\TU DELFT\\Y3\\DSE-FireEYE\\Propulsion\\XFOIL6.99\\naca0012.pol"]
     tested = set()
     best_configs = deque(maxlen=TOP_N)
 
     for airfoil in airfoils:
         for motor in motors:
             for prop in props:
-                for tilt in tilt_angles:
+                for tilt in [0, 15, 30, 45, 60]:
                     for voltage in [12.0, 14.8, motor["max_voltage"]]: #12.0V → common for 3S LiPo, 14.8V → common for 4S LiPo
                         rpm = compute_rpm(motor, voltage)
                         cfg_hash = hash_config(airfoil, motor, prop, tilt, voltage)
@@ -187,12 +199,21 @@ def main():
                             continue
                         tested.add(cfg_hash)
 
-                        input_file = PROJECT_ROOT / "xrotor.in"
-                        generate_input_file(airfoil, motor, prop, tilt, voltage, rpm, input_file)
-                        run_xrotor(input_file)
-
+                        input_file = RESULTS_DIR / "xrotor.in"
+                        print("INPUUT")
                         output_file = RESULTS_DIR / f"{airfoil}_{motor['name']}_{prop['name']}_{tilt}.txt"
+
+                        generate_input_file(airfoil, motor, prop, tilt, voltage, 5000, input_file, output_file)
+                        x_output = run_xrotor(input_file)
+                        #print("XROTOR output:",x_output)
+                        #os.remove(input_file)
+
+                        if not output_file.exists():
+                            print(f"Error: Output file {output_file} was not created.")
+                            continue
+
                         result = parse_output(output_file)
+                        
 
                         thrusts = compute_thrust_components(result["thrust"], tilt)
                         motor_mass = motor.get("mass", 0.1)  # avoid divide-by-zero

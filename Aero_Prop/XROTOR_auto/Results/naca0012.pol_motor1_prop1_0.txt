@@ -1,0 +1,52 @@
+
+ ===========================================================================
+
+                   ********** NOT CONVERGED **********
+
+ Free Tip Potential Formulation Solution:                                  
+                                                  Wake adv. ratio:        NaN
+ no. blades :  0            radius(m)  :   0.0000     adv. ratio:         NaN
+ thrust(N)  :        NaN    power(W)   :        NaN   torque(N-m):        NaN
+ Efficiency :     NaN       speed(m/s) :   20.000     rpm        :        NaN
+ Eff induced:     NaN       Eff ideal  :   2.0000     Area(m^2)  :    0.00000
+ Tnacel(N)  :        NaN    Rhub(m)    :   0.0000     Rwake(m)   :    0.0000
+ Tvisc(N)   :        NaN    Pvisc(W)   :        NaN   Mach       :    0.0588
+ rho(kg/m3) :   1.22600     Vsound(m/s):  340.000     mu(kg/m-s) : 0.1780E-04
+ ---------------------------------------------------------------------------
+    J:        NaN      adv:        NaN       AF:    0.000
+   Ct:        NaN       Cp:        NaN  (by rho,Diam,N)
+   Tc:        NaN       Pc:        NaN  (by rho,Atip,Vel)
+   CT:        NaN       CP:        NaN  (by rho,Atip,Vtip)
+Sigma:    0.00000 CT/sigma:        NaN
+
+  i  r/R    c/R  beta(deg)   CL      Cd    RE    Mach   effi  effp  na.u/U  solidity
+  1 0.026 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+  2 0.078 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+  3 0.130 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+  4 0.182 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+  5 0.233 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+  6 0.284 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+  7 0.334 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+  8 0.383 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+  9 0.430 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 10 0.477 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 11 0.522 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 12 0.566 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 13 0.609 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 14 0.649 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 15 0.688 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 16 0.725 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 17 0.760 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 18 0.793 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 19 0.824 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 20 0.852 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 21 0.879 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 22 0.902 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 23 0.924 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 24 0.942 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 25 0.958 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 26 0.972 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 27 0.983 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 28 0.991 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 29 0.997 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
+ 30 0.999 0.0000    NaN    NaN      NaN    NaN    NaN    NaN   NaN   0.000  0.0000
