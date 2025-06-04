@@ -18,7 +18,7 @@ res = 300 # resolution for plotting
 K = 10 # RANDOM VALUE!!!
 K_visc = K * (1 / 15.68) # Viscosity coefficient [m^2/s] AT ROOM TEMPERATURE!!!!
 
-V_x = 4 # RANDOM VALUE!!! # velocity at which propeller moving forward (technically 0 cause we hoverin)
+V_x = 0.3 # RANDOM VALUE!!! # velocity at which propeller moving forward (technically 0 cause we hoverin)
 
 T = C_T * (rho * n**2 * D_p**4)
 
