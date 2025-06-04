@@ -121,7 +121,6 @@ def v_i(V_max, r, x, x_0, R_m_0, R_0 = R_0):
 
 
 def plot_downwash(orientation = 'vertical', to_scale = False):
-    print('pooping', x_0(V_0(), a(K_T()), V_x))
     x_vals = np.linspace(int(np.round(x_0(V_0(), a(K_T()), V_x))), alt, res)
     r_grid = []
     v_i_grid = []
