@@ -106,6 +106,7 @@ def generate_input_file(airfoil, motor, prop, tilt, voltage, rpm, file_path):
         f.write("disp\n")
         f.write("addc\n")
         f.write("disp\n")
+        # ADD VELO THIMNG UUUUUUGHGHGHHG
         f.write(f"writ {RESULTS_DIR / f'{airfoil}_{motor['name']}_{prop['name']}_{tilt}.txt'}\n")
         f.write("quit\n")
 
@@ -197,7 +198,7 @@ def main():
                         motor_mass = motor.get("mass", 0.1)  # avoid divide-by-zero
                         efficiency = result["efficiency"]
 
-                        if result["thrust"] < 2.5: # Require minimum thrust (TO BE CHANGED)
+                        if thrusts["vertical"] < 2.5: # Require minimum thrust (TO BE CHANGED)
                             continue
 
                         # Multi-factor score
