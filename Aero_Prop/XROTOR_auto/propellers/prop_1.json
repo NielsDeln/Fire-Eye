@@ -1,0 +1,18 @@
+
+{
+  "name": "prop1",
+  "blade_count": 2,
+  "radius": 1.0,
+  "rpm": 5000,
+  "freestream_velocity": 50,
+  "airfoils": [
+    {
+      "section_r_ratio": 0.2,
+      "file": "naca0012.pol"
+    },
+    {
+      "section_r_ratio": 0.8,
+      "file": "naca2412.pol"
+    }
+  ]
+}

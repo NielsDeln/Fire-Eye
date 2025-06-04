@@ -1,0 +1,10 @@
+{
+  "name": "motor1",
+  "kv": 920,
+  "max_voltage": 16.8,
+  "max_current": 20,
+  "idle_current": 1.5,
+  "efficiency": 0.85,
+  "power": 9,
+  "mass": 0
+  }
