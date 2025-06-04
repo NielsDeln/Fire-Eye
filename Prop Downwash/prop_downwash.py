@@ -108,7 +108,7 @@ def v_i(V_max, r, x, x_0, R_m_0, R_0 = R_0):
     if x >= 0 and x <= (x_0 + 0.5*D_0): # ZFE
         return V_max * np.e ** (-0.5 * ((r - R_m_0) / (0.5 * R_m_0))**2)
 
-    elif x > (x_0 + 0.5*D_0) and x <= (x_0 + 3.25 * D_0): # ZFE
+    elif x > (x_0 + 0.5*D_0): # and x <= (x_0 + 3.25 * D_0): # ZFE
         return V_max * np.e ** (-0.5 * ((r - R_m_0) / (0.5 * R_m_0 + (0.075 * (x - x_0 - R_0))/K_visc))**2)
 
     elif x > (x_0 + 3.25 * D_0): # ZEF
