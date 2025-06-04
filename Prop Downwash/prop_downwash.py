@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-
+#dfsd
 ############# VARIABLES #############
 
 rho = 1.225 # air density at room temp 
