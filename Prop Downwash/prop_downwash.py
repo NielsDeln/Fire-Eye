@@ -18,7 +18,7 @@ res = 300 # resolution for plotting
 K = 10 # RANDOM VALUE!!!
 K_visc = K * (1 / 15.68) # Viscosity coefficient [m^2/s] AT ROOM TEMPERATURE!!!!
 
-V_x = 0.3 # RANDOM VALUE!!! # velocity at which propeller moving forward (technically 0 cause we hoverin)
+V_x = 4 # RANDOM VALUE!!! # velocity at which propeller moving forward (technically 0 cause we hoverin)
 
 T = C_T * (rho * n**2 * D_p**4)
 
@@ -91,7 +91,7 @@ def V_ZEF_max(V_0, x, x_0, R_0 = R_0):
 def V_max(V_0, x, x_0, R_0 = R_0):
     D_0 = 2 * R_0 # Diameter at efflux [m]
     
-    if x >= x_0: #and x <= (x_0 + 3.25 * D_0): 
+    if x >= x_0 and x <= (x_0 + 3.25 * D_0): 
         return V_0 * (1.0172 - K_visc * 0.1835 * (x - x_0) / D_0)
     elif x > (x_0 + 3.25 * D_0): 
         return V_0 * (0.543 - K_visc * 0.0281 * (x - x_0) / D_0)
@@ -108,7 +108,7 @@ def v_i(V_max, r, x, x_0, R_m_0, R_0 = R_0):
     if x >= 0 and x <= (x_0 + 0.5*D_0): # ZFE
         return V_max * np.e ** (-0.5 * ((r - R_m_0) / (0.5 * R_m_0))**2)
 
-    elif x > (x_0 + 0.5*D_0): # and x <= (x_0 + 3.25 * D_0): # ZFE
+    elif x > (x_0 + 0.5*D_0 and x <= (x_0 + 3.25 * D_0)): # ZFE
         return V_max * np.e ** (-0.5 * ((r - R_m_0) / (0.5 * R_m_0 + (0.075 * (x - x_0 - R_0))/K_visc))**2)
 
     elif x > (x_0 + 3.25 * D_0): # ZEF
