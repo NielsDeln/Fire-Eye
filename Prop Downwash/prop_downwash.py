@@ -6,16 +6,16 @@ import random
 
 rho = 1.225 # air density at room temp 
 
-D_p = 0.15 # Propeller diameter [m]
+D_p = 0.127 # Propeller diameter [m]
 C_T = 0.1 # Thrust coefficient
-n = 3000 / 60 # Propeller speed [rps]
+n = 34040 / 60 # Propeller speed [rps]
 R_p = D_p / 2 # Propeller radius [m]
-R_h = 0.01 # Hub radius [m]
+R_h = 0.013 # Hub radius [m]
 
 K = 1 # RANDOM VALUE!!!
 K_visc = K * (1 / 15.68) # Viscosity coefficient [m^2/s] AT ROOM TEMPERATURE!!!!
 
-V_x = 0.1 # RANDOM VALUE!!! # velocity at which propeller moving forward (technically 0 cause we hoverin)
+V_x = 0.3 # RANDOM VALUE!!! # velocity at which propeller moving forward (technically 0 cause we hoverin)
 
 T = C_T * (rho * n**2 * D_p**4)
 
@@ -31,11 +31,11 @@ def V_0(D_p = D_p, C_T = C_T, n = n):
 
 # Some coefficient ( = inf for V_x = 0)
 def K_T(V_x = V_x, T=T, rho=1.225, R_p = R_p):
-    return (T / (4 * rho * R_p**2 * V_x**2)) if V_x != 0 else 0
+    return (T / (4 * rho * R_p**2 * V_x**2)) if V_x != 0 else np.inf
 
 # Some coefficient 
 def a(K_T):
-    return (-1 + np.sqrt(1 + 8 * (K_T/np.pi)))/2 if K_T != 0 else 0
+    return (-1 + np.sqrt(1 + 8 * (K_T/np.pi)))/2 if K_T != np.inf else np.inf
 
 # Efflux position [m]
 def x_0(V_0, a, V_x, R_p = R_p): # efflux position [m]
@@ -48,6 +48,11 @@ def v_i_avg(x, a, V_x = 0, R_p = R_p):
 
 # Radius at given x position [m]
 def R_s(x, a, R_p = R_p):
+    print('""""')
+    print(a)
+    print(np.sqrt((R_p**2 + x**2)))
+    print(0.5 * a * x / np.sqrt((R_p**2 + x**2)))
+    print('""""')
     return R_p * (1 - 0.5 * a * x / np.sqrt((R_p**2 + x**2)))
 
 
@@ -108,15 +113,13 @@ def v_i(V_max, r, x, x_0, R_m_0, R_0 = R_0):
         return V_max * np.e ** (-22.2 * (r / (K_visc * (x-x_0)))**2)
     
     else:
-        print('poop happened')
+        print('poop happened (sqrt for x_0 is negative)')
         return 0
     
 
 
-x_vals = np.linspace(0, 5, 100)
+x_vals = np.linspace(0, 3, 100)
 r_vals = []
-v_i_vals = []
-tot_vals = [] # of format : [ [x, r, v_i], [x, r, v_i], .... ]
 
 for x in x_vals:
     r = R_s(x, a(K_T()))
@@ -124,10 +127,13 @@ for x in x_vals:
     r_vals.append(r)
 
 
+
+plt.plot(x_vals, r_vals, label='R_s(x) - Radial Position at x')
+plt.show()
+
 # for i in range(len(x_vals)):
 #     x = x_vals[i]
 #     r = r_vals[i]
-
 
 #     v_max = V_max(V_0(), x, x_0(V_0(), a(K_T()), V_x))
 
@@ -168,6 +174,7 @@ for i in range(len(x_vals)):
     v_i_grid.append(v_i_row)
 
 r_grid = np.array(r_grid)  # shape: (len(x_vals), 100)
+print(r_grid)
 v_i_grid = np.array(v_i_grid)  # shape: (len(x_vals), 100)
 
 plt.figure(figsize=(8, 5))
