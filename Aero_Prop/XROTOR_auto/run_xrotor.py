@@ -2,6 +2,7 @@ import subprocess
 import math
 import os
 import hashlib
+import wexpect
 import re
 from pathlib import Path
 from collections import deque
@@ -96,6 +97,26 @@ def generate_input_file(airfoil, motor, prop, tilt, voltage, rpm, file_path, out
         f.write("quit\n")
 
 XROTOR_EXECUTABLE = r"C:\Users\helen\Downloads\TU DELFT\Y3\DSE-FireEYE\Propulsion\xrotor7.69.exe\xrotor.exe"
+RESULTS_DIR = Path(r"C:\Users\helen\Downloads\TU DELFT\Y3\DSE-FireEYE\Propulsion\Results")
+RESULTS_DIR.mkdir(exist_ok=True)
+
+def run_xrotor_interactive(inputs):
+    # Spawn the XROTOR executable in the RESULTS_DIR working directory
+    child = wexpect.spawn(str(XROTOR_EXECUTABLE), cwd=str(RESULTS_DIR))
+
+    # Loop over (prompt, reply) pairs and interact
+    for prompt, reply in inputs:
+        print(f"Waiting for prompt: {prompt}")
+        child.expect(prompt)
+        print(f"Sending reply: {reply}")
+        child.sendline(reply)
+
+    # Wait for process to finish
+    child.expect(wexpect.EOF)
+    output = child.before.decode('utf-8') if isinstance(child.before, bytes) else child.before
+
+    print("XROTOR output:\n", output)
+    return output
 
 def run_xrotor(input_file):
     with open(input_file, "r") as f:
@@ -107,10 +128,12 @@ def run_xrotor(input_file):
         capture_output=True,
         cwd=RESULTS_DIR
     )
-    #print("STDOUT:", result.stdout)
-    #print("STDERR:", result.stderr)
+    print("STDOUT:", result.stdout)
+    print("STDERR:", result.stderr)
     #print("Return code:", result.returncode)
     return result.stdout
+
+
 
 # def run_xrotor(input_file):
 #     result = subprocess.run(
@@ -184,14 +207,15 @@ def main():
     #airfoils = load_airfoils()
     #airfoils = [r"C:\Users\helen\Downloads\TU DELFT\Y3\DSE-FireEYE\Propulsion\XFOIL6.99\naca0012.pol"] # list airfoils
     #airfoils = [r"C:/Users/helen/Downloads/TU DELFT/Y3/DSE-FireEYE/Propulsion/XFOIL6.99/naca0012.pol"]
-    airfoils = [r"C:\\Users\\helen\\Downloads\\TU DELFT\\Y3\\DSE-FireEYE\\Propulsion\\XFOIL6.99\\naca0012.pol"]
+    #airfoils = [r"C:\\Users\\helen\\Downloads\\TU DELFT\\Y3\\DSE-FireEYE\\Propulsion\\XFOIL6.99\\naca0012.pol"]
+    airfoils = [Path(r"C:\Users\helen\Downloads\TU DELFT\Y3\DSE-FireEYE\Propulsion\XFOIL6.99\naca0012.pol")]
     tested = set()
     best_configs = deque(maxlen=TOP_N)
 
     for airfoil in airfoils:
         for motor in motors:
             for prop in props:
-                for tilt in [0, 15, 30, 45, 60]:
+                for tilt in [30]: #[0, 15, 30, 45, 60]:
                     for voltage in [12.0, 14.8, motor["max_voltage"]]: #12.0V → common for 3S LiPo, 14.8V → common for 4S LiPo
                         rpm = compute_rpm(motor, voltage)
                         cfg_hash = hash_config(airfoil, motor, prop, tilt, voltage)
@@ -201,13 +225,17 @@ def main():
 
                         input_file = RESULTS_DIR / "xrotor.in"
                         print("INPUUT")
-                        output_file = RESULTS_DIR / f"{airfoil}_{motor['name']}_{prop['name']}_{tilt}.txt"
+                        airfoil_name = Path(airfoil).name.split('.')[0]  
+                        output_file = RESULTS_DIR / f"{airfoil_name}_{motor['name']}_{prop['name']}_{tilt}.txt"
+                        #output_file = RESULTS_DIR / f"{airfoil}_{motor['name']}_{prop['name']}_{tilt}.txt"
 
                         generate_input_file(airfoil, motor, prop, tilt, voltage, 5000, input_file, output_file)
                         x_output = run_xrotor(input_file)
                         #print("XROTOR output:",x_output)
                         #os.remove(input_file)
-
+                        print(f"Running: {XROTOR_EXECUTABLE}")
+                        print(f"Input file: {input_file}")
+                        print(f"Current working directory: {RESULTS_DIR}")
                         if not output_file.exists():
                             print(f"Error: Output file {output_file} was not created.")
                             continue
@@ -219,7 +247,7 @@ def main():
                         motor_mass = motor.get("mass", 0.1)  # avoid divide-by-zero
                         efficiency = result["efficiency"]
 
-                        if thrusts["vertical"] < 2.5: # Require minimum thrust (TO BE CHANGED)
+                        if thrusts["vertical"] < 7: # Require minimum thrust (TO BE CHANGED)
                             continue
 
                         # Multi-factor score
@@ -266,5 +294,7 @@ def main():
             json.dump(config, f, indent=2)
 
 if __name__ == "__main__":
+    
+
     main()
 
