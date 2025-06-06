@@ -30,7 +30,7 @@ def full_system_loop(m_pl, P_payload, t_flight, tol=1e-2, max_outer=10, max_gtow
             battery_capacity=battery_guess['capacity'],
             n_cells=battery_guess['cells'], 
             battery_override=battery_guess,
-            n_batteries=n_batt
+            #n_batteries=n_batt
         )
 
         # Step 2: total power consumption

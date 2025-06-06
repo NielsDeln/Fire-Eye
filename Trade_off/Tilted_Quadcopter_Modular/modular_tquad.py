@@ -73,8 +73,8 @@ if __name__ == "__main__":
     )
     result = converge_gtow_and_prop(m_pl, n_cells=4)"""
 
-    base_m_pl = m_payload(198, 19 , 230, 0, 0)  # g
-    base_P_payload = 10+5+10  # watts
+    base_m_pl = 603.0   # g
+    base_P_payload = 52.09  # watts
     t_flight = 0.25  # hours
 
     # Margins: -20%, baseline, +20%
