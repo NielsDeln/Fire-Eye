@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-filename = r"C:\Users\helen\Downloads\XFOIL6.99\naca0012final.pol" 
+filename = r"C:\Users\ninak\Documents\DSE\propulsion\airfoils\naca4412.pol" 
 
 
 
@@ -50,6 +50,11 @@ cl = np.array(cl)
 cd = np.array(cd)
 cm = np.array(cm)
 
+
+plt.plot(alpha,cl)
+plt.grid()
+plt.show()
+
 # === Computations for XROTOR ===
 cl_max = np.max(cl)
 cl_min = np.min(cl)
@@ -57,13 +62,13 @@ cd_min = np.min(cd)
 cl_at_cdmin = cl[np.argmin(cd)]
 
 # Linear lift slope dCL/dalpha
-linear_region = (alpha >= -5) & (alpha <= 5)
-dcl_dalpha = np.polyfit(alpha[linear_region], cl[linear_region], 1)[0]
+linear_region = (alpha >= -5) & (alpha <= 8)
+dcl_dalpha = np.polyfit(alpha[linear_region]*np.pi/180, cl[linear_region], 1)[0]
 
 # Stall slope: after max CL (rough estimate)
-stall_region = (alpha >= 10)
+stall_region = (alpha >= 8) & (alpha <=12)
 if np.sum(stall_region) >= 2:
-    dcl_dalpha_stall = np.polyfit(alpha[stall_region], cl[stall_region], 1)[0]
+    dcl_dalpha_stall = np.polyfit(alpha[stall_region]*np.pi/180, cl[stall_region], 1)[0]
 else:
     dcl_dalpha_stall = 0.1  # fallback default
 
@@ -71,7 +76,7 @@ else:
 zero_lift_alpha = float(np.interp(0.0, cl, alpha))
 
 # CL increment to stall (CL_max – CL at 5 deg)
-cl_at_5deg = float(np.interp(5.0, alpha, cl))
+cl_at_5deg = float(np.interp(8.0, alpha, cl))
 delta_cl_stall = cl_max - cl_at_5deg
 
 # CD vs CL^2 drag polar fit
