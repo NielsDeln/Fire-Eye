@@ -72,6 +72,7 @@ def analyze_results():
             try:
                 base = file.stem  # no .txt
                 airfoil, prop, motor, motor_mass = base.split("_")
+                motor_mass = int(motor_mass)
             except ValueError:
                 print(f"Filename format invalid: {file.name}")
                 continue
@@ -81,7 +82,7 @@ def analyze_results():
             vertical_thrust = data["thrust"] * math.cos(math.radians(tilt))
 
             # Minimum thrust constraint
-            if vertical_thrust < 2.5:
+            if vertical_thrust < 4.3:
                 continue
 
             # Score formula (tune as needed)
