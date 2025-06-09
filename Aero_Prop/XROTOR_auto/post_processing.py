@@ -25,8 +25,8 @@ def parse_output(output_path):
         result["power"] = float(re.search(r"power\(W\)\s*:\s*([\d.+-]+)", text).group(1))
         result["torque"] = float(re.search(r"torque\(N-m\):\s*([\d.+-]+)", text).group(1))
         result["efficiency"] = float(re.search(r"Efficiency\s*:\s*([\d.]+)", text).group(1))
-        result["ct"] = float(re.search(r"Ct:\s*([\d.]+)", text).group(1))
-        result["cp"] = float(re.search(r"Cp:\s*([\d.]+)", text).group(1))
+        result["ct"] = float(re.search(r"CT:\s*([\d.]+)", text).group(1))
+        result["cp"] = float(re.search(r"CP:\s*([\d.]+)", text).group(1))
         result["mach"] = float(re.search(r"Mach\s*:\s*([\d.]+)", text).group(1))
 
         # Optional: grab table lines (for spanwise efficiency, etc.)
@@ -82,16 +82,62 @@ def analyze_results():
             vertical_thrust = data["thrust"] * math.cos(math.radians(tilt))
 
             # Minimum thrust constraint
-            if vertical_thrust < 4.3:
+            if vertical_thrust < 4:
                 continue
 
-            # Score formula (tune as needed)
+            ## === NPPS (Normalized Propeller Performance Score) ===
+            power = data["power"] if data["power"] > 0 else 1e-6
+            thrust_per_watt = data["thrust"] / power
+            eff_induced = data.get("eff_induced", data["efficiency"])
+            ct_sigma = data.get("ct", 0.0001) / 0.00408
+            mach_tip = data.get("mach", 0.1)
+
+            # === Blade element heuristics ===
+            blade_elements = data.get("blade_elements", [])
+            num_elements = len(blade_elements)
+
+            # Defaults
+            avg_effp = 0.0
+            min_rR, max_rR = 0, 1
+            avg_cR = 0.05
+
+            if blade_elements:
+                avg_effp = sum(be["effp"] for be in blade_elements) / num_elements
+                rR_values = [be["r/R"] for be in blade_elements]
+                cR_values = [be["c/R"] for be in blade_elements]
+                min_rR = min(rR_values)
+                max_rR = max(rR_values)
+                avg_cR = sum(cR_values) / len(cR_values)
+
+            # Penalize too few blade elements (poor resolution)
+            element_penalty = 0.0
+            if num_elements < 6:
+                element_penalty += 0.1 * (6 - num_elements)
+
+            # Penalize if blade elements are all bunched inboard (inefficient)
+            r_span_penalty = 0.0
+            if max_rR - min_rR < 0.5:
+                r_span_penalty += 0.05
+
+            # Penalize excessively thin blades
+            thin_blade_penalty = 0.0
+            if avg_cR < 0.02:
+                thin_blade_penalty += 0.05
+
+            # Total penalty from geometry
+            geometry_penalty = element_penalty + r_span_penalty + thin_blade_penalty
+
+            # === Final NPPS score ===
             score = (
-                data["efficiency"] * 0.6 +
-                data["ct"] * 0.3 -
-                (data["power"] / 100) * 0.05 -
-                motor_mass * 0.05
+                0.4 * thrust_per_watt +
+                0.3 * eff_induced +
+                0.2 * ct_sigma +
+                0.1 * avg_effp -  # reward for good spanwise efficiency
+                0.1 * mach_tip -
+                0.05 * motor_mass / 100 -
+                geometry_penalty  # total geometry-based penalties
             )
+
 
             config = {
                 "airfoil": airfoil,

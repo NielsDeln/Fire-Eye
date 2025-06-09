@@ -1,0 +1,16 @@
+{
+  "airfoil": "e216",
+  "motor": "1",
+  "prop": "9",
+  "tilt_deg": 15,
+  "vertical_thrust": 4.201777344357446,
+  "horizontal_thrust": 1.1258628461959652,
+  "power_draw_W": 118.0,
+  "torque_Nm": 0.979,
+  "ct": 0.00297,
+  "cp": 0.00053,
+  "efficiency": 0.7345,
+  "mach": 0.0588,
+  "wake_advance_ratio": 0.14462,
+  "score": 0.4035606646726488
+}
