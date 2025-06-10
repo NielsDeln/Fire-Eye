@@ -241,7 +241,7 @@ if __name__ == "__main__":
     P = Wr + Ty # Total load on the beam in Newtons
 
     # Plot the NVM diagrams
-    N, V, M = calc_nvm(L, h, Tz, Ty, Wr, PLOT=True)
+    N, V, M = calc_nvm(L, h, Tz, Ty, Wr, PLOT=False)
 
     # Define the dimensions
     b = 0.02
