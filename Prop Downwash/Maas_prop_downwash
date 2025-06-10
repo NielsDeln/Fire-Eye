@@ -1,0 +1,145 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import random
+
+#variables----------------------------------
+Dp = 0.127 # Propeller diameter [m]
+Ct = 0.0652601 # Thrust coefficient
+n = 27000/60 # Propeller speed [rpm]
+Rp = Dp / 2 # Propeller radius [m]
+Rh = 0.013 # Hub radius [m]
+pitch = 0.1143 # Propeller pitch [m]
+P = pitch / Dp # Pitch ratio
+
+alt = 1.5 # max x value to be looked at, i.e. flying altitude ig [m]
+res = 300 # resolution for plotting
+
+#FUNCTIONS----------------------------------
+
+
+V_0 = 1.22*n**1.01 * Dp**0.84 * Ct**0.62
+Rm0 = 0.7 * (Rp - Rh)
+
+
+def V_MAX(x, V_0 = V_0,  Dp = Dp, P = P):
+    
+    if x <= (0.35 * Dp):
+        V_MAX = V_0
+        
+        return V_MAX
+    
+    
+    elif x > (0.35 * Dp) and x <= (3.25 * Dp):
+        V_MAX = (1.51 - 0.175*(x/Dp) - 0.46*P) * V_0
+        
+        return V_MAX
+    
+    elif x > (3.25 * Dp):
+        V_MAX = V_0*(0.964 - 0.039*(x/Dp) - 0.344*P)
+        
+        return V_MAX
+
+    
+def V_i(r, V_MAX, x, Rm0 = Rm0, Dp = Dp): 
+
+    if x <= (0.5 * Dp):
+        sigma = 0.5 * Rm0
+        V_i = V_MAX * (np.exp(-0.5*(((r-Rm0)**2)/(sigma**2))))
+        return V_i
+    
+    
+    elif x > (0.5 * Dp) and x <= (3.25 * Dp):
+        sigma = 0.5 * Rm0 + 0.075 * (x - (Dp/2)) 
+        V_i = V_MAX * (np.exp(-0.5*(((r-Rm0)**2)/(sigma**2))))
+        return V_i
+     
+    elif x > (3.25 * Dp):
+        #print(V_MAX)
+        V_i = V_MAX * (np.exp((-15.4)*(r/x)**2))
+        return V_i
+    
+def plot_downwash(orientation = 'vertical', to_scale = False):
+    x_vals = np.linspace(0, alt, res)
+    r_grid = []
+    v_i_grid = []
+
+    for i in range(len(x_vals)):
+        x = x_vals[i]
+        r_row = np.linspace(0, 1.2*Dp, res // 2)
+
+        v_i_row = []
+        for r in r_row:
+            v_max = V_MAX(x,)
+            v_i_val = V_i(r, v_max, x,)
+            # v_i_val = random.random()
+            v_i_row.append(v_i_val)
+            v_i_row_full = list(reversed(v_i_row)) + v_i_row
+
+        v_i_grid.append(v_i_row_full)
+        r_grid.append(np.concatenate([-r_row[::-1], r_row]))
+
+
+    r_grid = np.array(r_grid)  # shape: (len(x_vals), 100)
+    # r_grid = r_grid / R_p
+
+    v_i_grid = np.array(v_i_grid)  # shape: (len(x_vals), 100)
+
+
+
+    if to_scale:
+        width = r_grid[0, -1] - r_grid[0, 0]
+        height = x_vals[-1] - x_vals[0]
+        factor = 10
+
+        plt.figure(figsize=(width*factor, height*factor))
+    else:
+        plt.figure(figsize=(5, 8))
+
+
+    if orientation == 'horizontal':
+        plt.imshow(
+            v_i_grid.T, 
+            extent=[x_vals[0], x_vals[-1], 0, np.max(r_grid)], 
+            aspect='auto', 
+            origin='lower', 
+            cmap='jet'
+        )
+        #plt.vlines(x_0(V_0(), a(K_T()), V_x), 0, np.max(r_grid), color='white', linestyle='--', label='Efflux Position $x_0$')
+        plt.colorbar(label='Induced Velocity $v_i$ [m/s]')
+        plt.xlabel('Axial Position $x$ [m]')
+        plt.ylabel('Radial Position $r$ [m]')
+
+    elif orientation == 'vertical':
+        plt.imshow(
+            v_i_grid,
+            extent=[r_grid[0, 0], r_grid[0, -1], x_vals[0], x_vals[-1]],
+            aspect='auto',
+            origin='lower',
+            cmap='jet'
+        )
+        plt.gca().invert_yaxis()  # Flip y-axis: highest x at top, lowest at bottom
+        #plt.hlines(x_0(V_0(), a(K_T()), V_x), r_grid[0, 0], r_grid[0, -1], color='white', linestyle='--', label='Efflux Position $x_0$')
+        plt.hlines(10*Dp, r_grid[0, 0], r_grid[0, -1], color='gray', linestyle='--', label='10x Propeller Diameter')
+        # plt.vlines(R_h, x_vals[0], x_vals[-1], color='black', linestyle='--', label='Hub Radius $R_h$')
+        plt.colorbar(label='Induced Velocity $v_i$ [m/s]')
+        plt.xlabel('Radial Position $r$ [m]')
+        plt.ylabel('Axial Position $x$ [m]')
+
+    else:
+        print("wrong orientation")
+
+
+    plt.title('Induced Velocity Heatmap ($v_i$) along Propeller Axis')
+    # plt.vlines(R_h, x_vals[0], x_vals[-1], color='black', linestyle='-', label='Hub Radius $R_h$')
+    # plt.vlines(-R_h, x_vals[0], x_vals[-1], color='black', linestyle='-', label='Hub Radius $R_h$')
+
+    # plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+plot_downwash(orientation='vertical', to_scale=False)
+
+
+
+
+
