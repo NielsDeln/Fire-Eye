@@ -110,7 +110,23 @@ def calculate_shear_stress(V, M, d0, I, J, L, t):
     return np.array([shear_x, shear_y, torsion_shear])
 
 
-def calculate_axial_stress(M, I, d0, t):
+def calculate_neutral_axis(M):
+    """
+    Calculate the neutral axis of the structure based on the applied moment.
+
+    Parameters:
+    M (array): Applied moment vector.
+
+    Returns:
+    float: Position of the neutral axis.
+    """
+    if M[0] == 0:
+        return np.pi / 2
+    else:
+        return np.arctan2(M[1], M[0])
+
+
+def calculate_axial_stress(M, I, d0, t, NA_alpha):
     """
     Calculate the bending stress in a structure based on the applied moment and dimensions.
 
@@ -126,22 +142,12 @@ def calculate_axial_stress(M, I, d0, t):
         x_points (array): x-coordinates of evaluated points.
         y_points (array): y-coordinates of evaluated points.
     """
-    # Create a grid of x and y coordinates
-    num_points = 200
-    r_outer = d0 / 2
-    r_inner = r_outer - t
-    x = np.linspace(-r_outer, r_outer, num_points)
-    y = np.linspace(-r_outer, r_outer, num_points)
-    X, Y = np.meshgrid(x, y)
-    dist_to_center = np.sqrt(X**2 + Y**2)
-    # Mask: points inside the tube wall (between inner and outer radius)
-    mask = (dist_to_center <= r_outer) & (dist_to_center >= r_inner)
-    x_points = X[mask]
-    y_points = Y[mask]
+    x = d0 / 2 * np.cos(NA_alpha + np.pi / 2)  # x-coordinates based on neutral axis angle
+    y = d0 / 2 * np.sin(NA_alpha + np.pi / 2)  # y-coordinates based on neutral axis angle
     # Calculate bending stress at each valid (x, y) point
-    bend_stress = (M[0] * y_points + M[1] * x_points) / I
+    bend_stress = (M[0] * y - M[1] * x) / I
     
-    return bend_stress, x_points, y_points
+    return bend_stress
 
 
 def calculate_stresses(F, M, I, J, A, d0, t, L):
@@ -163,12 +169,16 @@ def calculate_stresses(F, M, I, J, A, d0, t, L):
     array: Shear stress.
     array: Axial stress.
     """
-    bending_stress = calculate_axial_stress(M, I, d0, t)
+    # Calculate the neutral axis position
+    NA_alpha = calculate_neutral_axis(M)
+
+    # Calculate stresses
+    bending_stress = calculate_axial_stress(M, I, d0, t, NA_alpha)
     shear_stress = calculate_shear_stress(F, M, d0, I, J, L, t)
 
     # Axial stress is calculated as force divided by area
-    axial_stress = F[2] / A
-    return bending_stress, shear_stress, axial_stress
+    axial_stress = -F[2] / A
+    return bending_stress, shear_stress, axial_stress, NA_alpha
 
 
 def calculate_buckling(E, I, L, K=2):
@@ -187,22 +197,43 @@ def calculate_buckling(E, I, L, K=2):
     return P_cr
 
 
-def calculate_deformation(F, L, E, I):
+def calculate_deformation(F, M, L, E, I):
     """
-    Calculate the deformation of a structure under an applied force.
+    Calculate the deformation of a structure based on the applied forces and moments.
 
     Parameters:
-    F (float): Applied force.
+    F (array): Applied force vector.
+    M (array): Applied moment vector.
     L (float): Length of the structure.
     E (float): Young's modulus of the material.
     I (float): Moment of inertia of the cross-section.
 
     Returns:
-    float: Deformation of the structure.
+    tuple: (deflection, rotation)
+        deflection (float): Deflection at the end of the structure.
+        rotation (float): Rotation at the end of the structure.
     """
-    # Deformation formula: delta = F * L^3 / (3 * E * I)
-    deformation = F * L**3 / (3 * E * I)
-    return deformation
+    if F[1] != 0:
+        z_deflection = F[2] * L / (3 * E * I)
+        z_rotation = F[2] * L**2 / (2 * E * I)
+    if M[0] != 0:
+        z_deflection += -M[0] * L**2 / (2 * E * I)
+        z_rotation += -M[0] / (E * I)
+    else:
+        z_deflection = 0
+        z_rotation = 0
+
+    if F[0] != 0:
+        x_deflection = F[0] * L**3 / (3 * E * I)
+        x_rotation = F[0] * L**2 / (2 * E * I)
+    if M[1] != 0:
+        x_deflection += -M[1] * L**2 / (2 * E * I)
+        x_rotation += -M[1] / (E * I)
+    else:
+        x_deflection = 0
+        x_rotation = 0
+
+    return z_deflection, z_rotation
 
 
 def calculate_mass(rho, L, h, d0, t):
@@ -226,7 +257,7 @@ def calculate_mass(rho, L, h, d0, t):
 
 if __name__ == "__main__":
     # Example usage
-    F_T = 10.0  # Thrust force in N
+    F_T = 8.8583  # Thrust force in N
     T = 5.0  # Torque in Nm
     W = 0.7012188 # Motor + ESC + propellor weight in Newtons
     alpha = np.radians(30)  # Angle in radians
@@ -234,12 +265,15 @@ if __name__ == "__main__":
 
     L = 0.17889 # Length of the arm in m
     h = 0.005175  # Height of the arm in m
-    R_position = np.array([0.0, L, h])  # Position vector of the reaction point
+    R_A_position = np.array([0.0, -h, L])  # Position vector of the reaction point
+    R_B_position = np.array([0.0, -h, 0.0])  # Position vector of the reaction point for the second motor
 
-    forces, moments = calculate_arm_forces(F_T, W, alpha, beta, T, R_position)
+    A_forces, A_moments = calculate_arm_forces(F_T, W, alpha, beta, T, R_A_position)
+    B_forces, B_moments = calculate_arm_forces(F_T, W, alpha, beta, T, R_B_position)
 
-    print("Reaction forces [N]:", forces)
-    print("Reaction moments [Nm]:", moments)
+    print("Reaction forces [N]:", A_forces)
+    print("Reaction moments [Nm]:", A_moments)
+    print("-----------------------------")
 
     # Example for calculating section properties
     d0 = 0.02  # Outer diameter in m
@@ -248,14 +282,21 @@ if __name__ == "__main__":
     print("Moment of Inertia [kg*m^2]:", I)
     print("Polar Moment of Inertia [kg*m^2]:", J)
     print("Cross-sectional Area [m^2]:", A)
+    print("-----------------------------")
     # Example for calculating stresses
-    bend_str, shear_str, axial_str = calculate_stresses(forces, moments, I, J, A, d0, t, L)
+    bend_str, shear_str, axial_str, NA_alpha = calculate_stresses(A_forces, A_moments, I, J, A, d0, t, L)
     min_str = -np.max(np.abs(bend_str)) + axial_str
     max_str = np.max(np.abs(bend_str)) + axial_str
+    print("Bending Stress [MPa]:", bend_str * 1e-6)
+    print("Shear Stress [MPa]:", shear_str * 1e-6)
+    print("Axial Stress [MPa]:", axial_str * 1e-6)
+    print("-----------------------------")
     print("Minimum Stress [MPa]:", min_str * 1e-6)
     print("Maximum Stress [MPa]:", max_str * 1e-6)
     print("Shear Stress [MPa]:", shear_str.sum() * 1e-6)
+    print("Neutral Axis Angle [deg]:", NA_alpha * 180 / np.pi)
+    print("-----------------------------")
 
     # Example for calculating buckling load
     E = 70e9  # Young's modulus in Pa (e.g., aluminum)
-    buckling_load = calculate_buckling(E, I, L, A, forces[2])
+    buckling_load = calculate_buckling(E, I, L, A, A_forces[2])
