@@ -1,16 +1,16 @@
 {
-  "airfoil": "seligs1223",
-  "motor": "1",
+  "airfoil": "e216",
+  "motor": "3",
   "prop": "8",
-  "tilt_deg": 15,
-  "vertical_thrust": 4.134162536517213,
-  "horizontal_thrust": 1.1077455130387888,
-  "power_draw_W": 118.0,
-  "torque_Nm": 0.979,
-  "ct": 0.00292,
-  "cp": 0.00053,
-  "efficiency": 0.7233,
+  "tilt_deg": 45,
+  "vertical_thrust": 9.263098833543774,
+  "horizontal_thrust": 9.263098833543774,
+  "power_draw_W": 814.0,
+  "torque_Nm": 0.368,
+  "ct": 0.00268,
+  "cp": 0.00059,
+  "efficiency": 0.3224,
   "mach": 0.0588,
-  "wake_advance_ratio": 0.14441,
-  "score": 0.39630239614489865
+  "wake_advance_ratio": 0.08943,
+  "score": 3.0140575389680797
 }

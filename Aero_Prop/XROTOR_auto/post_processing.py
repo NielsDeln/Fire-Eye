@@ -71,8 +71,9 @@ def analyze_results():
             # Extract config names from filename
             try:
                 base = file.stem  # no .txt
-                airfoil, prop, motor, motor_mass = base.split("_")
-                motor_mass = int(motor_mass)
+                airfoil, prop, motor, motor_mass_raw = base.split("_")
+                motor_mass_str = motor_mass_raw.replace("o", ".")
+                motor_mass = float(motor_mass_str)
             except ValueError:
                 print(f"Filename format invalid: {file.name}")
                 continue
@@ -82,7 +83,7 @@ def analyze_results():
             vertical_thrust = data["thrust"] * math.cos(math.radians(tilt))
 
             # Minimum thrust constraint
-            if vertical_thrust < 4:
+            if vertical_thrust < 8:
                 continue
 
             ## === NPPS (Normalized Propeller Performance Score) ===
@@ -129,7 +130,8 @@ def analyze_results():
 
             # === Final NPPS score ===
             score = (
-                0.4 * thrust_per_watt +
+                0.3 * vertical_thrust +
+                0.2 * thrust_per_watt +
                 0.3 * eff_induced +
                 0.2 * ct_sigma +
                 0.1 * avg_effp -  # reward for good spanwise efficiency
