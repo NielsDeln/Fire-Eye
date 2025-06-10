@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+import bisect
 #dfsd
 ############# VARIABLES #############
 
@@ -8,10 +9,12 @@ rho = 1.225 # air density at room temp
 
 D_p = 0.127 # Propeller diameter [m]
 C_T = 0.0652601 # Thrust coefficient
-n = 27000 / 60 # Propeller speed [rps]
+n = 60000 / 60 # Propeller speed [rps]
 R_p = D_p / 2 # Propeller radius [m]
 R_h = 0.013 # Hub radius [m]
 pitch = 0.1143 # Propeller pitch [m]
+D_arm = 0.349
+R_arm = D_arm / 2 # Arm radius [m]
 
 alt = 1.5 # max x value to be looked at, i.e. flying altitude ig [m]
 res = 300 # resolution for plotting
@@ -19,7 +22,7 @@ res = 300 # resolution for plotting
 K = 10 # RANDOM VALUE!!!
 K_visc = K * (1 / 15.68) # Viscosity coefficient [m^2/s] AT ROOM TEMPERATURE!!!!
 
-V_x = 0.3 # RANDOM VALUE!!! # velocity at which propeller moving forward (technically 0 cause we hoverin)
+V_x = 0.1 # RANDOM VALUE!!! # velocity at which propeller moving forward (technically 0 cause we hoverin)
 
 P = pitch / D_p # Pitch ratio
 
@@ -47,8 +50,8 @@ def V_0(D_p = D_p, C_T = C_T, n = n, E_0 = E_0):
     # print(E_0)
     return 1.33 * n * D_p * np.sqrt(C_T)
 
-
 print(f'V_0: {V_0()}')
+
 # Some coefficient ( = inf for V_x = 0)
 def K_T(V_x = V_x, T=T, rho=1.225, R_p = R_p):
     return (T / (4 * rho * R_p**2 * V_x**2)) if V_x != 0 else np.inf
@@ -60,6 +63,8 @@ def a(K_T):
 # Efflux position [m]
 def x_0(V_0, a, V_x, R_p = R_p): # efflux position [m]
     return ((V_0 - a * V_x) * R_p) / (np.sqrt(V_0*(2*a*V_x - V_0)))
+
+print(f'x_0: {x_0(V_0(), a(K_T()), V_x)}')
 
 # Average velocity at given x position [m/s]
 def v_i_avg(x, a, V_x = 0, R_p = R_p):
@@ -175,8 +180,6 @@ def v_i(V_max, r, x, x_0, R_m_0, R_0 = R_0):
     D_0 = 2 * R_0
     # print(f'x0: {x_0}')
 
-    print(f'x_0: {x_0}')
-
     if x >= x_0 and x <= (x_0 + 0.5*D_0): # ZFE
         return V_max * np.e ** (-0.5 * ((r - R_m_0) / (0.5 * R_m_0))**2)
 
@@ -186,8 +189,11 @@ def v_i(V_max, r, x, x_0, R_m_0, R_0 = R_0):
     elif x > (x_0 + 3.25 * D_0): # ZEF
         return (V_max) * np.e ** (-22.2* ((r) / (K_visc * (x-x_0)))**2)
     
+    elif x_0 is None:
+        print(f'poop happened (sqrt for x_0 is negative) {x}, {r}')
+
     else:
-        print('poop happened (sqrt for x_0 is negative) ')
+        # print(f'{x}, {x_0}')
         return 0
     
 
@@ -273,3 +279,50 @@ def plot_downwash(orientation = 'vertical', to_scale = False):
     plt.show()
 
 plot_downwash(orientation='vertical', to_scale=False)
+
+def plot_ground_velocity():
+    x = alt
+    width_factor = 3
+    r = np.linspace(0, width_factor * D_p, res // 2)
+
+    v_max = V_max(V_0(), x, x_0(V_0(), a(K_T()), V_x))
+    v_i_vals = [v_i(v_max, r_val, x, x_0(V_0(), a(K_T()), V_x), R_m_0()) for r_val in r]
+    v_i_vals_full = list(reversed(v_i_vals)) + v_i_vals
+    r_full = np.concatenate([-r[::-1], r])
+
+    plt.figure(figsize=(12, 4))
+
+    plt.plot(r_full, v_i_vals_full, label='Propeller 1', linestyle='-', color='pink')
+    plt.xlabel('Radial Position $r$ [m]')
+    plt.ylabel('Induced Velocity $v_i$ [m/s]')
+    plt.title('Induced Velocity at Ground Level (flying @ ' + str(round(x, 2)) + ' m altitude)')
+
+
+    for i in range(len(v_i_vals_full)):
+        val = v_i_vals_full[i]
+        if val > 1.5:
+            roi = abs(r_full[i])
+            break
+        else:
+            continue
+
+    # r_vals_2 = r_full + 0.252
+    # plt.plot(r_vals_2, v_i_vals_full, label='Propeller 2', linestyle='--', color='blue')
+
+
+    plt.text(roi - 0.075, 13.25, 'Max velocity: ' + str(round(np.max(v_i_vals_full),3)) + ' m/s', fontsize = 10)
+    plt.text(roi - 0.075, 12.25, 'Radius of influence: ' + str(round(abs(roi),3)) + 'm', fontsize = 10)
+    plt.text(roi - 0.075, 11.25, 'Area of influence: ' + str(round(roi**2 * np.pi,3)) + 'm$^2$', fontsize = 10)
+    plt.text(roi - 0.075, 10.25, 'Radius of influence (4 propellers): ' + str(round((abs(roi) + R_arm), 3)) + 'm', fontsize = 10)
+    plt.text(roi - 0.075, 9.25, 'Area of influence (4 propellers): ' + str(round((abs(roi) + R_arm)**2 * np.pi, 3)) + 'm$^2$', fontsize = 10)
+
+
+    plt.axhline(y=1.5, color='black', linestyle='--', linewidth=0.5)
+
+    plt.show()
+
+
+plot_ground_velocity()
+
+
+
