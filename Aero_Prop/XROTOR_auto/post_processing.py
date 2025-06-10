@@ -71,7 +71,13 @@ def analyze_results():
             # Extract config names from filename
             try:
                 base = file.stem  # no .txt
-                airfoil, prop, motor, motor_mass_raw = base.split("_")
+                if base.endswith("duct"):
+                    airfoil, prop, motor, motor_mass_raw, duct = base.split("_")
+                    duct = True
+                else:
+                    airfoil, prop, motor, motor_mass_raw = base.split("_")
+                    duct = False
+                
                 motor_mass_str = motor_mass_raw.replace("o", ".")
                 motor_mass = float(motor_mass_str)
             except ValueError:
@@ -145,6 +151,7 @@ def analyze_results():
                 "airfoil": airfoil,
                 "motor": motor,
                 "prop": prop,
+                "ducted": duct,
                 "tilt_deg": tilt,
                 "vertical_thrust": vertical_thrust,
                 "horizontal_thrust": data["thrust"] * math.sin(math.radians(tilt)),

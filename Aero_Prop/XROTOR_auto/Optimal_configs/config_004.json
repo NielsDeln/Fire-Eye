@@ -2,6 +2,7 @@
   "airfoil": "seligs1223",
   "motor": "3",
   "prop": "8",
+  "ducted": false,
   "tilt_deg": 45,
   "vertical_thrust": 11.030865786510143,
   "horizontal_thrust": 11.030865786510143,

@@ -2,6 +2,7 @@
   "airfoil": "naca4412",
   "motor": "3",
   "prop": "9",
+  "ducted": false,
   "tilt_deg": 45,
   "vertical_thrust": 13.647160876900369,
   "horizontal_thrust": 13.647160876900369,

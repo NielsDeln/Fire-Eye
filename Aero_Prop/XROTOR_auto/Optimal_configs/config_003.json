@@ -1,7 +1,8 @@
 {
   "airfoil": "seligs1223",
   "motor": "3",
-  "prop": "9",
+  "prop": "8",
+  "ducted": true,
   "tilt_deg": 30,
   "vertical_thrust": 13.509996299037244,
   "horizontal_thrust": 7.799999999999999,
@@ -9,8 +10,8 @@
   "torque_Nm": 0.368,
   "ct": 0.00318,
   "cp": 0.00059,
-  "efficiency": 0.3826,
+  "efficiency": 0.3827,
   "mach": 0.0588,
-  "wake_advance_ratio": 0.09228,
-  "score": 4.334937499818606
+  "wake_advance_ratio": 0.09227,
+  "score": 4.335047499818607
 }
