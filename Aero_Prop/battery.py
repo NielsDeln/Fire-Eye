@@ -57,8 +57,8 @@ battery_dbx = [
     {'id': 'MaxAmps 4S 10900mAh', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 10900, 'mass': 950, 'voltage': 16.8, 'C-rating': None},
 
     {'id': 'Ovonic 6S 1300mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 1300, 'mass': 223, 'voltage': 22.2, 'C-rating': 100},
-    {
-    'id': 'DJI Air 2S intelligent flight battery LiPo 3S 3500mAh (11.55V)',
+    
+    {'id': 'DJI Air 2S intelligent flight battery LiPo 3S 3500mAh (11.55V)',
     'type': 'LiPo 3s',
     'cells': 3,
     'capacity': 3500,               # mAh
@@ -70,7 +70,7 @@ battery_dbx = [
     'charging_voltage_limit': 13.2, # V
     'charging_temperature_range': '5° to 40°C',
     'max_charging_power': 38        # W
-}   ,
+    },
     # New additions:
     # High Voltage Batteries (≥25.1V)
     {'id': 'ZOP Power 6S 10000mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 10000, 'mass': 1200, 'voltage': 22.2,
@@ -138,7 +138,32 @@ battery_dbx = [
      #'energy_capacity': 76.8, 'C-rating': 20, 'energy_density': 102.4},
      
     {'id': 'Relion RB100', 'type': 'LiFePO4', 'cells': 4, 'capacity': 10000, 'mass': 11000, 'voltage': 12.8,
-     'energy_capacity': 240, 'C-rating': 5, 'energy_density': 116.36}
+     'energy_capacity': 240, 'C-rating': 5, 'energy_density': 116.36},
+
+    {'id': 'Turnigy Heavy Duty 5000mAh 7S', 'type': 'lipo 7s', 'cells': 7, 'capacity': 5000, 'mass': 980, 'voltage': 25.9,
+     'energy_capacity': 129.5, 'C-rating': 60, 'energy_density': 132.1},
+
+    {'id': 'Maxamp lithium batteries 7s 8000 mah', 'type': 'lipo 7s', 'cells': 7, 'capacity': 8000, 'mass': 1322, 'voltage': 25.9,
+     'energy_capacity': 207.2, 'C-rating': 32, 'energy_density': 157},
+
+    {'id': 'Maxamp lithium batteries 7s 4000 mah', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 4000, 'mass': 666, 'voltage': 25.9,
+     'energy_capacity': 103.6, 'C-rating': 32, 'energy_density': 156},
+
+    {'id': 'Maxamp lithium batteries 7s 17000mah', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 17000, 'mass': 2209, 'voltage': 25.9,
+     'energy_capacity': 440.3, 'C-rating': 28, 'energy_density': 199},
+
+    {'id': 'Maxamp lithium batteries 7s 22000mah', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 22000, 'mass': 2888, 'voltage': 25.9,
+     'energy_capacity': 569.8, 'C-rating': 15, 'energy_density': 197},
+    
+    {'id': 'Maxamp lithium batteries 6s2p 22000mah', 'type': 'Lipo 6s', 'cells': 6, 'capacity': 22000, 'mass': 2482, 'voltage': 22.2,
+     'energy_capacity': 488.4, 'C-rating': 15, 'energy_density': 196},
+    
+    {'id': 'Maxamp lithium batteries 5s2p 22000mah', 'type': 'Lipo 5s', 'cells': 5, 'capacity': 22000, 'mass': 2076, 'voltage': 18.5,
+     'energy_capacity': 407, 'C-rating': 15, 'energy_density': 196},
+
+    {'id': 'Maxamp lithium batteries 5s 35000mah', 'type': 'Lipo 5s', 'cells': 5, 'capacity': 35000, 'mass': 2041, 'voltage': 18.5,
+     'energy_capacity': 647.5, 'C-rating': 10, 'energy_density': 317},
+
 ]
 
 
