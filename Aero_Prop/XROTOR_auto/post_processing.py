@@ -67,7 +67,7 @@ def analyze_results():
         data = parse_output(file)
         if data is None:
             continue
-        for tilt in [0]:
+        for tilt in [0, 15, 30]:
             # Extract config names from filename
             try:
                 base = file.stem  # no .txt
@@ -95,6 +95,7 @@ def analyze_results():
             ## === NPPS (Normalized Propeller Performance Score) ===
             power = data["power"] if data["power"] > 0 else 1e-6
             thrust_per_watt = data["thrust"] / power
+            vertical_thrust_per_watt = vertical_thrust / power
             eff_induced = data.get("eff_induced", data["efficiency"])
             ct_sigma = data.get("ct", 0.0001) / 0.00408
             mach_tip = data.get("mach", 0.1)
@@ -136,7 +137,7 @@ def analyze_results():
 
             # === Final NPPS score ===
             score = (
-                0.2 * vertical_thrust +
+                0.2 * vertical_thrust_per_watt +
                 0.3 * thrust_per_watt +
                 0.3 * eff_induced +
                 0.2 * ct_sigma +
