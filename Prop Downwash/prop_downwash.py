@@ -28,6 +28,9 @@ V_x = 0.1 # RANDOM VALUE!!! # velocity at which propeller moving forward (techni
 
 T = C_T * (rho * n**2 * D_p**4)
 
+max_width = 0.61
+half_width = max_width / 2
+
 # root_chord = 0.01
 # tip_chord = 0.075
 
@@ -320,6 +323,35 @@ def plot_ground_velocity():
 
     plt.axhline(y=1.5, color='black', linestyle='--', linewidth=0.5)
 
+    plt.show()
+
+    centers = [
+        (-half_width + R_p,  half_width - R_p),  # Top-left
+        ( half_width - R_p,  half_width - R_p),  # Top-right
+        (-half_width + R_p, -half_width + R_p),  # Bottom-left
+        ( half_width - R_p, -half_width + R_p)   # Bottom-right
+    ]
+
+    fig, ax = plt.subplots()
+
+    # Draw the propeller circles
+    for center in centers:
+        prop_circle = plt.Circle(center, R_p, fill=False, edgecolor='blue', linewidth=2)
+        ax.add_patch(prop_circle)
+
+    # Draw the ROI circles in light blue with 50% opacity
+    for center in centers:
+        roi_circle = plt.Circle(center, roi, color='lightblue', alpha=0.5)
+        ax.add_patch(roi_circle)
+
+    # Formatting the plot
+    ax.set_xlim(-half_width - roi, half_width + roi)
+    ax.set_ylim(-half_width - roi, half_width + roi)
+    ax.set_aspect('equal', 'box')
+    ax.set_xlabel('x [m]')
+    ax.set_ylabel('y [m]')
+    ax.set_title('Propellers with ROI Circles')
+    plt.grid(True)
     plt.show()
 
 
