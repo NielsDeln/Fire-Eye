@@ -164,6 +164,8 @@ battery_dbx = [
     {'id': 'Maxamp lithium batteries 5s 35000mah', 'type': 'Lipo 5s', 'cells': 5, 'capacity': 35000, 'mass': 2041, 'voltage': 18.5,
      'energy_capacity': 647.5, 'C-rating': 10, 'energy_density': 317},
 
+    {'id': 'Tattu plus 16000mah', 'type': '6s1p LiPo', 'cells': 6, 'capacity': 16000, 'mass': 1932, 'voltage': 22.2,
+     'energy_capacity': 355.2, 'C-rating': 15, 'energy_density': None},
 ]
 
 
