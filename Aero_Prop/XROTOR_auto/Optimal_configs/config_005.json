@@ -3,9 +3,9 @@
   "motor": "3",
   "prop": "8",
   "ducted": true,
-  "tilt_deg": 45,
-  "vertical_thrust": 11.030865786510143,
-  "horizontal_thrust": 11.030865786510143,
+  "tilt_deg": 0,
+  "vertical_thrust": 15.6,
+  "horizontal_thrust": 0.0,
   "power_draw_W": 814.0,
   "torque_Nm": 0.368,
   "ct": 0.00318,
@@ -13,5 +13,5 @@
   "efficiency": 0.3827,
   "mach": 0.0588,
   "wake_advance_ratio": 0.09227,
-  "score": 3.5913083460604764
+  "score": 3.403965072023895
 }

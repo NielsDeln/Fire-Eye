@@ -1,17 +1,17 @@
 {
-  "airfoil": "seligs1223",
+  "airfoil": "naca4412",
   "motor": "3",
-  "prop": "8",
+  "prop": "9",
   "ducted": true,
-  "tilt_deg": 30,
-  "vertical_thrust": 13.509996299037244,
-  "horizontal_thrust": 7.799999999999999,
+  "tilt_deg": 0,
+  "vertical_thrust": 18.2,
+  "horizontal_thrust": 0.0,
   "power_draw_W": 814.0,
   "torque_Nm": 0.368,
-  "ct": 0.00318,
+  "ct": 0.00371,
   "cp": 0.00059,
-  "efficiency": 0.3827,
+  "efficiency": 0.4469,
   "mach": 0.0588,
-  "wake_advance_ratio": 0.09227,
-  "score": 4.335047499818607
+  "wake_advance_ratio": 0.09573,
+  "score": 3.9810970284723224
 }
