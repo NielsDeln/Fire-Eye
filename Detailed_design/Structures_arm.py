@@ -272,11 +272,12 @@ if __name__ == "__main__":
     "sigma_Tens": 90e6      # Pa  (Ultimate tensile strength)
     }
     # Material properties
-    G = 1.5e9  # Shear modulus in Pa (e.g., aluminum)
-    rho = 1320  # Density in kg/m^3 (e.g., aluminum)
-    E = 3.4e9  # Young's modulus in Pa (e.g., aluminum)
+    rho = 1320  # Density in kg/m^3 (e.g., PEEK)
+    poisson = 0.35  # Poisson's ratio (e.g., PEEK)
+    E = 12e9  # Young's modulus in Pa (e.g., PEEK)
+    G = E / (2 * (1 + poisson))  # Shear modulus in Pa (e.g., PEEK)
     d0 = 0.02  # Outer diameter in m
-    t = 0.002  # Thickness in m
+    t = 0.001  # Thickness in m
     L = 0.17889  # Length of the arm in m
     h = 0.005175  # Height of the arm in m
 
@@ -300,8 +301,8 @@ if __name__ == "__main__":
 
     # Calculating section properties
     I, J, A = calculate_section(d0, t)
-    print("Moment of Inertia [kg*m^2]:", I)
-    print("Polar Moment of Inertia [kg*m^2]:", J)
+    print("Moment of Inertia [m^4]:", I)
+    print("Polar Moment of Inertia [m^4]:", J)
     print("Cross-sectional Area [m^2]:", A)
     print("-----------------------------")
     # Calculating stresses
@@ -329,8 +330,8 @@ if __name__ == "__main__":
     print("-------------------------------")
 
     # Calculating deformation
-    y_deformation, y_rotation = calculate_deformation(-B_forces[1], -B_moments[0], L, E, I)
-    x_deformation, x_rotation = calculate_deformation(-B_forces[0], -B_moments[1], L, E, I)
+    y_deformation, y_rotation = calculate_deformation(-B_forces[1] * saftey_factor, -B_moments[0] * saftey_factor, L, E, I)
+    x_deformation, x_rotation = calculate_deformation(-B_forces[0] * saftey_factor, -B_moments[1] * saftey_factor, L, E, I)
     z_deformation, z_rotation = axial_str / E, calculate_torsion_deflection(-B_moments[2], L, G, J)
     print("Deformation in y-direction [mm]:", y_deformation.sum() * 1e3)
     print("Rotation in y-direction [deg]:", y_rotation.sum() * 180 / np.pi)
