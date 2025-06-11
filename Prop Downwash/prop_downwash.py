@@ -7,13 +7,13 @@ import bisect
 
 rho = 1.225 # air density at room temp 
 
-D_p = 0.127 # Propeller diameter [m]
-C_T = 0.0652601 # Thrust coefficient
-n = 60000 / 60 # Propeller speed [rps]
+D_p = 0.127 * 2 # Propeller diameter [m]
+C_T = 0.03045 # Thrust coefficient
+n = 21119.998 / 60 # Propeller speed [rps]
 R_p = D_p / 2 # Propeller radius [m]
-R_h = 0.013 # Hub radius [m]
-pitch = 0.1143 # Propeller pitch [m]
-D_arm = 0.349
+R_h = 0.002 # Hub radius [m]
+# pitch = 0.1143 # Propeller pitch [m]
+D_arm = 0.47
 R_arm = D_arm / 2 # Arm radius [m]
 
 alt = 1.5 # max x value to be looked at, i.e. flying altitude ig [m]
@@ -24,18 +24,18 @@ K_visc = K * (1 / 15.68) # Viscosity coefficient [m^2/s] AT ROOM TEMPERATURE!!!!
 
 V_x = 0.1 # RANDOM VALUE!!! # velocity at which propeller moving forward (technically 0 cause we hoverin)
 
-P = pitch / D_p # Pitch ratio
+# P = pitch / D_p # Pitch ratio
 
 T = C_T * (rho * n**2 * D_p**4)
 
-root_chord = 0.01
-tip_chord = 0.075
+# root_chord = 0.01
+# tip_chord = 0.075
 
-single_blade_area = 0.5 * (root_chord + tip_chord) * (R_p - R_h) # area of single blade [m^2]
-num_blades = 2 # number of blades
+# single_blade_area = 0.5 * (root_chord + tip_chord) * (R_p - R_h) # area of single blade [m^2]
+# num_blades = 2 # number of blades
 
-beta = single_blade_area * num_blades / (np.pi * R_p**2) # blade area ratio
-E_0 = (D_p / (R_h*2))**(-0.403) * C_T**(-1.79) * (beta)**0.744
+# beta = single_blade_area * num_blades / (np.pi * R_p**2) # blade area ratio
+# E_0 = (D_p / (R_h*2))**(-0.403) * C_T**(-1.79) * (beta)**0.744
 
 ############# INITIAL CALCULATIONS #############
 
@@ -45,7 +45,7 @@ E_0 = (D_p / (R_h*2))**(-0.403) * C_T**(-1.79) * (beta)**0.744
 #     # print(f'V_0: {1.33 * n * D_p * np.sqrt(C_T)}')
 #     return 1.33 * n * D_p * np.sqrt(C_T)
 
-def V_0(D_p = D_p, C_T = C_T, n = n, E_0 = E_0): 
+def V_0(D_p = D_p, C_T = C_T, n = n): 
     # print(f'V_0: {1.33 * n * D_p * np.sqrt(C_T)}')
     # print(E_0)
     return 1.33 * n * D_p * np.sqrt(C_T)
@@ -260,7 +260,7 @@ def plot_downwash(orientation = 'vertical', to_scale = False):
         )
         plt.gca().invert_yaxis()  # Flip y-axis: highest x at top, lowest at bottom
         plt.hlines(x_0(V_0(), a(K_T()), V_x), r_grid[0, 0], r_grid[0, -1], color='white', linestyle='--', label='Efflux Position $x_0$')
-        plt.hlines(10*D_p, r_grid[0, 0], r_grid[0, -1], color='gray', linestyle='--', label='10x Propeller Diameter')
+        # plt.hlines(10*D_p, r_grid[0, 0], r_grid[0, -1], color='gray', linestyle='--', label='10x Propeller Diameter')
         # plt.vlines(R_h, x_vals[0], x_vals[-1], color='black', linestyle='--', label='Hub Radius $R_h$')
         plt.colorbar(label='Induced Velocity $v_i$ [m/s]')
         plt.xlabel('Radial Position $r$ [m]')
@@ -309,12 +309,13 @@ def plot_ground_velocity():
     # r_vals_2 = r_full + 0.252
     # plt.plot(r_vals_2, v_i_vals_full, label='Propeller 2', linestyle='--', color='blue')
 
+    max_v = round(np.max(v_i_vals_full), 3)
 
-    plt.text(roi - 0.075, 13.25, 'Max velocity: ' + str(round(np.max(v_i_vals_full),3)) + ' m/s', fontsize = 10)
-    plt.text(roi - 0.075, 12.25, 'Radius of influence: ' + str(round(abs(roi),3)) + 'm', fontsize = 10)
-    plt.text(roi - 0.075, 11.25, 'Area of influence: ' + str(round(roi**2 * np.pi,3)) + 'm$^2$', fontsize = 10)
-    plt.text(roi - 0.075, 10.25, 'Radius of influence (4 propellers): ' + str(round((abs(roi) + R_arm), 3)) + 'm', fontsize = 10)
-    plt.text(roi - 0.075, 9.25, 'Area of influence (4 propellers): ' + str(round((abs(roi) + R_arm)**2 * np.pi, 3)) + 'm$^2$', fontsize = 10)
+    plt.text(roi * 0.9, max_v - 0.1*max_v, 'Max velocity: ' + str(round(np.max(v_i_vals_full),3)) + ' m/s', fontsize = 10)
+    plt.text(roi * 0.9, max_v - 0.2*max_v, 'Radius of influence: ' + str(round(abs(roi),3)) + 'm', fontsize = 10)
+    plt.text(roi * 0.9 , max_v - 0.3*max_v, 'Area of influence: ' + str(round(roi**2 * np.pi,3)) + 'm$^2$', fontsize = 10)
+    plt.text(roi * 0.9 , max_v - 0.4*max_v, 'Radius of influence (4 propellers): ' + str(round((abs(roi) + R_arm), 3)) + 'm', fontsize = 10)
+    plt.text(roi * 0.9, max_v - 0.5*max_v, 'Area of influence (4 propellers): ' + str(round((abs(roi) + R_arm)**2 * np.pi, 3)) + 'm$^2$', fontsize = 10)
 
 
     plt.axhline(y=1.5, color='black', linestyle='--', linewidth=0.5)
