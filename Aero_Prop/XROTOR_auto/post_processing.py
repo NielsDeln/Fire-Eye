@@ -67,7 +67,7 @@ def analyze_results():
         data = parse_output(file)
         if data is None:
             continue
-        for tilt in [0,15,30,45]:
+        for tilt in [0]:
             # Extract config names from filename
             try:
                 base = file.stem  # no .txt
@@ -136,8 +136,8 @@ def analyze_results():
 
             # === Final NPPS score ===
             score = (
-                0.3 * vertical_thrust +
-                0.2 * thrust_per_watt +
+                0.2 * vertical_thrust +
+                0.3 * thrust_per_watt +
                 0.3 * eff_induced +
                 0.2 * ct_sigma +
                 0.1 * avg_effp -  # reward for good spanwise efficiency

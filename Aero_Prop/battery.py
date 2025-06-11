@@ -149,7 +149,7 @@ for battery in battery_dbx:
     battery['energy_density'] = round((battery['energy_capacity'] * 1000) / battery['mass'], 2)
 
 # Define requirements
-motor_power = 2752  # W
+motor_power = 2752   # W
 motor_peak_current = 43.9 * 4  # A
 motor_voltage = 16  # V
 motor_energy_wh = motor_power * (10 / 60)  # 10 minutes operation
