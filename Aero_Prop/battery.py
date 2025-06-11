@@ -3,6 +3,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 #from Trade_off.datasets import battery_db as batteries
 import pandas as pd
+from itertools import combinations
 
 battery_dbx = [
     {'id': 'GAONENG GNB 4S 14.8V', 'type': 'Li-ion', 'cells': 4, 'capacity': 4000, 'mass': 434, 'voltage': 14.8, 
@@ -165,7 +166,13 @@ battery_dbx = [
      'energy_capacity': 647.5, 'C-rating': 10, 'energy_density': 317},
 
     {'id': 'Tattu plus 16000mah', 'type': '6s1p LiPo', 'cells': 6, 'capacity': 16000, 'mass': 1932, 'voltage': 22.2,
-     'energy_capacity': 355.2, 'C-rating': 15, 'energy_density': None},
+     'energy_capacity': 355.2, 'C-rating': 15, 'energy_density': 183.85},
+
+    {'id': 'CNHL 20000mAh', 'type': 'Lipo 6s', 'cells': 6, 'capacity': 20000, 'mass': 2300, 'voltage': 22.2,
+     'energy_capacity': 444, 'C-rating': 15, 'energy_density': 193},
+
+    {'id': 'Tattu G-Tech 30c 6s', 'type': 'Lipo 6s', 'cells': 6, 'capacity': 22000, 'mass': 2460, 'voltage': 22.2,
+     'energy_capacity': 488.4, 'C-rating': 30, 'energy_density': 198.54},
 ]
 
 
@@ -176,18 +183,26 @@ for battery in battery_dbx:
     battery['energy_density'] = round((battery['energy_capacity'] * 1000) / battery['mass'], 2)
 
 # Define requirements
-motor_power = 2752   # W
+throttle = 0.38 
+motor_power = 2752 * throttle   # W
 motor_peak_current = 43.9 * 4  # A
 motor_voltage = 16  # V
-motor_energy_wh = motor_power * (10 / 60)  # 10 minutes operation
+max_motor_volt = 25.2  # V, max voltage for motor operation
+motor_energy_wh = motor_power * (20 / 60)  # 10 minutes operation
 
 low_voltage_min = 7.0
 low_voltage_max = 11.1
 electronics_power_mode1 = 52.09
 electronics_power_mode2 = 59.38
 max_electronics_power = max(electronics_power_mode1, electronics_power_mode2)
-electronics_energy_wh = max_electronics_power * (10 / 60)
+electronics_energy_wh = max_electronics_power * (20 / 60)
 electronics_current = 4.5  # A estimate from your table
+
+
+tot_power = motor_power + max_electronics_power
+tot_voltage_parallel = max(low_voltage_max, motor_voltage)  
+tot_voltage_series = motor_voltage + low_voltage_max
+tot_energy = motor_energy_wh + electronics_energy_wh
 
 def get_max_current(battery):
     c = battery.get("C-rating")
@@ -196,17 +211,70 @@ def get_max_current(battery):
     return (battery["capacity"] / 1000) * c  # A
 
 
-high_volt_batteries = []
+
+single_motor_batteries = []
 for b in battery_dbx:
     m = b["mass"]
     v = b["voltage"]
     energy = b.get("energy_capacity")
     max_current = get_max_current(b)
-    if v >= motor_voltage and energy and energy >= motor_energy_wh:
-        if max_current is None or max_current >= motor_peak_current:
-            high_volt_batteries.append({**b, "max_current_est": max_current})
+    if max_motor_volt >= v >= motor_voltage and energy and energy >= motor_energy_wh:
+        #if max_current is None or max_current >= motor_peak_current:
+        single_motor_batteries.append({**b, "max_current_est": max_current})
+single_motor_batteries = sorted(single_motor_batteries, key=lambda x: x['mass'])
+
+# maybe do two 
+# In parallel: Same voltage, sum capacity, and sum max current.
+#In series: Sum voltage, same capacity, and same max current.
+combo_motor_batteries = []
+for b1, b2 in combinations(battery_dbx, 2):
+    # Assume parallel or similar config
+    combined_energy = b1['energy_capacity'] + b2['energy_capacity']
+    avg_voltage = max(b1['voltage'], b2['voltage']) 
+
+    # Series 
+    # combined_energy = max(b1['energy_capacity'], b2['energy_capacity'])
+    # avg_voltage = b1['voltage'] + b2['voltage']
+
+    combined_mass = b1['mass'] + b2['mass']
+     
+    combined_energy_density = round((combined_energy * 1000) / combined_mass, 2)
+    
+    if motor_voltage <= avg_voltage <= max_motor_volt and combined_energy >= motor_energy_wh:
+        combo_motor_batteries.append({
+            'ids': (b1['id'], b2['id']),
+            'voltage': avg_voltage,
+            'energy_capacity': combined_energy,
+            'mass': combined_mass,
+        })
+combo_motor_batteries = sorted(combo_motor_batteries, key=lambda x: x['mass'])
+
+#choose best setup for motors
+# best_single = max(single_motor_batteries, key=lambda x: x['energy_density'], default=None)
+# best_combo = max(combo_motor_batteries, key=lambda x: x['energy_density'], default=None)
+
+# if best_combo and (not best_single or best_combo['energy_density'] > best_single['energy_density']):
+#     selected_motor_battery = {'type': 'combo', 'details': best_combo}
+# else:
+#     selected_motor_battery = {'type': 'single', 'details': best_single}
+
+all_options = []
+
+#  format consistent
+for s in single_motor_batteries:
+    all_options.append({
+        'ids': (s['id'],),
+        'voltage': s['voltage'],
+        'energy_capacity': s['energy_capacity'],
+        'mass': s['mass'],
+        'energy_density': s['energy_density'],
+        'type': 'single'
+    })
+all_options.extend(combo_motor_batteries)
+all_options_sorted = sorted(all_options, key=lambda x: x['mass'])
 
 
+# Electronics   
 low_volt_batteries = []
 for b in battery_dbx:
     m = b["mass"]
@@ -214,20 +282,53 @@ for b in battery_dbx:
     energy = b.get("energy_capacity")
     max_current = get_max_current(b)
     if low_voltage_min <= v <= low_voltage_max and energy and energy >= electronics_energy_wh:
-        if max_current is None or max_current >= electronics_current:
-            low_volt_batteries.append({**b, "max_current_est": max_current})
+        #if max_current is None or max_current >= electronics_current:
+        low_volt_batteries.append({**b, "max_current_est": max_current})
 
+low_volt_batteries.sort(key=lambda x: -x.get("mass", 0))
+#best_electronics_battery = min(low_volt_batteries, key=lambda x: x['mass'], default=None)
 
 # high_volt_batteries.sort(key=lambda x: -x.get("energy_density", 0))
 # low_volt_batteries.sort(key=lambda x: -x.get("energy_density", 0))
-high_volt_batteries.sort(key=lambda x: x['mass'])
-low_volt_batteries.sort(key=lambda x: x['mass'])
 
-print("High Voltage Battery Options")
-for b in high_volt_batteries:
-    print(f"- {b['id']} | {b['voltage']}V | {b.get('energy_capacity', '?')}Wh | Max Current: {b.get('max_current_est', 'Unknown')} A | Mass {b['mass']}g")
 
-print("\nLow Voltage Battery Options")
-for b in low_volt_batteries:
-    print(f"- {b['id']} | {b['voltage']}V | {b.get('energy_capacity', '?')}Wh | Max Current: {b.get('max_current_est', 'Unknown')} A | Mass {b['mass']}g")
+tot_batteries = []
+for b in battery_dbx:
+    m = b["mass"]
+    v = b["voltage"]
+    energy = b.get("energy_capacity")
+    max_current = get_max_current(b)
+    if v >= tot_voltage_parallel and energy and energy >= tot_energy:
+        #if max_current is None or max_current >= tot_power / v:
+        tot_batteries.append({**b, "max_current_est": max_current})
+tot_batteries.sort(key=lambda x: -x.get("mass", 0))
 
+
+# Output
+# Print results nicely
+
+print("\n=== Single Battery Options for Motor ===")
+for b in single_motor_batteries[::4]:
+    print(f"- ID: {b['id']}")
+    print(f"  Voltage: {b['voltage']} V, Energy: {b['energy_capacity']} Wh, Mass: {b['mass']} g, Max Current: {b['max_current_est']} A\n")
+
+print("\n=== Two-Battery Combo Options for Motor ===")
+for c in combo_motor_batteries[:4]:
+    print(f"- IDs: {c['ids'][0]} + {c['ids'][1]}")
+    print(f"  Average Voltage: {c['voltage']:.2f} V, Combined Energy: {c['energy_capacity']} Wh, Combined Mass: {c['mass']} g\n")
+    
+# print("\n--- Selected Motor Battery Options ---")
+# for b in all_options_sorted[::-1]:
+#     ids = ', '.join(b['ids'])
+#     print(f"IDs: {ids}, Voltage: {b['voltage']}V, Energy: {b['energy_capacity']}Wh, "
+#           f"Mass: {b['mass']}g, Energy Density: {b['energy_density']} Wh/kg")
+    
+print("\n--- Selected Electronics Battery ---")
+for b in low_volt_batteries[::-1]:
+    print(f"ID: {b['id']}, Voltage: {b['voltage']}V, Energy: {b['energy_capacity']}Wh, "
+          f"Mass: {b['mass']}g, Energy Density: {b['energy_density']} Wh/kg, Max Current: {b['max_current_est']}A")
+
+print("\n--- Total Battery Options ---")
+for b in tot_batteries[:-5:-1]:
+    print(f"ID: {b['id']}, Voltage: {b['voltage']}V, Energy: {b['energy_capacity']}Wh, "
+          f"Mass: {b['mass']}g, Energy Density: {b['energy_density']} Wh/kg, Max Current: {b['max_current_est']}A")
