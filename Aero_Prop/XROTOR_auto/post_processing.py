@@ -11,7 +11,7 @@ OPTIMAL_DIR = PROJECT_ROOT / "Optimal_configs"
 OPTIMAL_DIR.mkdir(parents=True, exist_ok=True)
 TOP_N = 5
 
-required_thrust = 2268 / 4 * 2 / 1000 * 9.81  # N
+required_thrust = 2161 / 4 * 1.75 / 1000 * 9.81  # N
 print(f"Required vertical thrust: {required_thrust:.2f} N")
 
 # === PARSE FUNCTION ===
@@ -93,6 +93,8 @@ def analyze_results():
 
             # Minimum thrust constraint
             if vertical_thrust < required_thrust:
+                continue
+            if motor == str(3) or motor == str(5) or motor == str(9):
                 continue
 
             ## === NPPS (Normalized Propeller Performance Score) ===

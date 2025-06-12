@@ -34,8 +34,8 @@ throttle = 0.5
 
 low_voltage_min = 7.0
 low_voltage_max = 20
-electronics_power_mode1 = 52.09 - 10
-electronics_power_mode2 = 59.38 - 10
+electronics_power_mode1 = 52.09 
+electronics_power_mode2 = 59.38 
 max_electronics_power = max(electronics_power_mode1, electronics_power_mode2)
 electronics_energy_wh = max_electronics_power * (20 / 60)
 electronics_current = 4.5  # A estimate from your table
