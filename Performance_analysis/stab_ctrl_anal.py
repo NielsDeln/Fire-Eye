@@ -90,78 +90,34 @@ COMPONENTS = {
         "quantity": 1,
         "x_cg": [(1, 1, 1)],
     },
+    "propeller": {
+        "dimensions_mm": (10.0, 10.0, 5.0),  # diameter, width, height
+        "weight_g": 4.0,
+        "quantity": 4,
+        "x_cg": [(1, 1, 1), (1, 1, 1), (1, 1, 1), (1, 1, 1)],
+    },
+    #esc
+    "esc": {
+        "dimensions_mm": (30.0, 20.0, 10.0),  # length, width, height
+        "weight_g": 15.0,
+        "quantity": 4,
+        "x_cg": [(1, 1, 1), (1, 1, 1), (1, 1, 1), (1, 1, 1)],
+    },
+    "motor": {
+        "dimensions_mm": (28.0, 28.0, 30.0),  # diameter, width, height
+        "weight_g": 50.0,
+        "quantity": 4,
+        "x_cg": [(1, 1, 1), (1, 1, 1), (1, 1, 1), (1, 1, 1)],
+    },
+    "frame": {
+        "dimensions_mm": (450.0, 450.0, 10.0),  # length, width, height
+        "weight_g": 500.0,
+        "quantity": 1,
+        "x_cg": [(1, 1, 1)],
+    },
 }
 
-# For convenience, create per‐component constants at the top level:
-
-# Voyant Carbon
-VOYANT_CARBON_DIMS_MM = COMPONENTS["voyant_carbon"]["dimensions_mm"]
-VOYANT_CARBON_WEIGHT_G = COMPONENTS["voyant_carbon"]["weight_g"]
-VOYANT_CARBON_QTY = COMPONENTS["voyant_carbon"]["quantity"]
-VOYANT_CARBON_XCG = COMPONENTS["voyant_carbon"]["x_cg"]
-
-# Herelink 1.1
-HERELINK_1_1_DIMS_MM = COMPONENTS["herelink_1_1"]["dimensions_mm"]
-HERELINK_1_1_WEIGHT_G = COMPONENTS["herelink_1_1"]["weight_g"]
-HERELINK_1_1_QTY = COMPONENTS["herelink_1_1"]["quantity"]
-HERELINK_1_1_XCG = COMPONENTS["herelink_1_1"]["x_cg"]
-
-# Seoul Viosys UV LEDs
-SEOUL_VIOSYS_LED_DIMS_MM = COMPONENTS["seoul_viosys_cun66b1g_uv_led"]["dimensions_mm"]
-SEOUL_VIOSYS_LED_WEIGHT_G = COMPONENTS["seoul_viosys_cun66b1g_uv_led"]["weight_g"]
-SEOUL_VIOSYS_LED_QTY = COMPONENTS["seoul_viosys_cun66b1g_uv_led"]["quantity"]
-SEOUL_VIOSYS_LED_XCG = COMPONENTS["seoul_viosys_cun66b1g_uv_led"]["x_cg"]
-
-# ToF Ranging Sensor
-TOF_SENSOR_DIMS_MM = COMPONENTS["tof_ranging_sensor"]["dimensions_mm"]
-TOF_SENSOR_WEIGHT_G = COMPONENTS["tof_ranging_sensor"]["weight_g"]
-TOF_SENSOR_QTY = COMPONENTS["tof_ranging_sensor"]["quantity"]
-TOF_SENSOR_XCG = COMPONENTS["tof_ranging_sensor"]["x_cg"]
-
-# Battery GRPB042104
-BATTERY_GRPB042104_DIMS_MM = COMPONENTS["battery_grp_b042104"]["dimensions_mm"]
-BATTERY_GRPB042104_WEIGHT_G = COMPONENTS["battery_grp_b042104"]["weight_g"]
-BATTERY_GRPB042104_QTY = COMPONENTS["battery_grp_b042104"]["quantity"]
-BATTERY_GRPB042104_XCG = COMPONENTS["battery_grp_b042104"]["x_cg"]
-
-# DC-DC Step‐Down Converter
-DC_DC_STEP_DOWN_DIMS_MM = COMPONENTS["dc_dc_step_down_3_2_to_35v_2a"]["dimensions_mm"]
-DC_DC_STEP_DOWN_WEIGHT_G = COMPONENTS["dc_dc_step_down_3_2_to_35v_2a"]["weight_g"]
-DC_DC_STEP_DOWN_QTY = COMPONENTS["dc_dc_step_down_3_2_to_35v_2a"]["quantity"]
-DC_DC_STEP_DOWN_XCG = COMPONENTS["dc_dc_step_down_3_2_to_35v_2a"]["x_cg"]
-
-# PCB
-PCB_DIMS_MM = COMPONENTS["pcb"]["dimensions_mm"]
-PCB_WEIGHT_G = COMPONENTS["pcb"]["weight_g"]
-PCB_QTY = COMPONENTS["pcb"]["quantity"]
-PCB_XCG = COMPONENTS["pcb"]["x_cg"]
-
-# Heatsink
-HEATSINK_DIMS_MM = COMPONENTS["cool_innovations_heatsink"]["dimensions_mm"]
-HEATSINK_WEIGHT_G = COMPONENTS["cool_innovations_heatsink"]["weight_g"]
-HEATSINK_QTY = COMPONENTS["cool_innovations_heatsink"]["quantity"]
-HEATSINK_XCG = COMPONENTS["cool_innovations_heatsink"]["x_cg"]
-
-# IMX462 Camera
-IMX462_CAMERA_DIMS_MM = COMPONENTS["imx462_camera_module"]["dimensions_mm"]
-IMX462_CAMERA_WEIGHT_G = COMPONENTS["imx462_camera_module"]["weight_g"]
-IMX462_CAMERA_QTY = COMPONENTS["imx462_camera_module"]["quantity"]
-IMX462_CAMERA_XCG = COMPONENTS["imx462_camera_module"]["x_cg"]
-
-# Arducam IMX462 Camera
-ARDUCAM_CAMERA_DIMS_MM = COMPONENTS["arducam_imx462_camera_module"]["dimensions_mm"]
-ARDUCAM_CAMERA_WEIGHT_G = COMPONENTS["arducam_imx462_camera_module"]["weight_g"]
-ARDUCAM_CAMERA_QTY = COMPONENTS["arducam_imx462_camera_module"]["quantity"]
-ARDUCAM_CAMERA_XCG = COMPONENTS["arducam_imx462_camera_module"]["x_cg"]
-
-
-# Orange Pi 5
-ORANGE_PI_5_DIMS_MM = COMPONENTS["orange_pi_5"]["dimensions_mm"]
-ORANGE_PI_5_WEIGHT_G = COMPONENTS["orange_pi_5"]["weight_g"]
-ORANGE_PI_5_QTY = COMPONENTS["orange_pi_5"]["quantity"]
-ORANGE_PI_5_XCG = COMPONENTS["orange_pi_5"]["x_cg"]
-
-
+# Convert dimensions from mm to m and mass from g to kg
 def mm_to_m(dimensions_mm):
     return tuple(d / 1000.0 for d in dimensions_mm)
 
