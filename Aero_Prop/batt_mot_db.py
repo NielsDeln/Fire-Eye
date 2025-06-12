@@ -490,6 +490,126 @@ motor_db =  [
         'efficiency': None,
         'diameter': None,
         'rpm': 34500
+    },
+    {
+        'id': 'Out-Runner Brushless MotorSunnySkyV2216',
+        'mass': 75,
+        'kv_rating': 800,
+        'voltage': 14.8,
+        'max_thrust': 1210,
+        'peak_current': 15.2,
+        'power': 225,
+        'efficiency': 5.4,
+        'diameter': None,
+        'rpm': 7750
+    },
+    {
+        'id': 'Out-Runner Brushless MotorFlashhobbyD3530',
+        'mass': 74,
+        'kv_rating': 1400,
+        'voltage': 14.8,
+        'max_thrust': 1180,
+        'peak_current': 30.8,
+        'power': 446,
+        'efficiency': None,
+        'diameter': None,
+        'rpm': 20720
+    },
+    {
+        'id': 'Racerstar BR2307S Fire Edition 2500kv',
+        'mass': 36,
+        'kv_rating': 2500,
+        'voltage': 14.8,
+        'max_thrust': 1205,
+        'peak_current': 35.3,
+        'power': 522,
+        'efficiency': 2.31,
+        'diameter': None,
+        'rpm': 37000
+    },
+    {
+        'id': 'Out-Runner Brushless MotorFlashhobbySamguk Series Shu 2306',
+        'mass': 33.6,
+        'kv_rating': 2500,
+        'voltage': 16,
+        'max_thrust': 1200,
+        'peak_current': 32.8,
+        'power': 525,
+        'efficiency': None,
+        'diameter': None,
+        'rpm': 40000
+    },
+    {
+        'id': 'Cobra Champion 2210 2200kv 3S',
+        'mass': 48.2,
+        'kv_rating': 2200,
+        'voltage': 11.1,
+        'max_thrust': 1256,
+        'peak_current': 35.19,
+        'power': 390.6,
+        'efficiency': 3.22,
+        'diameter': None,
+        'rpm': 19101
+    },
+    {
+        'id': 'Brushless Motor Racerstar BR2207S Green Edition 2500kv',
+        'mass': 35,
+        'kv_rating': 2500,
+        'voltage': 14.8,
+        'max_thrust': 1120,
+        'peak_current': 32.6,
+        'power': 482,
+        'efficiency': None,
+        'diameter': None,
+        'rpm': 37000
+    },
+    {
+        'id': 'beta fpv Snow 2306 Brushless Motors',
+        'mass': 34,
+        'kv_rating': 2500,
+        'voltage': 16,
+        'max_thrust': 1414,
+        'peak_current': 42.89,
+        'power': 690.4,
+        'efficiency': 2.05,
+        'diameter': None,
+        'rpm': 28214
+    },
+    {
+        'id': 'Out-Runner Brushless MotorRacerstarBR2306S',
+        'mass': 33,
+        'kv_rating': 1722,
+        'voltage': 22.2,
+        'max_thrust': 1180,
+        'peak_current': 29.5,
+        'power': 665,
+        'efficiency': None,
+        'diameter': None,
+        'rpm': 38228.4
+    },
+    {
+        'id': 'Out-Runner Brushless Motor Flashhobby Samguk Series Wu 2206',
+        'mass': 31.5,
+        'kv_rating': 2700,
+        'voltage': 16,
+        'max_thrust': 1140,
+        'peak_current': 35.2,
+        'power': 563,
+        'efficiency': None,
+        'diameter': None,
+        'rpm': 43200
+    },
+    {
+        'id': 'MEPS SZ1404 Cinewhoop Grey 4600kv',
+        'mass': 9.5,
+        'kv_rating': 4600,
+        'voltage': 16.2,
+        'max_thrust': 1376,
+        'peak_current': 38.8,
+        'power': 629.5,
+        'efficiency': 2.19,
+        'diameter': None,
+        'rpm': 28183
     }
 ]
 
