@@ -9,7 +9,7 @@ PROJECT_ROOT = Path(__file__).parent.resolve()
 RESULTS_DIR = PROJECT_ROOT / "Results"
 OPTIMAL_DIR = PROJECT_ROOT / "Optimal_configs"
 OPTIMAL_DIR.mkdir(parents=True, exist_ok=True)
-TOP_N = 5
+TOP_N = 10
 
 # === PARSE FUNCTION ===
 def parse_output(output_path):
@@ -67,7 +67,7 @@ def analyze_results():
         data = parse_output(file)
         if data is None:
             continue
-        for tilt in [0, 15, 30]:
+        for tilt in [0]:
             # Extract config names from filename
             try:
                 base = file.stem  # no .txt

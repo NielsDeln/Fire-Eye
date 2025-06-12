@@ -4,176 +4,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 #from Trade_off.datasets import battery_db as batteries
 import pandas as pd
 from itertools import combinations
-
-battery_dbx = [
-    {'id': 'GAONENG GNB 4S 14.8V', 'type': 'Li-ion', 'cells': 4, 'capacity': 4000, 'mass': 434, 'voltage': 14.8, 
-     'energy_capacity': 59.2, 'C-rating': 10, 'energy_density': 202.74},
-    
-    {'id': 'GAONENG GNB LiHV 6S', 'type': 'LiPo', 'cells': 6, 'capacity': 1100, 'mass': 177, 'voltage': 22.8, 
-     'energy_capacity': 25.08, 'C-rating': 5, 'energy_density': 141.69},
-
-    {'id': 'DJI 200 TB55 (for Matrice)', 'type': 'Lipo 6s', 'cells': 6, 'capacity': 7660, 'mass': 885, 'voltage': 22.8, 
-     'energy_capacity': 174.6, 'C-rating': None, 'energy_density': 197},
-
-    {'id': 'DJI TB51 (for Inspire 3)', 'type': 'LiPo', 'cells': 4, 'capacity': 4280, 'mass': 470, 'voltage': 23.1, 
-     'energy_capacity': 98.8, 'C-rating': None, 'energy_density': 210},
-
-    {'id': 'DJI Mavic 3 intelligent battery', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 5000, 'mass': 335.5, 'voltage': 15.4, 
-     'energy_capacity': 77, 'C-rating': None, 'energy_density': 230},
-
-    {'id': 'DJI Air 3s intelligent battery', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 4241, 'mass': 267, 'voltage': 14.76, 
-     'energy_capacity': 62.6, 'C-rating': None, 'energy_density': 234},
-
-    {'id': 'GRPB042104', 'type': 'LiHv', 'cells': 1, 'capacity': 7100, 'mass': 102, 'voltage': 4.4, 
-     'energy_capacity': 31.24, 'C-rating': 5, 'energy_density': 306},
-
-    {'id': 'GRP8674133', 'type': 'LiHv', 'cells': 4, 'capacity': 12000, 'mass': 176, 'voltage': 4.4, 
-     'energy_capacity': 52.8, 'C-rating': 5, 'energy_density': 300},
-
-    {'id': 'DJI Air 3s', 'type': 'Li-ion 4s', 'cells': 4, 'capacity': 4276, 'mass': 247, 'voltage': 14.6, 
-     'energy_capacity': 62.4, 'C-rating': None, 'energy_density': 253},
-
-    {'id': 'CNHL LiPo 6s (1300mAh)', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 1300, 'mass': 230, 'voltage': 22.2, 
-     'energy_capacity': 28.86, 'C-rating': 100, 'energy_density': 125.48},
-
-    {'id': 'CNHL LiPo 6s (1200mAh)', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 1200, 'mass': 216, 'voltage': 22.2, 
-     'energy_capacity': 26.64, 'C-rating': 100, 'energy_density': 123.33},
-
-    {'id': 'Tattu G-Tech 4S 5200mAh', 'type': '4s lipo', 'cells': 4, 'capacity': 5200, 'mass': 436.5, 'voltage': 14.8, 
-     'energy_capacity': 76.96, 'C-rating': 35, 'energy_density': 176.31},
-
-    {'id': 'S 6750mAh 14.8V', 'type': '4s lipo', 'cells': 4, 'capacity': 6750, 'mass': 620, 'voltage': 14.8, 
-     'energy_capacity': 99.9, 'C-rating': 25, 'energy_density': 161.13},
-     
-    {'id': 'Turnigy Graphene 4S 6000mAh', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 6000, 'mass': 800, 'voltage': 14.8, 'C-rating': 75},
-
-    {'id': 'Tattu R-Line 6S 1400mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 1400, 'mass': 223, 'voltage': 22.2, 'C-rating': 150},
-
-    {'id': 'HRB Graphene 4S 5000mAh', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 5000, 'mass': 492, 'voltage': 14.8, 'C-rating': 100},
-    
-    {'id': 'Lectron Pro 4S 7600mAh', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 7600, 'mass': 626, 'voltage': 14.8, 'C-rating': 75},
-
-    {'id': 'Gens Ace 6S 5000mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 5000, 'mass': 695, 'voltage': 22.2, 'C-rating': 45},
-
-    {'id': 'MaxAmps 4S 10900mAh', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 10900, 'mass': 950, 'voltage': 16.8, 'C-rating': None},
-
-    {'id': 'Ovonic 6S 1300mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 1300, 'mass': 223, 'voltage': 22.2, 'C-rating': 100},
-    
-    {'id': 'DJI Air 2S intelligent flight battery LiPo 3S 3500mAh (11.55V)',
-    'type': 'LiPo 3s',
-    'cells': 3,
-    'capacity': 3500,               # mAh
-    'mass': 198,                    # g
-    'voltage': 11.55,               # V
-    'energy_capacity': 40.42,       # Wh
-    'C-rating': None,               # Not provided
-    'energy_density': round(40.42 * 1000 / 198, 2),  # ≈ 204.14 Wh/kg
-    'charging_voltage_limit': 13.2, # V
-    'charging_temperature_range': '5° to 40°C',
-    'max_charging_power': 38        # W
-    },
-    # New additions:
-    # High Voltage Batteries (≥25.1V)
-    {'id': 'ZOP Power 6S 10000mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 10000, 'mass': 1200, 'voltage': 22.2,
-     'energy_capacity': 222, 'C-rating': 35, 'energy_density': 185},
-     
-    {'id': 'Gens Ace Tattu 12S 16000mAh', 'type': 'LiPo 12s', 'cells': 12, 'capacity': 16000, 'mass': 3200, 'voltage': 44.4,
-     'energy_capacity': 710.4, 'C-rating': 25, 'energy_density': 222},
-     
-    {'id': 'Pulse Ultra 6S 5000mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 5000, 'mass': 680, 'voltage': 22.2,
-     'energy_capacity': 111, 'C-rating': 45, 'energy_density': 163.24},
-     
-    # Low Voltage Batteries (7-11.1V)
-    {'id': 'Turnigy Nano-Tech 3S 2200mAh', 'type': 'LiPo 3s', 'cells': 3, 'capacity': 2200, 'mass': 193, 'voltage': 11.1,
-     'energy_capacity': 24.42, 'C-rating': 25, 'energy_density': 132},
-     
-    {'id': 'Venom 2S 5000mAh', 'type': 'LiPo 2s', 'cells': 2, 'capacity': 5000, 'mass': 272, 'voltage': 7.4,
-     'energy_capacity': 37, 'C-rating': 40, 'energy_density': 132.14},
-     
-    {'id': 'Thunder Power 3S 3300mAh', 'type': 'LiPo 3s', 'cells': 3, 'capacity': 3300, 'mass': 265, 'voltage': 11.1,
-     'energy_capacity': 36.63, 'C-rating': 55, 'energy_density': 152.63},
-     
-    # Specialty Batteries
-    {'id': 'Bioenno Power 12V, 3Ah LFP Battery ', 'type': 'LiFePO4', 'cells': 4, 'capacity': 3000, 'mass': 400, 'voltage': 12,
-     'energy_capacity': 128, 'C-rating': 2, 'energy_density': 106.67},
-     
-    # {'id': 'Dragonfly 4S 18000mAh', 'type': 'Li-ion', 'cells': 4, 'capacity': 18000, 'mass': 980, 'voltage': 14.8,
-    #  'energy_capacity': 266.4, 'C-rating': 10, 'energy_density': 271.84},
-     
-    {'id': 'HYPERION GENERATION 7 "G7" 6S 2800 MAH SI-GRAPHENE HV LIPO BATTERY', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 2800, 'mass': 377, 'voltage': 22.8,
-     'energy_capacity': 155.4, 'C-rating': 50, 'energy_density': 182.82},
-     
-    {'id': 'Optipower 2S 5500mAh Race Pack', 'type': 'LiPo 2s', 'cells': 2, 'capacity': 5500, 'mass': 300, 'voltage': 7.4,
-     'energy_capacity': 59.2, 'C-rating': 50, 'energy_density': 169.14},
-     
-    # High Energy Density Options
-    # {'id': 'Energizer Ultimate Lithium 3S', 'type': 'Li-ion', 'cells': 3, 'capacity': 3500, 'mass': 150, 'voltage': 11.1,
-    #  'energy_capacity': 38.85, 'C-rating': 2, 'energy_density': 259},
-     
-    {'id': 'Panasonic NCR18650B 4S2P', 'type': 'Li-ion', 'cells': 8, 'capacity': 3200, 'mass': 48.5, 'voltage': 3.6,
-     'energy_capacity': 100.64, 'C-rating': 2, 'energy_density': 279.56},
-     
-    # Extreme Performance
-    {'id': 'HCL-HP 22.2V 7600mAh 150C G10', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 7600, 'mass': 1065, 'voltage': 22.2,
-     'energy_capacity': 137.64, 'C-rating': 150, 'energy_density': 176.46},
-     
-    {'id': 'Roaring Top 6S 5500mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 5500, 'mass': 650, 'voltage': 22.2,
-     'energy_capacity': 122.1, 'C-rating': 70, 'energy_density': 187.85},
-     
-    # Small Form Factor
-    {'id': 'Tattu FunFly 2S 300mAh', 'type': 'LiPo 2s', 'cells': 2, 'capacity': 300, 'mass': 18, 'voltage': 7.6,
-     'energy_capacity': 2.22, 'C-rating': 75, 'energy_density': 123.33},
-     
-    {'id': 'GNB 3S 1100mAh', 'type': 'LiPo 3s', 'cells': 3, 'capacity': 1100, 'mass': 66, 'voltage': 11.4,
-     'energy_capacity': 12.21, 'C-rating': 60, 'energy_density': 135.67},
-     
-    # High Capacity
-    {'id': 'Multistar 6S 16000mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 16000, 'mass': 2015, 'voltage': 22.2,
-     'energy_capacity': 355.2, 'C-rating': 12, 'energy_density': 197.33},
-     
-    {'id': 'Turnigy Heavy Duty 4S 5000mAh', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 5000, 'mass': 516, 'voltage': 14.8,
-     'energy_capacity': 74, 'C-rating': 60, 'energy_density': 142.31},
-     
-    # Safety Focused
-    #{'id': 'Revolution 4S 6000mAh', 'type': 'LiFePO4', 'cells': 4, 'capacity': 6000, 'mass': 448, 'voltage': 15.2,
-     #'energy_capacity': 76.8, 'C-rating': 20, 'energy_density': 102.4},
-     
-    {'id': 'Relion RB100', 'type': 'LiFePO4', 'cells': 4, 'capacity': 10000, 'mass': 11000, 'voltage': 12.8,
-     'energy_capacity': 240, 'C-rating': 5, 'energy_density': 116.36},
-
-    {'id': 'Turnigy Heavy Duty 5000mAh 7S', 'type': 'lipo 7s', 'cells': 7, 'capacity': 5000, 'mass': 980, 'voltage': 25.9,
-     'energy_capacity': 129.5, 'C-rating': 60, 'energy_density': 132.1},
-
-    {'id': 'Maxamp lithium batteries 7s 8000 mah', 'type': 'lipo 7s', 'cells': 7, 'capacity': 8000, 'mass': 1322, 'voltage': 25.9,
-     'energy_capacity': 207.2, 'C-rating': 32, 'energy_density': 157},
-
-    {'id': 'Maxamp lithium batteries 7s 4000 mah', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 4000, 'mass': 666, 'voltage': 25.9,
-     'energy_capacity': 103.6, 'C-rating': 32, 'energy_density': 156},
-
-    {'id': 'Maxamp lithium batteries 7s 17000mah', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 17000, 'mass': 2209, 'voltage': 25.9,
-     'energy_capacity': 440.3, 'C-rating': 28, 'energy_density': 199},
-
-    {'id': 'Maxamp lithium batteries 7s 22000mah', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 22000, 'mass': 2888, 'voltage': 25.9,
-     'energy_capacity': 569.8, 'C-rating': 15, 'energy_density': 197},
-    
-    {'id': 'Maxamp lithium batteries 6s2p 22000mah', 'type': 'Lipo 6s', 'cells': 6, 'capacity': 22000, 'mass': 2482, 'voltage': 22.2,
-     'energy_capacity': 488.4, 'C-rating': 15, 'energy_density': 196},
-    
-    {'id': 'Maxamp lithium batteries 5s2p 22000mah', 'type': 'Lipo 5s', 'cells': 5, 'capacity': 22000, 'mass': 2076, 'voltage': 18.5,
-     'energy_capacity': 407, 'C-rating': 15, 'energy_density': 196},
-
-    {'id': 'Maxamp lithium batteries 5s 35000mah', 'type': 'Lipo 5s', 'cells': 5, 'capacity': 35000, 'mass': 2041, 'voltage': 18.5,
-     'energy_capacity': 647.5, 'C-rating': 10, 'energy_density': 317},
-
-    {'id': 'Tattu plus 16000mah', 'type': '6s1p LiPo', 'cells': 6, 'capacity': 16000, 'mass': 1932, 'voltage': 22.2,
-     'energy_capacity': 355.2, 'C-rating': 15, 'energy_density': 183.85},
-
-    {'id': 'CNHL 20000mAh', 'type': 'Lipo 6s', 'cells': 6, 'capacity': 20000, 'mass': 2300, 'voltage': 22.2,
-     'energy_capacity': 444, 'C-rating': 15, 'energy_density': 193},
-
-    {'id': 'Tattu G-Tech 30c 6s', 'type': 'Lipo 6s', 'cells': 6, 'capacity': 22000, 'mass': 2460, 'voltage': 22.2,
-     'energy_capacity': 488.4, 'C-rating': 30, 'energy_density': 198.54},
-]
+from batt_mot_db import battery_dbx, motor_db
 
 
 for battery in battery_dbx:
@@ -182,27 +13,9 @@ for battery in battery_dbx:
     #if 'energy_density' not in battery:
     battery['energy_density'] = round((battery['energy_capacity'] * 1000) / battery['mass'], 2)
 
-# Define requirements
-throttle = 0.38 
-motor_power = 2752 * throttle   # W
-motor_peak_current = 43.9 * 4  # A
-motor_voltage = 16  # V
-max_motor_volt = 25.2  # V, max voltage for motor operation
-motor_energy_wh = motor_power * (20 / 60)  # 10 minutes operation
-
-low_voltage_min = 7.0
-low_voltage_max = 11.1
-electronics_power_mode1 = 52.09
-electronics_power_mode2 = 59.38
-max_electronics_power = max(electronics_power_mode1, electronics_power_mode2)
-electronics_energy_wh = max_electronics_power * (20 / 60)
-electronics_current = 4.5  # A estimate from your table
-
-
-tot_power = motor_power + max_electronics_power
-tot_voltage_parallel = max(low_voltage_max, motor_voltage)  
-tot_voltage_series = motor_voltage + low_voltage_max
-tot_energy = motor_energy_wh + electronics_energy_wh
+for motor in motor_db:
+    if motor.get('power') is None and motor.get('voltage') and motor.get('peak_current'):
+        motor['power'] = motor['voltage'] * motor['peak_current']
 
 def get_max_current(battery):
     c = battery.get("C-rating")
@@ -210,69 +23,146 @@ def get_max_current(battery):
         return None
     return (battery["capacity"] / 1000) * c  # A
 
+# Define requirements
+throttle = 0.5 
+
+# motor_power = 260 * 4 * throttle   # W
+# motor_peak_current = 21.7 * 4  # A
+# motor_voltage = 12  # V
+# max_motor_volt = 25.2  # V, max voltage for motor operation
+# motor_energy_wh = motor_power * (20 / 60)  # 10 minutes operation
+
+low_voltage_min = 7.0
+low_voltage_max = 20
+electronics_power_mode1 = 52.09
+electronics_power_mode2 = 59.38
+max_electronics_power = max(electronics_power_mode1, electronics_power_mode2)
+electronics_energy_wh = max_electronics_power * (20 / 60)
+electronics_current = 4.5  # A estimate from your table
 
 
-single_motor_batteries = []
-for b in battery_dbx:
-    m = b["mass"]
-    v = b["voltage"]
-    energy = b.get("energy_capacity")
-    max_current = get_max_current(b)
-    if max_motor_volt >= v >= motor_voltage and energy and energy >= motor_energy_wh:
-        #if max_current is None or max_current >= motor_peak_current:
-        single_motor_batteries.append({**b, "max_current_est": max_current})
-single_motor_batteries = sorted(single_motor_batteries, key=lambda x: x['mass'])
+motor_batt = {}
+for motor in motor_db:
+    motor_power = motor['power'] * throttle * 4 # W
+    #motor_peak_current = 4 * motor['peak_current']  # A
+    motor_voltage = motor['voltage']  # V
+    max_motor_volt = 30  # V, max voltage for motor operation
+    motor_energy_wh = motor_power * (20 / 60)  # 20 minutes operation
 
-# maybe do two 
-# In parallel: Same voltage, sum capacity, and sum max current.
-#In series: Sum voltage, same capacity, and same max current.
-combo_motor_batteries = []
-for b1, b2 in combinations(battery_dbx, 2):
-    # Assume parallel or similar config
-    combined_energy = b1['energy_capacity'] + b2['energy_capacity']
-    avg_voltage = max(b1['voltage'], b2['voltage']) 
+    tot_power = motor_power + max_electronics_power
+    tot_voltage_parallel = max(low_voltage_max, motor_voltage)  
+    tot_voltage_series = motor_voltage + low_voltage_max
+    tot_energy = motor_energy_wh + electronics_energy_wh
+    print(motor['id'], tot_energy)
 
-    # Series 
-    # combined_energy = max(b1['energy_capacity'], b2['energy_capacity'])
-    # avg_voltage = b1['voltage'] + b2['voltage']
 
-    combined_mass = b1['mass'] + b2['mass']
-     
-    combined_energy_density = round((combined_energy * 1000) / combined_mass, 2)
-    
-    if motor_voltage <= avg_voltage <= max_motor_volt and combined_energy >= motor_energy_wh:
-        combo_motor_batteries.append({
-            'ids': (b1['id'], b2['id']),
-            'voltage': avg_voltage,
-            'energy_capacity': combined_energy,
-            'mass': combined_mass,
-        })
-combo_motor_batteries = sorted(combo_motor_batteries, key=lambda x: x['mass'])
+    single_motor_batteries = []
+    for b in battery_dbx:
+        m = b["mass"]
+        v = b["voltage"]
+        energy = b.get("energy_capacity")
+        max_current = get_max_current(b)
+        if max_motor_volt >= v >= motor_voltage and energy and energy >= motor_energy_wh:
+            #if max_current is None or max_current >= motor_peak_current:
+            single_motor_batteries.append({**b, "max_current_est": max_current})
+    single_motor_batteries = sorted(single_motor_batteries, key=lambda x: x['mass'])
 
-#choose best setup for motors
-# best_single = max(single_motor_batteries, key=lambda x: x['energy_density'], default=None)
-# best_combo = max(combo_motor_batteries, key=lambda x: x['energy_density'], default=None)
+    # maybe do two 
+    # In parallel: Same voltage, sum capacity, and sum max current.
+    #In series: Sum voltage, same capacity, and same max current.
+    combo_motor_batteries = []
+    for b1, b2 in combinations(battery_dbx, 2):
+        # Assume parallel or similar config
+        combined_energy = b1['energy_capacity'] + b2['energy_capacity']
+        avg_voltage = max(b1['voltage'], b2['voltage']) 
 
-# if best_combo and (not best_single or best_combo['energy_density'] > best_single['energy_density']):
-#     selected_motor_battery = {'type': 'combo', 'details': best_combo}
-# else:
-#     selected_motor_battery = {'type': 'single', 'details': best_single}
+        # Series 
+        # combined_energy = max(b1['energy_capacity'], b2['energy_capacity'])
+        # avg_voltage = b1['voltage'] + b2['voltage']
 
-all_options = []
+        combined_mass = b1['mass'] + b2['mass']
+        
+        combined_energy_density = round((combined_energy * 1000) / combined_mass, 2)
+        
+        if motor_voltage <= avg_voltage <= max_motor_volt and combined_energy >= motor_energy_wh:
+            combo_motor_batteries.append({
+                'ids': (b1['id'], b2['id']),
+                'voltage': avg_voltage,
+                'energy_capacity': combined_energy,
+                'mass': combined_mass,
+            })
+    combo_motor_batteries = sorted(combo_motor_batteries, key=lambda x: x['mass'])
 
-#  format consistent
-for s in single_motor_batteries:
-    all_options.append({
-        'ids': (s['id'],),
-        'voltage': s['voltage'],
-        'energy_capacity': s['energy_capacity'],
-        'mass': s['mass'],
-        'energy_density': s['energy_density'],
-        'type': 'single'
-    })
-all_options.extend(combo_motor_batteries)
-all_options_sorted = sorted(all_options, key=lambda x: x['mass'])
+    tot_batteries = []
+    for b in battery_dbx:
+        m = b["mass"]
+        v = b["voltage"]
+        energy = b.get("energy_capacity")
+        max_current = get_max_current(b)
+        if v >= tot_voltage_parallel and energy and energy >= tot_energy:
+            #if max_current is None or max_current >= tot_power / v:
+            tot_batteries.append({**b, "max_current_est": max_current})
+    tot_batteries.sort(key=lambda x: -x.get("mass", 0))
 
+
+    best_single_motor = min(single_motor_batteries, key=lambda x: x['mass'], default=None)
+    best_combo_motor = min(combo_motor_batteries, key=lambda x: x['mass'], default=None)
+    best_integrated = min(tot_batteries, key=lambda x: x['mass'], default=None)
+
+    motor_batt[motor['id']] = {
+        'single_batteries': best_single_motor,
+        'combo_batteries': best_combo_motor,
+        'total_batteries': best_integrated
+    }
+
+  
+min_mass = 10000
+best = []
+best_options = {}
+
+for motor_id, options in motor_batt.items():
+    mass = min(
+        [b['mass'] for b in options.values() if b is not None and 'mass' in b],
+        default=None
+    )
+    if mass is not None and mass < min_mass:
+        min_mass = mass
+        # best = [motor_id]  # Reset to only this best motor
+        # best_options = {motor_id: options}
+        best.append(motor_id)
+        best_options[motor_id] = options
+    elif mass == min_mass:
+        best.append(motor_id)
+        best_options[motor_id] = options
+
+print("\n--- Best Motor Battery Options ---")
+for motor_id in best[:-3:-1]:
+    print(f"\n=== Motor: {motor_id} ===")
+    options = best_options[motor_id]
+
+    single = options.get('single_batteries')
+    if single:
+        print(f"Single Battery Option: ID: {single['id']}, Voltage: {single['voltage']}V, "
+              f"Energy: {single['energy_capacity']}Wh, Mass: {single['mass']}g, "
+              f"Max Current: {single.get('max_current_est', 'N/A')}A")
+    else:
+        print("No suitable single battery found.")
+
+    combo = options.get('combo_batteries')
+    if combo:
+        ids = ', '.join(combo['ids'])
+        print(f"Combo Battery Option: IDs: {ids}, Average Voltage: {combo['voltage']}V, "
+              f"Combined Energy: {combo['energy_capacity']}Wh, Combined Mass: {combo['mass']}g")
+    else:
+        print("No suitable combo battery found.")
+
+    total = options.get('total_batteries')
+    if total:
+        print(f"Total Battery Option: ID: {total['id']}, Voltage: {total['voltage']}V, "
+              f"Energy: {total['energy_capacity']}Wh, Mass: {total['mass']}g, "
+              f"Max Current: {total.get('max_current_est', 'N/A')}A")
+    else:
+        print("No suitable total battery found.")
 
 # Electronics   
 low_volt_batteries = []
@@ -286,36 +176,35 @@ for b in battery_dbx:
         low_volt_batteries.append({**b, "max_current_est": max_current})
 
 low_volt_batteries.sort(key=lambda x: -x.get("mass", 0))
+
+print("\n--- Selected Electronics Battery ---")
+for b in low_volt_batteries[:-6:-1]:
+    print(f"ID: {b['id']}, Voltage: {b['voltage']}V, Energy: {b['energy_capacity']}Wh, "
+          f"Mass: {b['mass']}g, Energy Density: {b['energy_density']} Wh/kg, Max Current: {b['max_current_est']}A")
+    
+
 #best_electronics_battery = min(low_volt_batteries, key=lambda x: x['mass'], default=None)
 
 # high_volt_batteries.sort(key=lambda x: -x.get("energy_density", 0))
 # low_volt_batteries.sort(key=lambda x: -x.get("energy_density", 0))
 
 
-tot_batteries = []
-for b in battery_dbx:
-    m = b["mass"]
-    v = b["voltage"]
-    energy = b.get("energy_capacity")
-    max_current = get_max_current(b)
-    if v >= tot_voltage_parallel and energy and energy >= tot_energy:
-        #if max_current is None or max_current >= tot_power / v:
-        tot_batteries.append({**b, "max_current_est": max_current})
-tot_batteries.sort(key=lambda x: -x.get("mass", 0))
+
 
 
 # Output
 # Print results nicely
 
-print("\n=== Single Battery Options for Motor ===")
-for b in single_motor_batteries[::4]:
-    print(f"- ID: {b['id']}")
-    print(f"  Voltage: {b['voltage']} V, Energy: {b['energy_capacity']} Wh, Mass: {b['mass']} g, Max Current: {b['max_current_est']} A\n")
 
-print("\n=== Two-Battery Combo Options for Motor ===")
-for c in combo_motor_batteries[:4]:
-    print(f"- IDs: {c['ids'][0]} + {c['ids'][1]}")
-    print(f"  Average Voltage: {c['voltage']:.2f} V, Combined Energy: {c['energy_capacity']} Wh, Combined Mass: {c['mass']} g\n")
+# print("\n=== Single Battery Options for Motor ===")
+# for b in single_motor_batteries[::4]:
+#     print(f"- ID: {b['id']}")
+#     print(f"  Voltage: {b['voltage']} V, Energy: {b['energy_capacity']} Wh, Mass: {b['mass']} g, Max Current: {b['max_current_est']} A\n")
+
+# print("\n=== Two-Battery Combo Options for Motor ===")
+# for c in combo_motor_batteries[:4]:
+#     print(f"- IDs: {c['ids'][0]} + {c['ids'][1]}")
+#     print(f"  Average Voltage: {c['voltage']:.2f} V, Combined Energy: {c['energy_capacity']} Wh, Combined Mass: {c['mass']} g\n")
     
 # print("\n--- Selected Motor Battery Options ---")
 # for b in all_options_sorted[::-1]:
@@ -323,12 +212,9 @@ for c in combo_motor_batteries[:4]:
 #     print(f"IDs: {ids}, Voltage: {b['voltage']}V, Energy: {b['energy_capacity']}Wh, "
 #           f"Mass: {b['mass']}g, Energy Density: {b['energy_density']} Wh/kg")
     
-print("\n--- Selected Electronics Battery ---")
-for b in low_volt_batteries[::-1]:
-    print(f"ID: {b['id']}, Voltage: {b['voltage']}V, Energy: {b['energy_capacity']}Wh, "
-          f"Mass: {b['mass']}g, Energy Density: {b['energy_density']} Wh/kg, Max Current: {b['max_current_est']}A")
 
-print("\n--- Total Battery Options ---")
-for b in tot_batteries[:-5:-1]:
-    print(f"ID: {b['id']}, Voltage: {b['voltage']}V, Energy: {b['energy_capacity']}Wh, "
-          f"Mass: {b['mass']}g, Energy Density: {b['energy_density']} Wh/kg, Max Current: {b['max_current_est']}A")
+
+# print("\n--- Total Battery Options ---")
+# for b in tot_batteries[:-5:-1]:
+#     print(f"ID: {b['id']}, Voltage: {b['voltage']}V, Energy: {b['energy_capacity']}Wh, "
+#           f"Mass: {b['mass']}g, Energy Density: {b['energy_density']} Wh/kg, Max Current: {b['max_current_est']}A")

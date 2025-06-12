@@ -1,17 +1,17 @@
 {
-  "airfoil": "naca4412",
-  "motor": "3",
-  "prop": "9",
+  "airfoil": "e216",
+  "motor": "1",
+  "prop": "8",
   "ducted": false,
   "tilt_deg": 0,
-  "vertical_thrust": 19.3,
+  "vertical_thrust": 4.35,
   "horizontal_thrust": 0.0,
-  "power_draw_W": 814.0,
-  "torque_Nm": 0.368,
-  "ct": 0.00393,
-  "cp": 0.00059,
-  "efficiency": 0.4733,
+  "power_draw_W": 118.0,
+  "torque_Nm": 0.979,
+  "ct": 0.00297,
+  "cp": 0.00053,
+  "efficiency": 0.7346,
   "mach": 0.0588,
-  "wake_advance_ratio": 0.09633,
-  "score": 4.217133414269885
+  "wake_advance_ratio": 0.14461,
+  "score": 0.4001308906613493
 }
