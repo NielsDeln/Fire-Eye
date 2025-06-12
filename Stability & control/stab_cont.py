@@ -68,6 +68,9 @@ def torque_vector(Kf, Km, omega, rotor_angles, l_arm):
     # This is a placeholder; actual implementation will depend on system dynamics
     Tx = l_arm
     
+    '''
+    Torques should be adjusted based on rotor angles
+    '''
     
     angular_acc = np.array([T_rotors[0] - T_rotors[1], 
                              T_rotors[2] - T_rotors[3], 
