@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 import pandas as pd
 from itertools import combinations
 from batt_mot_db import battery_dbx, motor_db
-
+from XROTOR_auto.post_processing import required_thrust
 
 for battery in battery_dbx:
     #if 'energy_capacity' not in battery:
@@ -43,6 +43,8 @@ electronics_current = 4.5  # A estimate from your table
 
 motor_batt = {}
 for motor in motor_db:
+    if motor["max_thrust"] < required_thrust / 9.81 * 1000:
+        continue
     motor_power = motor['power'] * throttle * 4 # W
     #motor_peak_current = 4 * motor['peak_current']  # A
     motor_voltage = motor['voltage']  # V

@@ -9,7 +9,10 @@ PROJECT_ROOT = Path(__file__).parent.resolve()
 RESULTS_DIR = PROJECT_ROOT / "Results"
 OPTIMAL_DIR = PROJECT_ROOT / "Optimal_configs"
 OPTIMAL_DIR.mkdir(parents=True, exist_ok=True)
-TOP_N = 10
+TOP_N = 5
+
+required_thrust = 1887.24 / 4 * 2 / 1000 * 9.81  # N
+print(f"Required vertical thrust: {required_thrust:.2f} N")
 
 # === PARSE FUNCTION ===
 def parse_output(output_path):
@@ -89,7 +92,7 @@ def analyze_results():
             vertical_thrust = data["thrust"] * math.cos(math.radians(tilt))
 
             # Minimum thrust constraint
-            if vertical_thrust < 8:
+            if vertical_thrust < required_thrust:
                 continue
 
             ## === NPPS (Normalized Propeller Performance Score) ===
