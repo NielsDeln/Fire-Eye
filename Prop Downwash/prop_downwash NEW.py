@@ -86,7 +86,7 @@ def v_i(x, r):
         return V_max(x) * np.e ** (-((r / (0.2411 * (x - x_0)))**2))
     else:
         return None
-
+          
 
 
 
