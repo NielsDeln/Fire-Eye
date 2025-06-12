@@ -3,42 +3,47 @@ import numpy as np
 import random
 
 #variables----------------------------------
-Dp = 0.127 # Propeller diameter [m]
-Ct = 0.0652601 # Thrust coefficient
-n = 200 # Propeller speed [rpm]
-Rp = Dp / 2 # Propeller radius [m]
+Dpreal = 0.127 *2 # Propeller diameter [m]
+Ct = 0.012423 # Thrust coefficient
+n = 21119/60 # Propeller speed [rpm]
+Rp = Dpreal / 2 # Propeller radius [m]
 Rh = 0.013 # Hub radius [m]
 pitch = 0.1143 # Propeller pitch [m]
-P = pitch / Dp # Pitch ratio
+P = pitch / Dpreal # Pitch ratio
 
-border = 3.25
+border = 4.25
 
-alt = 1.5 # max x value to be looked at, i.e. flying altitude ig [m]
+alt = 2 # max x value to be looked at, i.e. flying altitude ig [m]
 res = 300 # resolution for plotting
 
 #FUNCTIONS----------------------------------
 
 
-V_0 = 1.22*(n**1.01) * (Dp**0.84) * (Ct**0.62)
+V_0 = 1.46*n*Dpreal * (Ct**0.5)
 print(V_0)
-Rm0 = 0.5 * Rp
+R0 = 0.74 * Rp
+Rm0 = 0.67 * (R0 - Rh)
+Dp = R0*2
+x0 = 1.528 * Rp
 
 
 def V_MAX(x, V_0 = V_0,  Dp = Dp, P = P):
     
-    if x <= (0.35 * Dp):
-        V_MAX = V_0
-        
+    if x >= x0 and x < (x0 + (1.7 * Dp)):
+      
+        V_MAX = V_0 * (1.24 - 0.0765 * ((x-x0)/Dp))
+       
+       
         return V_MAX
     
     
-    elif x > (0.35 * Dp) and x < (border * Dp):
-        V_MAX = (1.51 - 0.175*(x/Dp) - 0.46*P) * V_0
+    elif x >= (x0 + (1.7 * Dp)) and x < (x0 + (border * Dp)):
+        V_MAX = V_0 * (1.37 - 0.1529*((x-x0)/Dp))
         
         return V_MAX
     
-    elif x >= (border * Dp):
-        V_MAX = V_0*(0.964 - 0.039*(x/Dp) - 0.344*P)
+    elif x >= (x0 + (border * Dp)):
+        V_MAX = V_0 * (0.89 - 0.04*((x-x0)/Dp))
         
         return V_MAX
 
@@ -53,37 +58,42 @@ for i in range(len(x_val)):
 plt.plot(x_val, V_list)
 plt.show
 
-def V_i(r, V_MAX, x, Rm0 = Rm0, Dp = Dp): 
 
-    if x <= (0.35 * Dp):
-        sigma = 0.5 * Rm0
-        V_i = V_MAX * (np.exp(-0.5*(((r-Rm0)**2)/(sigma**2))))
+def V_i(r, V_MAX, x, Rm0 = Rm0, R0 = R0, Dp = Dp, x0 = x0): 
+
+    if x >= x0 and x < (x0 + (1.7 * Dp)):
+        Rmax = Rm0 * (1-0.01294*((x-x0)/Dp))
+        #V_i = V_MAX * np.exp(-(((r-Rmax))/(0.8839*Rm0+0.1326*(x-x0-R0)))**2)
+        V_i = V_MAX * np.e ** (-((r - Rmax)/(0.8839 * Rm0 + 0.1326*(x-x0-R0)))**2)
+        #print(np.exp(-(((r-Rmax))/(0.8839*Rm0+0.1326*(x-R0)))**2))
+
         return V_i
     
     
-    elif x > (0.35 * Dp) and x < (border * Dp):
-        sigma = 0.5 * Rm0 + 0.075 * (x - (Dp/2)) 
-        V_i = V_MAX * (np.exp(-0.5*(((r-Rm0)**2)/(sigma**2))))
+    elif x >= (x0 + (1.7 * Dp)) and x < (x0 + (border * Dp)):
+        Rmax = Rm0 * (1.3 - 0.3059*((x-x0)/Dp)) 
+        #V_i = V_MAX * np.exp(-((r-Rmax)/(0.5176*Rm0+0.2295*(x-x0-R0)))**2)
+        V_i = V_MAX * np.e ** (-((r - Rmax)/(0.5176 * Rm0 + 0.2295*(x-x0-R0)))**2)
         return V_i
      
-    elif x >= (border * Dp):
-        #print(V_MAX)
-        V_i = V_MAX * (np.exp((-15.4)*(r/x)**2))
+    elif x >= (x0 + (border * Dp)):
+        
+        V_i = V_MAX * np.e ** (-(r/(0.2411*(x-x0)))**2)
         return V_i
     
-def plot_downwash(orientation = 'vertical', to_scale = False):
-    x_vals = np.linspace(0, alt, res)
+def plot_downwash(orientation = 'horizontal', to_scale = False):
+    x_vals = np.linspace(x0, alt, res)
     r_grid = []
     v_i_grid = []
 
     for i in range(len(x_vals)):
         x = x_vals[i]
-        r_row = np.linspace(0, 1.2*Dp, res // 2)
+        r_row = np.linspace(0, 1.2*Dpreal, res // 2)
 
         v_i_row = []
         for r in r_row:
-            v_max = V_MAX(x,)
-            v_i_val = V_i(r, v_max, x,)
+            v_max = V_MAX(x)
+            v_i_val = V_i(r, v_max, x)
             # v_i_val = random.random()
             v_i_row.append(v_i_val)
             v_i_row_full = list(reversed(v_i_row)) + v_i_row
@@ -152,8 +162,3 @@ def plot_downwash(orientation = 'vertical', to_scale = False):
     plt.show()
 
 plot_downwash(orientation='vertical', to_scale=False)
-
-
-
-
-
