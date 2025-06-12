@@ -382,5 +382,114 @@ motor_db =  [
         'efficiency': 4.464,
         'diameter': None,
         'rpm': 13612.0
+    },
+    {
+        'id': 'Hypetrain Blaster 2207 2450Kv',
+        'mass': 32.0,
+        'kv_rating': 2450,
+        'voltage': 14.69,
+        'max_thrust': 1313,
+        'peak_current': 47.49,
+        'power': 697.6,
+        'efficiency': 1.882,
+        'diameter': None,
+        'rpm': 26657.0
+    },
+    {
+        'id': 'EMAX RSII 2207 2300Kv ',
+        'mass': 26.18,
+        'kv_rating': 2300,
+        'voltage': 14.7,
+        'max_thrust': 1139,
+        'peak_current': 42.95,
+        'power': 613.4,
+        'efficiency': 1.804,
+        'diameter': None,
+        'rpm': 22673.0
+    },
+    {
+        'id': 'Out-Runner Brushless Motor SpeedyBee 2006 1950kv',
+        'mass': 23,
+        'kv_rating': 1950,
+        'voltage': 23.8,
+        'max_thrust': 1130,
+        'peak_current': 21.6,
+        'power': 514,
+        'efficiency': 2.2,
+        'diameter': None,
+        'rpm': 31164
+    },
+    {
+        'id': 'Flashhobby D3530 1400kv',
+        'mass': 74,
+        'kv_rating': 1400,
+        'voltage': 15,
+        'max_thrust': 1180,
+        'peak_current': None,
+        'power': 446,
+        'efficiency': 2.65,
+        'diameter': None,
+        'rpm': 21000
+    },
+    {
+        'id': 'HGLRC AEOLUS 2004 3000kv',
+        'mass': 15.5,
+        'kv_rating': 3000,
+        'voltage': 16,
+        'max_thrust': 1170,
+        'peak_current': 33.5,
+        'power': 536,
+        'efficiency': 2.18,
+        'diameter': None,
+        'rpm': 48000
+    },
+    {
+        'id': 'Out-Runner Brushless Motor BetaFPV2306',
+        'mass': 34,
+        'kv_rating': 1860,
+        'voltage': 24,
+        'max_thrust': 1668,
+        'peak_current': 35.9,
+        'power': 861,
+        'efficiency': None,
+        'diameter': None,
+        'rpm': 44640
+    },
+    {
+        'id': 'Eachine 2206 for Tyro109 2400kv',
+        'mass': 31,
+        'kv_rating': 2400,
+        'voltage': 16,
+        'max_thrust': 1180,
+        'peak_current': 35,
+        'power': 560,
+        'efficiency': 2.11,
+        'diameter': None,
+        'rpm': 38400
+    },
+    {
+        'id': 'Flashhobby Samguk Series Wu 2206 2700kv',
+        'mass': 31.5,
+        'kv_rating': 2700,
+        'voltage': 16,
+        'max_thrust': 1140,
+        'peak_current': 35.2,
+        'power': 563,
+        'efficiency': 2.02,
+        'diameter': None,
+        'rpm': 43200
+    },
+    {
+        'id': 'Out-Runner Brushless Motor T-Motor 2806.5',
+        'mass': 46.6,
+        'kv_rating': 1500,
+        'voltage': 23,
+        'max_thrust': 2102,
+        'peak_current': 47.4,
+        'power': 1089,
+        'efficiency': None,
+        'diameter': None,
+        'rpm': 34500
     }
 ]
+
