@@ -1,17 +1,20 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+import bisect
 #dfsd
 ############# VARIABLES #############
 
 rho = 1.225 # air density at room temp 
 
-D_p = 0.127 # Propeller diameter [m]
-C_T = 0.0652601 # Thrust coefficient
-n = 27000 / 60 # Propeller speed [rps]
+D_p = 0.127 * 2 # Propeller diameter [m]
+C_T = 0.03045 # Thrust coefficient
+n = 21119.998 / 60 # Propeller speed [rps]
 R_p = D_p / 2 # Propeller radius [m]
-R_h = 0.013 # Hub radius [m]
-pitch = 0.1143 # Propeller pitch [m]
+R_h = 0.002 # Hub radius [m]
+# pitch = 0.1143 # Propeller pitch [m]
+D_arm = 0.47
+R_arm = D_arm / 2 # Arm radius [m]
 
 alt = 1.5 # max x value to be looked at, i.e. flying altitude ig [m]
 res = 300 # resolution for plotting
@@ -19,20 +22,23 @@ res = 300 # resolution for plotting
 K = 10 # RANDOM VALUE!!!
 K_visc = K * (1 / 15.68) # Viscosity coefficient [m^2/s] AT ROOM TEMPERATURE!!!!
 
-V_x = 0.3 # RANDOM VALUE!!! # velocity at which propeller moving forward (technically 0 cause we hoverin)
+V_x = 0.1 # RANDOM VALUE!!! # velocity at which propeller moving forward (technically 0 cause we hoverin)
 
-P = pitch / D_p # Pitch ratio
+# P = pitch / D_p # Pitch ratio
 
 T = C_T * (rho * n**2 * D_p**4)
 
-root_chord = 0.01
-tip_chord = 0.075
+max_width = 0.61
+half_width = max_width / 2
 
-single_blade_area = 0.5 * (root_chord + tip_chord) * (R_p - R_h) # area of single blade [m^2]
-num_blades = 2 # number of blades
+# root_chord = 0.01
+# tip_chord = 0.075
 
-beta = single_blade_area * num_blades / (np.pi * R_p**2) # blade area ratio
-E_0 = (D_p / (R_h*2))**(-0.403) * C_T**(-1.79) * (beta)**0.744
+# single_blade_area = 0.5 * (root_chord + tip_chord) * (R_p - R_h) # area of single blade [m^2]
+# num_blades = 2 # number of blades
+
+# beta = single_blade_area * num_blades / (np.pi * R_p**2) # blade area ratio
+# E_0 = (D_p / (R_h*2))**(-0.403) * C_T**(-1.79) * (beta)**0.744
 
 ############# INITIAL CALCULATIONS #############
 
@@ -42,13 +48,13 @@ E_0 = (D_p / (R_h*2))**(-0.403) * C_T**(-1.79) * (beta)**0.744
 #     # print(f'V_0: {1.33 * n * D_p * np.sqrt(C_T)}')
 #     return 1.33 * n * D_p * np.sqrt(C_T)
 
-def V_0(D_p = D_p, C_T = C_T, n = n, E_0 = E_0): 
+def V_0(D_p = D_p, C_T = C_T, n = n): 
     # print(f'V_0: {1.33 * n * D_p * np.sqrt(C_T)}')
     # print(E_0)
     return 1.33 * n * D_p * np.sqrt(C_T)
 
-
 print(f'V_0: {V_0()}')
+
 # Some coefficient ( = inf for V_x = 0)
 def K_T(V_x = V_x, T=T, rho=1.225, R_p = R_p):
     return (T / (4 * rho * R_p**2 * V_x**2)) if V_x != 0 else np.inf
@@ -60,6 +66,8 @@ def a(K_T):
 # Efflux position [m]
 def x_0(V_0, a, V_x, R_p = R_p): # efflux position [m]
     return ((V_0 - a * V_x) * R_p) / (np.sqrt(V_0*(2*a*V_x - V_0)))
+
+print(f'x_0: {x_0(V_0(), a(K_T()), V_x)}')
 
 # Average velocity at given x position [m/s]
 def v_i_avg(x, a, V_x = 0, R_p = R_p):
@@ -175,8 +183,6 @@ def v_i(V_max, r, x, x_0, R_m_0, R_0 = R_0):
     D_0 = 2 * R_0
     # print(f'x0: {x_0}')
 
-    print(f'x_0: {x_0}')
-
     if x >= x_0 and x <= (x_0 + 0.5*D_0): # ZFE
         return V_max * np.e ** (-0.5 * ((r - R_m_0) / (0.5 * R_m_0))**2)
 
@@ -186,8 +192,11 @@ def v_i(V_max, r, x, x_0, R_m_0, R_0 = R_0):
     elif x > (x_0 + 3.25 * D_0): # ZEF
         return (V_max) * np.e ** (-22.2* ((r) / (K_visc * (x-x_0)))**2)
     
+    elif x_0 is None:
+        print(f'poop happened (sqrt for x_0 is negative) {x}, {r}')
+
     else:
-        print('poop happened (sqrt for x_0 is negative) ')
+        # print(f'{x}, {x_0}')
         return 0
     
 
@@ -254,7 +263,7 @@ def plot_downwash(orientation = 'vertical', to_scale = False):
         )
         plt.gca().invert_yaxis()  # Flip y-axis: highest x at top, lowest at bottom
         plt.hlines(x_0(V_0(), a(K_T()), V_x), r_grid[0, 0], r_grid[0, -1], color='white', linestyle='--', label='Efflux Position $x_0$')
-        plt.hlines(10*D_p, r_grid[0, 0], r_grid[0, -1], color='gray', linestyle='--', label='10x Propeller Diameter')
+        # plt.hlines(10*D_p, r_grid[0, 0], r_grid[0, -1], color='gray', linestyle='--', label='10x Propeller Diameter')
         # plt.vlines(R_h, x_vals[0], x_vals[-1], color='black', linestyle='--', label='Hub Radius $R_h$')
         plt.colorbar(label='Induced Velocity $v_i$ [m/s]')
         plt.xlabel('Radial Position $r$ [m]')
@@ -273,3 +282,80 @@ def plot_downwash(orientation = 'vertical', to_scale = False):
     plt.show()
 
 plot_downwash(orientation='vertical', to_scale=False)
+
+def plot_ground_velocity():
+    x = alt
+    width_factor = 3
+    r = np.linspace(0, width_factor * D_p, res // 2)
+
+    v_max = V_max(V_0(), x, x_0(V_0(), a(K_T()), V_x))
+    v_i_vals = [v_i(v_max, r_val, x, x_0(V_0(), a(K_T()), V_x), R_m_0()) for r_val in r]
+    v_i_vals_full = list(reversed(v_i_vals)) + v_i_vals
+    r_full = np.concatenate([-r[::-1], r])
+
+    plt.figure(figsize=(12, 4))
+
+    plt.plot(r_full, v_i_vals_full, label='Propeller 1', linestyle='-', color='pink')
+    plt.xlabel('Radial Position $r$ [m]')
+    plt.ylabel('Induced Velocity $v_i$ [m/s]')
+    plt.title('Induced Velocity at Ground Level (flying @ ' + str(round(x, 2)) + ' m altitude)')
+
+
+    for i in range(len(v_i_vals_full)):
+        val = v_i_vals_full[i]
+        if val > 1.5:
+            roi = abs(r_full[i])
+            break
+        else:
+            continue
+
+    # r_vals_2 = r_full + 0.252
+    # plt.plot(r_vals_2, v_i_vals_full, label='Propeller 2', linestyle='--', color='blue')
+
+    max_v = round(np.max(v_i_vals_full), 3)
+
+    plt.text(roi * 0.9, max_v - 0.1*max_v, 'Max velocity: ' + str(round(np.max(v_i_vals_full),3)) + ' m/s', fontsize = 10)
+    plt.text(roi * 0.9, max_v - 0.2*max_v, 'Radius of influence: ' + str(round(abs(roi),3)) + 'm', fontsize = 10)
+    plt.text(roi * 0.9 , max_v - 0.3*max_v, 'Area of influence: ' + str(round(roi**2 * np.pi,3)) + 'm$^2$', fontsize = 10)
+    plt.text(roi * 0.9 , max_v - 0.4*max_v, 'Radius of influence (4 propellers): ' + str(round((abs(roi) + R_arm), 3)) + 'm', fontsize = 10)
+    plt.text(roi * 0.9, max_v - 0.5*max_v, 'Area of influence (4 propellers): ' + str(round((abs(roi) + R_arm)**2 * np.pi, 3)) + 'm$^2$', fontsize = 10)
+
+
+    plt.axhline(y=1.5, color='black', linestyle='--', linewidth=0.5)
+
+    plt.show()
+
+    centers = [
+        (-half_width + R_p,  half_width - R_p),  # Top-left
+        ( half_width - R_p,  half_width - R_p),  # Top-right
+        (-half_width + R_p, -half_width + R_p),  # Bottom-left
+        ( half_width - R_p, -half_width + R_p)   # Bottom-right
+    ]
+
+    fig, ax = plt.subplots()
+
+    # Draw the propeller circles
+    for center in centers:
+        prop_circle = plt.Circle(center, R_p, fill=False, edgecolor='blue', linewidth=2)
+        ax.add_patch(prop_circle)
+
+    # Draw the ROI circles in light blue with 50% opacity
+    for center in centers:
+        roi_circle = plt.Circle(center, roi, color='lightblue', alpha=0.5)
+        ax.add_patch(roi_circle)
+
+    # Formatting the plot
+    ax.set_xlim(-half_width - roi, half_width + roi)
+    ax.set_ylim(-half_width - roi, half_width + roi)
+    ax.set_aspect('equal', 'box')
+    ax.set_xlabel('x [m]')
+    ax.set_ylabel('y [m]')
+    ax.set_title('Propellers with ROI Circles')
+    plt.grid(True)
+    plt.show()
+
+
+plot_ground_velocity()
+
+
+
