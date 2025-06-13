@@ -11,7 +11,7 @@ OPTIMAL_DIR = PROJECT_ROOT / "Optimal_configs"
 OPTIMAL_DIR.mkdir(parents=True, exist_ok=True)
 TOP_N = 5
 
-required_thrust = 2161 / 4 * 1.75 / 1000 * 9.81  # N
+required_thrust = 2161 / 4 * 1.8 / 1000 * 9.81  # N
 print(f"Required vertical thrust: {required_thrust:.2f} N")
 
 # === PARSE FUNCTION ===
