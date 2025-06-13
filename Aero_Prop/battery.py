@@ -44,20 +44,20 @@ low_voltage_max = 20
 electronics_power_mode1 = 52.09 
 electronics_power_mode2 = 59.38 
 max_electronics_power = max(electronics_power_mode1, electronics_power_mode2)
-electronics_energy_wh = max_electronics_power * (20 / 60)
+electronics_energy_wh = max_electronics_power * (15 / 60)
 electronics_current = 4.5  # A estimate from your table
 
 
 def get_batteries_motor(motor_db, battery_dbx, required_thrust, throttle=0.5):
     motor_batt = {}
     for motor in motor_db:
-        if motor["max_thrust"] < required_thrust / 9.81 * 1000:
-            continue
+        # if motor["max_thrust"] < required_thrust / 9.81 * 1000:
+        #     continue
         motor_power = motor['power'] * throttle * 4 # W
         #motor_peak_current = 4 * motor['peak_current']  # A
         motor_voltage = motor['voltage']  # V
         max_motor_volt = 30  # V, max voltage for motor operation
-        motor_energy_wh = motor_power * (15 / 60)  # 20 minutes operation
+        motor_energy_wh = motor_power * (10 / 60)  # 20 minutes operation
 
         tot_power = motor_power + max_electronics_power
         tot_voltage_parallel = max(low_voltage_max, motor_voltage)  
@@ -138,15 +138,15 @@ for motor_id, options in motor_batt.items():
         [b['mass'] for b in options.values() if b is not None and 'mass' in b],
         default=None
     )
-    if mass is not None and mass < min_mass:
-        min_mass = mass
-        # best = [motor_id]  # Reset to only this best motor
-        # best_options = {motor_id: options}
-        best.append(motor_id)
-        best_options[motor_id] = options
-    elif mass == min_mass:
-        best.append(motor_id)
-        best_options[motor_id] = options
+    # if mass is not None and mass < min_mass:
+    #     min_mass = mass
+    #     # best = [motor_id]  # Reset to only this best motor
+    #     # best_options = {motor_id: options}
+    #     best.append(motor_id)
+    #     best_options[motor_id] = options
+    # elif mass == min_mass:
+    best.append(motor_id)
+    best_options[motor_id] = options
 
 print("\n--- Best Motor Battery Options ---")
 for motor_id in best[::-1]:
@@ -154,20 +154,20 @@ for motor_id in best[::-1]:
     options = best_options[motor_id]
 
     single = options.get('single_batteries')
-    if single:
-        print(f"Single Battery Option: ID: {single['id']}, Voltage: {single['voltage']}V, "
-              f"Energy: {single['energy_capacity']}Wh, Mass: {single['mass']}g, "
-              f"Max Current: {single.get('max_current_est', 'N/A')}A")
-    else:
-        print("No suitable single battery found.")
+    # if single:
+    #     print(f"Single Battery Option: ID: {single['id']}, Voltage: {single['voltage']}V, "
+    #           f"Energy: {single['energy_capacity']}Wh, Mass: {single['mass']}g, "
+    #           f"Max Current: {single.get('max_current_est', 'N/A')}A")
+    # else:
+    #     print("No suitable single battery found.")
 
-    combo = options.get('combo_batteries')
-    if combo:
-        ids = ', '.join(combo['ids'])
-        print(f"Combo Battery Option: IDs: {ids}, Average Voltage: {combo['voltage']}V, "
-              f"Combined Energy: {combo['energy_capacity']}Wh, Combined Mass: {combo['mass']}g")
-    else:
-        print("No suitable combo battery found.")
+    # combo = options.get('combo_batteries')
+    # if combo:
+    #     ids = ', '.join(combo['ids'])
+    #     print(f"Combo Battery Option: IDs: {ids}, Average Voltage: {combo['voltage']}V, "
+    #           f"Combined Energy: {combo['energy_capacity']}Wh, Combined Mass: {combo['mass']}g")
+    # else:
+    #     print("No suitable combo battery found.")
 
     total = options.get('total_batteries')
     if total:

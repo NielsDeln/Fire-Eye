@@ -134,20 +134,20 @@ battery_dbx = [
     {'id': 'Relion RB100', 'type': 'LiFePO4', 'cells': 4, 'capacity': 10000, 'mass': 11000, 'voltage': 12.8,
      'energy_capacity': 240, 'C-rating': 5, 'energy_density': 116.36},
 
-    {'id': 'Turnigy Heavy Duty 5000mAh 7S', 'type': 'lipo 7s', 'cells': 7, 'capacity': 5000, 'mass': 980, 'voltage': 25.9,
-     'energy_capacity': 129.5, 'C-rating': 60, 'energy_density': 132.1},
+    # {'id': 'Turnigy Heavy Duty 5000mAh 7S', 'type': 'lipo 7s', 'cells': 7, 'capacity': 5000, 'mass': 980, 'voltage': 25.9,
+    #  'energy_capacity': 129.5, 'C-rating': 60, 'energy_density': 132.1},
 
-    {'id': 'Maxamp lithium batteries 7s 8000 mah', 'type': 'lipo 7s', 'cells': 7, 'capacity': 8000, 'mass': 1322, 'voltage': 25.9,
-     'energy_capacity': 207.2, 'C-rating': 32, 'energy_density': 157},
+    # {'id': 'Maxamp lithium batteries 7s 8000 mah', 'type': 'lipo 7s', 'cells': 7, 'capacity': 8000, 'mass': 1322, 'voltage': 25.9,
+    #  'energy_capacity': 207.2, 'C-rating': 32, 'energy_density': 157},
 
-    {'id': 'Maxamp lithium batteries 7s 4000 mah', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 4000, 'mass': 666, 'voltage': 25.9,
-     'energy_capacity': 103.6, 'C-rating': 32, 'energy_density': 156},
+    # {'id': 'Maxamp lithium batteries 7s 4000 mah', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 4000, 'mass': 666, 'voltage': 25.9,
+    #  'energy_capacity': 103.6, 'C-rating': 32, 'energy_density': 156},
 
-    {'id': 'Maxamp lithium batteries 7s 17000mah', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 17000, 'mass': 2209, 'voltage': 25.9,
-     'energy_capacity': 440.3, 'C-rating': 28, 'energy_density': 199},
+    # {'id': 'Maxamp lithium batteries 7s 17000mah', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 17000, 'mass': 2209, 'voltage': 25.9,
+    #  'energy_capacity': 440.3, 'C-rating': 28, 'energy_density': 199},
 
-    {'id': 'Maxamp lithium batteries 7s 22000mah', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 22000, 'mass': 2888, 'voltage': 25.9,
-     'energy_capacity': 569.8, 'C-rating': 15, 'energy_density': 197},
+    # {'id': 'Maxamp lithium batteries 7s 22000mah', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 22000, 'mass': 2888, 'voltage': 25.9,
+    #  'energy_capacity': 569.8, 'C-rating': 15, 'energy_density': 197},
     
     {'id': 'Maxamp lithium batteries 6s2p 22000mah', 'type': 'Lipo 6s', 'cells': 6, 'capacity': 22000, 'mass': 2482, 'voltage': 22.2,
      'energy_capacity': 488.4, 'C-rating': 15, 'energy_density': 196},
@@ -170,11 +170,11 @@ battery_dbx = [
     {'id': 'MaxAmps LiPo 9000mAh 6s2p', 'type': 'Lipo 6s', 'cells': 6, 'capacity': 9000, 'mass': 1188, 'voltage': 22.2,
      'energy_capacity': 199.8, 'C-rating': 23, 'energy_density': 168},
 
-     {'id': 'MaxAmps LiPo 8000mAh 7s', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 8000, 'mass': 1167, 'voltage': 25.9,
-     'energy_capacity': 207.2, 'C-rating': 22.5, 'energy_density': 178},
+    #  {'id': 'MaxAmps LiPo 8000mAh 7s', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 8000, 'mass': 1167, 'voltage': 25.9,
+    #  'energy_capacity': 207.2, 'C-rating': 22.5, 'energy_density': 178},
 
-     {'id': 'SLS XTRON 7000mAh 7S1P 25,9V 30C/60C', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 7000, 'mass': 1091, 'voltage': 25.9,
-     'energy_capacity': 181.3, 'C-rating': 30, 'energy_density': 166},
+    #  {'id': 'SLS XTRON 7000mAh 7S1P 25,9V 30C/60C', 'type': 'Lipo 7s', 'cells': 7, 'capacity': 7000, 'mass': 1091, 'voltage': 25.9,
+    #  'energy_capacity': 181.3, 'C-rating': 30, 'energy_density': 166},
 ]
 
 
@@ -187,6 +187,18 @@ motor_db =  [
         'max_thrust': 1444.0,
         'peak_current': 30.0,
         'power': 400.0,
+        'efficiency': None,
+        'diameter': None,
+        'rpm': None
+    },
+    {
+        'id': 'XING 2814 1100KV',
+        'mass': 93,
+        'kv_rating': 1100,
+        'voltage': 16,
+        'max_thrust': 1473.0,
+        'peak_current': 51,
+        'power': 393,
         'efficiency': None,
         'diameter': None,
         'rpm': None
@@ -219,7 +231,7 @@ motor_db =  [
         'id': 'MAD 3506 EEE',
         'mass': 73.0,
         'kv_rating': 400,
-        'voltage': 23.62,
+        'voltage': 23.4,
         'max_thrust': 1494.0,
         'peak_current': 14.0,
         'power': 241.8,
@@ -231,7 +243,7 @@ motor_db =  [
         'id': 'ECOII 1300KV',
         'mass': 47.6,
         'kv_rating': 1300,
-        'voltage': 14.54,
+        'voltage': 25.2,
         'max_thrust': 839.0,
         'peak_current': 15.47,
         'power': 224.9,
@@ -620,6 +632,18 @@ motor_db =  [
     'peak_current': 16,
     'power': 355,
     'efficiency': 5.69,
+    'diameter': None,
+    'rpm': 8436
+    },
+    {
+    'id': 'T-Motor MN3508 380kv',
+    'mass': 103,
+    'kv_rating': 380,
+    'voltage': 22.2,
+    'max_thrust': 1880,
+    'peak_current': 13.3,
+    'power': 295,
+    'efficiency': 6.37,
     'diameter': None,
     'rpm': 8436
     }   

@@ -9,9 +9,9 @@ PROJECT_ROOT = Path(__file__).parent.resolve()
 RESULTS_DIR = PROJECT_ROOT / "Results"
 OPTIMAL_DIR = PROJECT_ROOT / "Optimal_configs"
 OPTIMAL_DIR.mkdir(parents=True, exist_ok=True)
-TOP_N = 5
+TOP_N = 10
 
-required_thrust = 2161 / 4 * 1.8 / 1000 * 9.81  # N
+required_thrust = 2080.34 / 4 * 2/ 1000 * 9.81  # N
 print(f"Required vertical thrust: {required_thrust:.2f} N")
 
 # === PARSE FUNCTION ===
@@ -66,7 +66,7 @@ def analyze_results():
     best_configs = deque(maxlen=TOP_N)
 
     for file in RESULTS_DIR.glob("*.txt"):
-        print(f"Processing: {file.name}")
+        # print(f"Processing: {file.name}")
         data = parse_output(file)
         if data is None:
             continue
@@ -94,7 +94,7 @@ def analyze_results():
             # Minimum thrust constraint
             if vertical_thrust < required_thrust:
                 continue
-            if motor == str(3) or motor == str(5) or motor == str(9):
+            if motor == str(3) or motor == str(9) or motor == str(8) or motor == str(11) or motor == str(10):
                 continue
 
             ## === NPPS (Normalized Propeller Performance Score) ===
