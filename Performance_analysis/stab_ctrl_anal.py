@@ -1,6 +1,6 @@
 import numpy as np
-import structures_anal as stru
-import propulsion_anal as prop
+# import structures_anal as stru
+# import propulsion_anal as prop
 
 COMPONENTS = {
     "voyant_carbon": {                                      #Lidar
@@ -119,7 +119,7 @@ COMPONENTS = {
         "dimensions_mm": (20, 1, 190),
         "weight_g": 15.4,
         "quantity": 2,
-        "x_cg": [(136.04, -143.0, 15.80)
+        "x_cg": [(136.04, -143.0, 15.80),
                  (-136.04, -143.0, 15.80)],
     },
     "legs": {
@@ -139,25 +139,75 @@ def mm_to_m(dimensions_mm):
 def g_to_kg(mass_g):
     return mass_g / 1000.0
 
-def compute_inertia_tensor_at_com(mass_kg, dims_m):
-    w, h, d = dims_m
-    I_xx = (1/12) * mass_kg * (h**2 + d**2)
-    I_yy = (1/12) * mass_kg * (w**2 + d**2)
-    I_zz = (1/12) * mass_kg * (w**2 + h**2)
-    return I_xx, I_yy, I_zz
+def rotation_matrix_from_angles(component_name, index):
+    if component_name == "legs":
+        # Aligned along x, 45 deg to xy plane → rotate around y-axis by -45°
+        angle = np.deg2rad(-45)
+        return np.array([
+            [1, 0, 0],
+            [0, np.cos(angle), -np.sin(angle)],
+            [0, np.sin(angle),  np.cos(angle)],
+        ])
+    elif component_name == "arms_front":
+        angle = np.deg2rad(68)
+        if index == 1:  # right side
+            angle = -angle
+        return np.array([
+            [np.cos(angle), -np.sin(angle), 0],
+            [np.sin(angle),  np.cos(angle), 0],
+            [0, 0, 1],
+        ])
+    elif component_name == "arms_back":
+        angle = np.deg2rad(55)
+        if index == 1:
+            angle = -angle
+        return np.array([
+            [np.cos(angle), -np.sin(angle), 0],
+            [np.sin(angle),  np.cos(angle), 0],
+            [0, 0, 1],
+        ])
+    else:
+        return np.identity(3)
 
-def parallel_axis_theorem(I_com, mass_kg, r):
-    dx, dy, dz = r
-    dx2, dy2, dz2 = dx**2, dy**2, dz**2
-    I_xx = I_com[0] + mass_kg * (dy2 + dz2)
-    I_yy = I_com[1] + mass_kg * (dx2 + dz2)
-    I_zz = I_com[2] + mass_kg * (dx2 + dy2)
-    I_xy = -mass_kg * dx * dy
-    I_xz = -mass_kg * dx * dz
-    I_yz = -mass_kg * dy * dz
+def compute_inertia_tensor_at_com(name, mass_kg, dims_m, index=0):
+    if name == "motor":
+        diameter, length = dims_m
+        r = diameter / 2
+        h = length
+        I_xx = I_yy = (1/12) * mass_kg * (3 * r**2 + h**2)
+        I_zz = (1/2) * mass_kg * r**2
+        return np.diag([I_xx, I_yy, I_zz])
+
+    elif name in ["arms_front", "arms_back", "legs"]:
+        diameter, thickness, length = dims_m
+        r_outer = diameter / 2
+        r_inner = r_outer - thickness
+        r_mean = (r_outer + r_inner) / 2
+        h = length
+        I_xx = I_yy = (1/12) * mass_kg * (3 * r_mean**2 + h**2)
+        I_zz = mass_kg * r_mean**2
+        I_tensor_local = np.diag([I_xx, I_yy, I_zz])
+        R = rotation_matrix_from_angles(name, index)
+        return R @ I_tensor_local @ R.T
+    else:
+        w, h, d = dims_m
+        I_xx = (1/12) * mass_kg * (h**2 + d**2)
+        I_yy = (1/12) * mass_kg * (w**2 + d**2)
+        I_zz = (1/12) * mass_kg * (w**2 + h**2)
+        return np.diag([I_xx, I_yy, I_zz])
+
+def parallel_axis_theorem(I_com_matrix, mass_kg, r):
+    # dx, dy, dz = r
+    # r_vec = np.array([dx, dy, dz])
+    r_vec = np.array(r)
+    
+    # Compute the parallel axis theorem
+    d_squared = np.dot(r_vec, r_vec)                                                        #square distance between the two points
+    I_parallel = mass_kg * (d_squared * np.identity(3) - np.outer(r_vec, r_vec))            #extra moment of inertia tensor
+    I_total = I_com_matrix + I_parallel
     return {
-        "I_xx": I_xx, "I_yy": I_yy, "I_zz": I_zz,
-        "I_xy": I_xy, "I_xz": I_xz, "I_yz": I_yz,
+        "I_xx": I_total[0, 0], "I_yy": I_total[1, 1], "I_zz": I_total[2, 2],
+        "I_xy": -I_total[0, 1], "I_xz": -I_total[0, 2], "I_yz": -I_total[1, 2],
     }
 
 # Phase 1: Compute total center of gravity
@@ -171,19 +221,16 @@ for name, comp in COMPONENTS.items():
     mass_kg_unit = g_to_kg(comp["weight_g"])
     quantity = comp["quantity"]
     x_cgs = comp["x_cg"]
-
-    if quantity == 1 and isinstance(x_cgs, tuple):
-        x_cgs = [x_cgs]
-    elif quantity > 1 and (not isinstance(x_cgs, list) or len(x_cgs) != quantity):
-        raise ValueError(f"{name}: x_cg should be a list of length {quantity}")
-
+    print(f"\n{name} - Dimensions (m): {dims_m}, Mass (kg): {mass_kg_unit}, Quantity: {quantity}, CoG: {x_cgs}")
     for i in range(quantity):
-        x_cg = x_cgs[i]
+        # x_cg = x_cgs[i]
+        x_cg_mm = x_cgs[i]
+        x_cg = tuple(coord / 1000.0 for coord in x_cg_mm)
         total_mass += mass_kg_unit
         weighted_sum_x += mass_kg_unit * x_cg[0]
         weighted_sum_y += mass_kg_unit * x_cg[1]
         weighted_sum_z += mass_kg_unit * x_cg[2]
-
+    
 x_cg_total = (
     weighted_sum_x / total_mass,
     weighted_sum_y / total_mass,
@@ -211,9 +258,11 @@ for name, comp in COMPONENTS.items():
     x_cgs = comp["x_cg"]
 
     for i in range(quantity):
+        # x_cg = x_cgs[i]
+        x_cg_mm = x_cgs[i]
+        x_cg = tuple(coord / 1000.0 for coord in x_cg_mm)
         mass_kg = mass_kg_unit
-        x_cg = x_cgs[i]
-        I_com = compute_inertia_tensor_at_com(mass_kg, dims_m)
+        I_com = compute_inertia_tensor_at_com(name, mass_kg, dims_m, i)
         rel_pos = (
             x_cg[0] - x_cg_total[0],
             x_cg[1] - x_cg_total[1],
@@ -222,15 +271,12 @@ for name, comp in COMPONENTS.items():
         tensor = parallel_axis_theorem(I_com, mass_kg, rel_pos)
 
         inertia_results[f"{name}_{i+1}"] = tensor
+        for key in total_inertia:
+            total_inertia[key] += tensor[key]
 
-        total_inertia["I_xx"] += tensor["I_xx"]
-        total_inertia["I_yy"] += tensor["I_yy"]
-        total_inertia["I_zz"] += tensor["I_zz"]
-        total_inertia["I_xy"] += tensor["I_xy"]
-        total_inertia["I_xz"] += tensor["I_xz"]
-        total_inertia["I_yz"] += tensor["I_yz"]
+# print("\nIndividual component moments of inertia:")
+# for k, v in inertia_results.items():
+#     print(f"{k}: {v}")
 
-print("\nIndividual component moments of inertia:")
-print(inertia_results)
 print("\nTotal Mass Moment of Inertia (kg·m²) about the total CoG:")
 print(total_inertia)
