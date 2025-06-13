@@ -7,15 +7,22 @@ from itertools import combinations
 from batt_mot_db import battery_dbx, motor_db
 from XROTOR_auto.post_processing import required_thrust
 
-for battery in battery_dbx:
-    #if 'energy_capacity' not in battery:
-    battery['energy_capacity'] = round((battery['capacity'] / 1000) * battery['voltage'], 2)
-    #if 'energy_density' not in battery:
-    battery['energy_density'] = round((battery['energy_capacity'] * 1000) / battery['mass'], 2)
 
-for motor in motor_db:
-    if motor.get('power') is None and motor.get('voltage') and motor.get('peak_current'):
-        motor['power'] = motor['voltage'] * motor['peak_current']
+def process_batteries(batteries):
+    for battery in batteries:
+        #if 'energy_capacity' not in battery:
+        battery['energy_capacity'] = round((battery['capacity'] / 1000) * battery['voltage'], 2)
+        #if 'energy_density' not in battery:
+        battery['energy_density'] = round((battery['energy_capacity'] * 1000) / battery['mass'], 2)
+
+process_batteries(battery_dbx)
+
+def preprocess_motors(motors):
+    for motor in motors:
+        if motor.get('power') is None and motor.get('voltage') and motor.get('peak_current'):
+            motor['power'] = motor['voltage'] * motor['peak_current']
+
+preprocess_motors(motor_db)
 
 def get_max_current(battery):
     c = battery.get("C-rating")
@@ -41,81 +48,85 @@ electronics_energy_wh = max_electronics_power * (20 / 60)
 electronics_current = 4.5  # A estimate from your table
 
 
-motor_batt = {}
-for motor in motor_db:
-    if motor["max_thrust"] < required_thrust / 9.81 * 1000:
-        continue
-    motor_power = motor['power'] * throttle * 4 # W
-    #motor_peak_current = 4 * motor['peak_current']  # A
-    motor_voltage = motor['voltage']  # V
-    max_motor_volt = 30  # V, max voltage for motor operation
-    motor_energy_wh = motor_power * (20 / 60)  # 20 minutes operation
+def get_batteries_motor(motor_db, battery_dbx, required_thrust, throttle=0.5):
+    motor_batt = {}
+    for motor in motor_db:
+        if motor["max_thrust"] < required_thrust / 9.81 * 1000:
+            continue
+        motor_power = motor['power'] * throttle * 4 # W
+        #motor_peak_current = 4 * motor['peak_current']  # A
+        motor_voltage = motor['voltage']  # V
+        max_motor_volt = 30  # V, max voltage for motor operation
+        motor_energy_wh = motor_power * (20 / 60)  # 20 minutes operation
 
-    tot_power = motor_power + max_electronics_power
-    tot_voltage_parallel = max(low_voltage_max, motor_voltage)  
-    tot_voltage_series = motor_voltage + low_voltage_max
-    tot_energy = motor_energy_wh + electronics_energy_wh
-    print(motor['id'], tot_energy)
-
-
-    single_motor_batteries = []
-    for b in battery_dbx:
-        m = b["mass"]
-        v = b["voltage"]
-        energy = b.get("energy_capacity")
-        max_current = get_max_current(b)
-        if max_motor_volt >= v >= motor_voltage and energy and energy >= motor_energy_wh:
-            #if max_current is None or max_current >= motor_peak_current:
-            single_motor_batteries.append({**b, "max_current_est": max_current})
-    single_motor_batteries = sorted(single_motor_batteries, key=lambda x: x['mass'])
-
-    # maybe do two 
-    # In parallel: Same voltage, sum capacity, and sum max current.
-    #In series: Sum voltage, same capacity, and same max current.
-    combo_motor_batteries = []
-    for b1, b2 in combinations(battery_dbx, 2):
-        # Assume parallel or similar config
-        combined_energy = b1['energy_capacity'] + b2['energy_capacity']
-        avg_voltage = max(b1['voltage'], b2['voltage']) 
-
-        # Series 
-        # combined_energy = max(b1['energy_capacity'], b2['energy_capacity'])
-        # avg_voltage = b1['voltage'] + b2['voltage']
-
-        combined_mass = b1['mass'] + b2['mass']
-        
-        combined_energy_density = round((combined_energy * 1000) / combined_mass, 2)
-        
-        if motor_voltage <= avg_voltage <= max_motor_volt and combined_energy >= motor_energy_wh:
-            combo_motor_batteries.append({
-                'ids': (b1['id'], b2['id']),
-                'voltage': avg_voltage,
-                'energy_capacity': combined_energy,
-                'mass': combined_mass,
-            })
-    combo_motor_batteries = sorted(combo_motor_batteries, key=lambda x: x['mass'])
-
-    tot_batteries = []
-    for b in battery_dbx:
-        m = b["mass"]
-        v = b["voltage"]
-        energy = b.get("energy_capacity")
-        max_current = get_max_current(b)
-        if v >= tot_voltage_parallel and energy and energy >= tot_energy:
-            #if max_current is None or max_current >= tot_power / v:
-            tot_batteries.append({**b, "max_current_est": max_current})
-    tot_batteries.sort(key=lambda x: -x.get("mass", 0))
+        tot_power = motor_power + max_electronics_power
+        tot_voltage_parallel = max(low_voltage_max, motor_voltage)  
+        tot_voltage_series = motor_voltage + low_voltage_max
+        tot_energy = motor_energy_wh + electronics_energy_wh
+        print(motor['id'], tot_energy)
 
 
-    best_single_motor = min(single_motor_batteries, key=lambda x: x['mass'], default=None)
-    best_combo_motor = min(combo_motor_batteries, key=lambda x: x['mass'], default=None)
-    best_integrated = min(tot_batteries, key=lambda x: x['mass'], default=None)
+        single_motor_batteries = []
+        for b in battery_dbx:
+            m = b["mass"]
+            v = b["voltage"]
+            energy = b.get("energy_capacity")
+            max_current = get_max_current(b)
+            if max_motor_volt >= v >= motor_voltage and energy and energy >= motor_energy_wh:
+                #if max_current is None or max_current >= motor_peak_current:
+                single_motor_batteries.append({**b, "max_current_est": max_current})
+        single_motor_batteries = sorted(single_motor_batteries, key=lambda x: x['mass'])
 
-    motor_batt[motor['id']] = {
-        'single_batteries': best_single_motor,
-        'combo_batteries': best_combo_motor,
-        'total_batteries': best_integrated
-    }
+        # maybe do two 
+        # In parallel: Same voltage, sum capacity, and sum max current.
+        #In series: Sum voltage, same capacity, and same max current.
+        combo_motor_batteries = []
+        for b1, b2 in combinations(battery_dbx, 2):
+            # Assume parallel or similar config
+            combined_energy = b1['energy_capacity'] + b2['energy_capacity']
+            avg_voltage = max(b1['voltage'], b2['voltage']) 
+
+            # Series 
+            # combined_energy = max(b1['energy_capacity'], b2['energy_capacity'])
+            # avg_voltage = b1['voltage'] + b2['voltage']
+
+            combined_mass = b1['mass'] + b2['mass']
+            
+            combined_energy_density = round((combined_energy * 1000) / combined_mass, 2)
+            
+            if motor_voltage <= avg_voltage <= max_motor_volt and combined_energy >= motor_energy_wh:
+                combo_motor_batteries.append({
+                    'ids': (b1['id'], b2['id']),
+                    'voltage': avg_voltage,
+                    'energy_capacity': combined_energy,
+                    'mass': combined_mass,
+                })
+        combo_motor_batteries = sorted(combo_motor_batteries, key=lambda x: x['mass'])
+
+        tot_batteries = []
+        for b in battery_dbx:
+            m = b["mass"]
+            v = b["voltage"]
+            energy = b.get("energy_capacity")
+            max_current = get_max_current(b)
+            if v >= tot_voltage_parallel and energy and energy >= tot_energy:
+                #if max_current is None or max_current >= tot_power / v:
+                tot_batteries.append({**b, "max_current_est": max_current})
+        tot_batteries.sort(key=lambda x: -x.get("mass", 0))
+
+
+        best_single_motor = min(single_motor_batteries, key=lambda x: x['mass'], default=None)
+        best_combo_motor = min(combo_motor_batteries, key=lambda x: x['mass'], default=None)
+        best_integrated = min(tot_batteries, key=lambda x: x['mass'], default=None)
+
+        motor_batt[motor['id']] = {
+            'single_batteries': best_single_motor,
+            'combo_batteries': best_combo_motor,
+            'total_batteries': best_integrated
+        }
+    return motor_batt
+
+motor_batt = get_batteries_motor(motor_db, battery_dbx, required_thrust, throttle)
 
   
 min_mass = 10000
@@ -138,7 +149,7 @@ for motor_id, options in motor_batt.items():
         best_options[motor_id] = options
 
 print("\n--- Best Motor Battery Options ---")
-for motor_id in best[:-3:-1]:
+for motor_id in best[:-5:-1]:
     print(f"\n=== Motor: {motor_id} ===")
     options = best_options[motor_id]
 
