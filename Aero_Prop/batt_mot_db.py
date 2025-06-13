@@ -610,6 +610,18 @@ motor_db =  [
         'efficiency': 2.19,
         'diameter': None,
         'rpm': 28183
-    }
+    },
+    {
+    'id': 'Racerstar BR4108 Racing Edition 380kv',
+    'mass': 92,
+    'kv_rating': 380,
+    'voltage': 22.2,
+    'max_thrust': 2020,
+    'peak_current': 16,
+    'power': 355,
+    'efficiency': 5.69,
+    'diameter': None,
+    'rpm': 8436
+    }   
 ]
 
