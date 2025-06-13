@@ -57,7 +57,7 @@ def get_batteries_motor(motor_db, battery_dbx, required_thrust, throttle=0.5):
         #motor_peak_current = 4 * motor['peak_current']  # A
         motor_voltage = motor['voltage']  # V
         max_motor_volt = 30  # V, max voltage for motor operation
-        motor_energy_wh = motor_power * (20 / 60)  # 20 minutes operation
+        motor_energy_wh = motor_power * (15 / 60)  # 20 minutes operation
 
         tot_power = motor_power + max_electronics_power
         tot_voltage_parallel = max(low_voltage_max, motor_voltage)  
@@ -122,7 +122,7 @@ def get_batteries_motor(motor_db, battery_dbx, required_thrust, throttle=0.5):
         motor_batt[motor['id']] = {
             'single_batteries': best_single_motor,
             'combo_batteries': best_combo_motor,
-            'total_batteries': best_integrated
+            'total_batteries': tot_batteries
         }
     return motor_batt
 
@@ -149,7 +149,7 @@ for motor_id, options in motor_batt.items():
         best_options[motor_id] = options
 
 print("\n--- Best Motor Battery Options ---")
-for motor_id in best[:-5:-1]:
+for motor_id in best[::-1]:
     print(f"\n=== Motor: {motor_id} ===")
     options = best_options[motor_id]
 
@@ -171,9 +171,10 @@ for motor_id in best[:-5:-1]:
 
     total = options.get('total_batteries')
     if total:
-        print(f"Total Battery Option: ID: {total['id']}, Voltage: {total['voltage']}V, "
-              f"Energy: {total['energy_capacity']}Wh, Mass: {total['mass']}g, "
-              f"Max Current: {total.get('max_current_est', 'N/A')}A")
+        for bat in total:
+            print(f"Total Battery Option: ID: {bat['id']}, Voltage: {bat['voltage']}V, "
+                f"Energy: {bat['energy_capacity']}Wh, Mass: {bat['mass']}g, "
+                f"Max Current: {bat.get('max_current_est', 'N/A')}A")
     else:
         print("No suitable total battery found.")
 

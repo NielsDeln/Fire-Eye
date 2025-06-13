@@ -51,7 +51,7 @@ battery_dbx = [
     {'id': 'MaxAmps 4S 10900mAh', 'type': 'LiPo 4s', 'cells': 4, 'capacity': 10900, 'mass': 950, 'voltage': 16.8, 'C-rating': None},
 
     {'id': 'Ovonic 6S 1300mAh', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 1300, 'mass': 223, 'voltage': 22.2, 'C-rating': 100},
-    
+    {'id': 'Tattu LiPo battery pack 22.2 V Softcase XT90', 'type': 'LiPo 6s', 'cells': 6, 'capacity': 4500, 'mass': 610, 'voltage': 22.2, 'C-rating': 25},
     # {'id': 'DJI Air 2S intelligent flight battery LiPo 3S 3500mAh (11.55V)',
     # 'type': 'LiPo 3s',
     # 'cells': 3,
