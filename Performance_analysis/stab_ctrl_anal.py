@@ -1,19 +1,18 @@
 import numpy as np
-# import structures_anal as stru
-# import propulsion_anal as prop
+from pprint import pprint
 
 COMPONENTS = {
     "voyant_carbon": {                                      #Lidar
         "dimensions_mm": (42.0, 28.0, 44.0),
         "weight_g": 150.0,
         "quantity": 1,
-        "x_cg": [(-2.37, 91.86,-51.20)],
+        "x_cg": [(6, 78,14)],
     },
     "herelink_1_1": {                                       #herelink controller
         "dimensions_mm": (78.5, 30.0, 15.0),
         "weight_g": 98.0,
         "quantity": 1,
-        "x_cg": [(-0.06, -52.87, 82.53)],
+        "x_cg": [(0, -18.58, 106)],
     # },
     # "seoul_viosys_cun66b1g_uv_led": {                       #UV Light   
     #     "dimensions_mm": (3.5 * 3, 3.5 * 3, 2.83),
@@ -28,10 +27,10 @@ COMPONENTS = {
     #     "x_cg": [(1, 1, 1)],
     },
     "HCL-HP 22.2V 7600mAh 150C G10 ": {              #Battery Group
-        "dimensions_mm": (46, 160, 70),
+        "dimensions_mm": (46, 70, 160),
         "weight_g": 1065.0,                                                      
         "quantity": 1,
-        "x_cg": [(0, 35, 31.74)],
+        "x_cg": [(0, 21, 45)],
     # },
     # "dc_dc_step_down_3_2_to_35v_2a": {                      #DC-DC Step Down Converter
     #     "dimensions_mm": (43.0, 20.0, 14.0),
@@ -64,22 +63,22 @@ COMPONENTS = {
     #     "x_cg": [(1, 1, 1)],
     },
     "cube_orange_body": {
-        "dimensions_mm": (38.4, 38.4, 22.0),
+        "dimensions_mm": (38.4, 22, 38.4),
         "weight_g": 73.0 * (38.4 * 38.4 * 22.0) / ((38.4 * 38.4 * 22.0) + (94.5 * 44.3 * 17.3)),
         "quantity": 1,
-        "x_cg": [(1.29, -36.91, 0.67)],
+        "x_cg": [(0, 11.075, 108.3)],
     },
     "cube_orange_carrier": {
-        "dimensions_mm": (94.5, 44.3, 17.3),
+        "dimensions_mm": (94.5, 17.3, 44.3),
         "weight_g": 73.0 * (94.5 * 44.3 * 17.3) / ((38.4 * 38.4 * 22.0) + (94.5 * 44.3 * 17.3)),
         "quantity": 1,
-        "x_cg": [(1.29, -56.56, 0.67)],
+        "x_cg": [(0, 11.075, 88.65)],
     },
     "orange_pi_5": {
-        "dimensions_mm": (62.0, 100.0, 10.0),
+        "dimensions_mm": (100, 62.0, 3),
         "weight_g": 46.0,
         "quantity": 1,
-        "x_cg": [(1.23, 21.68, -70)],
+        "x_cg": [(0, 0, 3)],
     # },
     # "propeller": {
     #     "dimensions_mm": (10.0, 10.0, 5.0),
@@ -97,39 +96,45 @@ COMPONENTS = {
         "dimensions_mm": (28.0, 14.0),
         "weight_g": 88.3,
         "quantity": 4,
-        "x_cg": [(215.84, 191.74, 15.79), 
-                 (-215.84, 191.74, 15.79), 
-                 (213.86, -197.5, 15.79), 
-                 (-213.86, -197.5, 15.79)],
+        "x_cg": [(216.62, 137.34, 39.65),
+                 (-216.62, 137.34, 39.65),
+                 (214.64, -187.34, 39.65),
+                 (-214.64, -187.34, 39.65)],
     },
     "body": {
-        "dimensions_mm": (119, 172, 179),
-        "weight_g": 95,
+        "dimensions_mm": (118, 210.5, 79.3),
+        "weight_g": 107.81,
         "quantity": 1,
-        "x_cg": [(-1.16, -2.34, 9.5)],
+        "x_cg": [(0, 0, 39.65)],
+    },
+    "body_2": {
+        "dimensions_mm": (118, 74, 41),
+        "weight_g": 24.30,
+        "quantity": 1,
+        "x_cg": [(0, 0, 100.5)],
     },
     "arms_front": {
         "dimensions_mm": (20, 1, 170),
         "weight_g": 15.4,
         "quantity": 2,
-        "x_cg": [(137.03, 159.89, 15.80),
-                 (-137.03, 159.89, 15.80)],
+        "x_cg": [(137.81, 105.50, 39.65),
+                 (-137.81, 105.50, 39.65)],
     },
     "arms_back": {
         "dimensions_mm": (20, 1, 190),
         "weight_g": 15.4,
         "quantity": 2,
-        "x_cg": [(136.04, -143.0, 15.80),
-                 (-136.04, -143.0, 15.80)],
+        "x_cg": [(136.82, -132.85, 39.65),
+                 (-136.82, -132.85, 39.65)],
     },
     "legs": {
         "dimensions_mm": (20, 2, 100),
         "weight_g": 15.8,
         "quantity": 4,
-        "x_cg": [(93.57, 128.05, 99),
-                 (-93.57, 128.05, 99),
-                 (93.57, -88.51, 99),
-                 (-93.57, -88.51, 99)],
+        "x_cg": [(93.36, 95.96, 114.66),
+                 (-93.36, 95.96, 114.66),
+                 (93.36, -95.96, 114.66),
+                 (-93.36, -95.96, 114.66)],
     },
 }
 
@@ -221,7 +226,7 @@ for name, comp in COMPONENTS.items():
     mass_kg_unit = g_to_kg(comp["weight_g"])
     quantity = comp["quantity"]
     x_cgs = comp["x_cg"]
-    print(f"\n{name} - Dimensions (m): {dims_m}, Mass (kg): {mass_kg_unit}, Quantity: {quantity}, CoG: {x_cgs}")
+    # print(f"\n{name} - Dimensions (m): {dims_m}, Mass (kg): {mass_kg_unit}, Quantity: {quantity}, CoG: {x_cgs}")
     for i in range(quantity):
         # x_cg = x_cgs[i]
         x_cg_mm = x_cgs[i]
@@ -236,9 +241,6 @@ x_cg_total = (
     weighted_sum_y / total_mass,
     weighted_sum_z / total_mass,
 )
-
-print("\nTotal center of gravity (x, y, z) in meters:")
-print(x_cg_total)
 
 # Phase 2: Compute inertia tensors relative to total CoG
 inertia_results = {}
@@ -274,9 +276,19 @@ for name, comp in COMPONENTS.items():
         for key in total_inertia:
             total_inertia[key] += tensor[key]
 
-# print("\nIndividual component moments of inertia:")
-# for k, v in inertia_results.items():
-#     print(f"{k}: {v}")
+print("\n" + "="*50)
+print("Total Center of Gravity (in meters):")
+print(f"  x = {x_cg_total[0]:.4f} m")
+print(f"  y = {x_cg_total[1]:.4f} m")
+print(f"  z = {x_cg_total[2]:.4f} m")
+print("="*50)
 
-print("\nTotal Mass Moment of Inertia (kg·m²) about the total CoG:")
-print(total_inertia)
+print("\n" + "="*50)
+print("Total Mass Moment of Inertia (kg·m²) about Total CoG:")
+print(f"  I_xx = {total_inertia['I_xx']:.6f}")
+print(f"  I_yy = {total_inertia['I_yy']:.6f}")
+print(f"  I_zz = {total_inertia['I_zz']:.6f}")
+print(f"  I_xy = {total_inertia['I_xy']:.6f}")
+print(f"  I_xz = {total_inertia['I_xz']:.6f}")
+print(f"  I_yz = {total_inertia['I_yz']:.6f}")
+print("="*50)
