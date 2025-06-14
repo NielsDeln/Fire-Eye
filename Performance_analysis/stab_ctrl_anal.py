@@ -6,13 +6,13 @@ COMPONENTS = {
         "dimensions_mm": (42.0, 28.0, 44.0),
         "weight_g": 150.0,
         "quantity": 1,
-        "x_cg": [(6, 78,14)],
+        "x_cg": [(78, 6, 14)],
     },
     "herelink_1_1": {                                       #herelink controller
         "dimensions_mm": (78.5, 30.0, 15.0),
         "weight_g": 98.0,
         "quantity": 1,
-        "x_cg": [(0, -18.58, 106)],
+        "x_cg": [(-18.58, 0, 106)],
     # },
     # "seoul_viosys_cun66b1g_uv_led": {                       #UV Light   
     #     "dimensions_mm": (3.5 * 3, 3.5 * 3, 2.83),
@@ -30,7 +30,7 @@ COMPONENTS = {
         "dimensions_mm": (46, 70, 160),
         "weight_g": 1065.0,                                                      
         "quantity": 1,
-        "x_cg": [(0, 21, 45)],
+        "x_cg": [(-25.25, 0, 45)],
     # },
     # "dc_dc_step_down_3_2_to_35v_2a": {                      #DC-DC Step Down Converter
     #     "dimensions_mm": (43.0, 20.0, 14.0),
@@ -66,20 +66,20 @@ COMPONENTS = {
         "dimensions_mm": (38.4, 22, 38.4),
         "weight_g": 73.0 * (38.4 * 38.4 * 22.0) / ((38.4 * 38.4 * 22.0) + (94.5 * 44.3 * 17.3)),
         "quantity": 1,
-        "x_cg": [(0, 11.075, 108.3)],
+        "x_cg": [(11.075, 0, 108.3)],
     },
     "cube_orange_carrier": {
         "dimensions_mm": (94.5, 17.3, 44.3),
         "weight_g": 73.0 * (94.5 * 44.3 * 17.3) / ((38.4 * 38.4 * 22.0) + (94.5 * 44.3 * 17.3)),
         "quantity": 1,
-        "x_cg": [(0, 11.075, 88.65)],
+        "x_cg": [(11.075, 0, 88.65)],
     },
     "orange_pi_5": {
         "dimensions_mm": (100, 62.0, 3),
         "weight_g": 46.0,
         "quantity": 1,
         "x_cg": [(0, 0, 3)],
-    # },
+    },
     # "propeller": {
     #     "dimensions_mm": (10.0, 10.0, 5.0),
     #     "weight_g": 4.0,
@@ -91,15 +91,15 @@ COMPONENTS = {
     #     "weight_g": 15.0,
     #     "quantity": 4,
     #     "x_cg": [(1, 1, 1)] * 4,
-    },
+    # },
     "motor": {
-        "dimensions_mm": (28.0, 14.0),
+        "dimensions_mm": (36.0, 22.3),
         "weight_g": 88.3,
         "quantity": 4,
-        "x_cg": [(216.62, 137.34, 39.65),
-                 (-216.62, 137.34, 39.65),
-                 (214.64, -187.34, 39.65),
-                 (-214.64, -187.34, 39.65)],
+        "x_cg": [(137.34, -216.62, -9.2),
+                 (137.34, 216.62, -9.2),
+                 (-187.34, 214.64, -9.2),
+                 (-187.34, -214.64, -9.2)],
     },
     "body": {
         "dimensions_mm": (118, 210.5, 79.3),
@@ -115,26 +115,40 @@ COMPONENTS = {
     },
     "arms_front": {
         "dimensions_mm": (20, 1, 170),
-        "weight_g": 15.4,
+        "weight_g": 13.39,
         "quantity": 2,
-        "x_cg": [(137.81, 105.50, 39.65),
-                 (-137.81, 105.50, 39.65)],
+        "x_cg": [(105.50, -137.81, 39.65),
+                 (105.50, 137.81, 39.65)],
     },
     "arms_back": {
         "dimensions_mm": (20, 1, 190),
-        "weight_g": 15.4,
+        "weight_g": 14.97,
         "quantity": 2,
-        "x_cg": [(136.82, -132.85, 39.65),
-                 (-136.82, -132.85, 39.65)],
+        "x_cg": [(-132.85, 136.82, 39.65),
+                 (-132.85, -136.82, 39.65)],
+    },
+    "arms_front_v": {
+        "dimensions_mm": (20, 1, 20),
+        "weight_g": 1.576,
+        "quantity": 2,
+        "x_cg": [(137.34, -216.62, 19.65),
+                 (137.34, 216.62, 19.65)],
+    },
+    "arms_back_v": {
+        "dimensions_mm": (20, 1, 190),
+        "weight_g": 1.576,
+        "quantity": 2,
+        "x_cg": [(-187.34, 214.64, 19.65),
+                 (-187.34, -214.64, 19.65)],
     },
     "legs": {
         "dimensions_mm": (20, 2, 100),
         "weight_g": 15.8,
         "quantity": 4,
-        "x_cg": [(93.36, 95.96, 114.66),
-                 (-93.36, 95.96, 114.66),
-                 (93.36, -95.96, 114.66),
-                 (-93.36, -95.96, 114.66)],
+        "x_cg": [(-95.96, 93.36, 114.66),
+                 (95.96, 93.36, 114.66),
+                 (-95.96, 93.36, 114.66),
+                 (-95.96, -93.36, 114.66)],
     },
 }
 
@@ -146,20 +160,20 @@ def g_to_kg(mass_g):
 
 def rotation_matrix_from_angles(component_name, index):
     if component_name == "legs":
-        # Aligned along x, 45 deg to xy plane → rotate around y-axis by -45°
+        # Aligned along y, 45 deg to xy plane → rotate around y-axis by -45°
         angle = np.deg2rad(-45)
         return np.array([
-            [1, 0, 0],
-            [0, np.cos(angle), -np.sin(angle)],
-            [0, np.sin(angle),  np.cos(angle)],
+            [np.cos(angle), 0, -np.sin(angle)],
+            [0, 1, 0],
+            [np.sin(angle), 0,  np.cos(angle)],
         ])
     elif component_name == "arms_front":
         angle = np.deg2rad(68)
         if index == 1:  # right side
             angle = -angle
         return np.array([
-            [np.cos(angle), -np.sin(angle), 0],
-            [np.sin(angle),  np.cos(angle), 0],
+            [np.cos(angle), np.sin(angle), 0],
+            [-np.sin(angle),  np.cos(angle), 0],
             [0, 0, 1],
         ])
     elif component_name == "arms_back":
@@ -167,8 +181,8 @@ def rotation_matrix_from_angles(component_name, index):
         if index == 1:
             angle = -angle
         return np.array([
-            [np.cos(angle), -np.sin(angle), 0],
-            [np.sin(angle),  np.cos(angle), 0],
+            [np.cos(angle), np.sin(angle), 0],
+            [-np.sin(angle),  np.cos(angle), 0],
             [0, 0, 1],
         ])
     else:
@@ -196,9 +210,9 @@ def compute_inertia_tensor_at_com(name, mass_kg, dims_m, index=0):
         return R @ I_tensor_local @ R.T
     else:
         w, h, d = dims_m
-        I_xx = (1/12) * mass_kg * (h**2 + d**2)
-        I_yy = (1/12) * mass_kg * (w**2 + d**2)
-        I_zz = (1/12) * mass_kg * (w**2 + h**2)
+        I_xx = (1/12) * mass_kg * (h**2 + w**2)
+        I_yy = (1/12) * mass_kg * (h**2 + d**2)
+        I_zz = (1/12) * mass_kg * (w**2 + d**2)
         return np.diag([I_xx, I_yy, I_zz])
 
 def parallel_axis_theorem(I_com_matrix, mass_kg, r):
@@ -277,10 +291,11 @@ for name, comp in COMPONENTS.items():
             total_inertia[key] += tensor[key]
 
 print("\n" + "="*50)
+print("Total Mass (kg):", total_mass)
 print("Total Center of Gravity (in meters):")
-print(f"  x = {x_cg_total[0]:.4f} m")
-print(f"  y = {x_cg_total[1]:.4f} m")
-print(f"  z = {x_cg_total[2]:.4f} m")
+print(f"  x = {x_cg_total[0]:.6f} m")
+print(f"  y = {x_cg_total[1]:.6f} m")
+print(f"  z = {x_cg_total[2]:.6f} m")
 print("="*50)
 
 print("\n" + "="*50)
