@@ -34,38 +34,6 @@ def calculate_arm_forces(F_T, W, alpha, beta, T, R_position):
     return F_reaction, M_reaction
 
 
-def calculate_internal_forces(F_T, alpha, beta, T, L, h):
-    """
-    DOES NOT WORK CURRENTLY 
-    Calculate the internal forces acting on a structure based on the given parameters.
-    
-    Parameters:
-    F_T (float): Thrust force due to motors.
-    alpha (float): Angle of the motor with respect to the vertical.
-    beta (float): Angle of the motor with respect to the negative x axis.
-    T (float): Torque due to spinning propeller.
-    L (array): Length of the arm.
-    h (array): Height of the arm.
-
-    Returns:
-    array: Internal reaction force acting on the structure.
-    array: Internal reaction moment acting on the structure.
-    """
-    raise NotImplementedError("This function is not implemented yet.")
-    # Calculate the position vector of the reaction point in the structure
-    R_position = np.array([np.zeros(len(L)), L, h])
-
-    # Initialize lists to store forces and moments
-    forces = []
-    moments = []
-
-    # Calculate the forces and moments for each motor
-    force, moment = calculate_arm_forces(F_T, alpha, beta, T, R_position)
-    forces.append(force)
-    moments.append(moment)
-    return forces, moments
-
-
 def calculate_section(d0, t):
     """
     Calculate the moment of inertia for a hollow cylinder.
@@ -121,7 +89,6 @@ def calculate_neutral_axis(M):
     float: Position of the neutral axis.
     """
     return np.pi / 2 if M[0] == 0 else np.arctan2(M[1], M[0])
-
 
 
 def calculate_axial_stress(M, I, d0, t, NA_alpha):
@@ -330,7 +297,7 @@ if __name__ == "__main__":
 
     # Calculating deformation
     y_deformation, y_rotation = calculate_deformation(-B_forces[1] * safety_factor, -B_moments[0] * safety_factor, L, E, I)
-    x_deformation, x_rotation = calculate_deformation(-B_forces[0] * safety_factor, -B_moments[1] * safety_factor, L, E, I)
+    x_deformation, x_rotation = calculate_deformation(-B_forces[0] * safety_factor, B_moments[1] * safety_factor, L, E, I)
     z_deformation, z_rotation = axial_str / E, calculate_torsion_deflection(-B_moments[2], L, G, J)
     print("Deformation in y-direction [mm]:", y_deformation.sum() * 1e3)
     print("Rotation in y-direction [deg]:", y_rotation.sum() * 180 / np.pi)
