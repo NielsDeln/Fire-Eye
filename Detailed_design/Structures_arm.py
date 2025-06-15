@@ -278,16 +278,15 @@ if __name__ == "__main__":
     G = E / (2 * (1 + poisson))  # Shear modulus in Pa (e.g., PEEK)
     d0 = 0.02  # Outer diameter in m
     t = 0.001  # Thickness in m
-    L = 0.17889  # Length of the arm in m
-    h = 0.005175  # Height of the arm in m
-
-    saftey_factor = 1.5  # Safety factor for the design
+    L = 0.190  # Length of the arm in m
+    h = 0.005  # Height of the arm in m
+    safety_factor = 1.5  # Safety factor for the design
 
     # Propulsion forces and moments
-    F_T = 8.85540495  # Thrust force in N
-    T = 1.0  # Torque in Nm
-    W = 0.7012188 # Motor + ESC + propellor weight in Newtons
-    alpha = np.radians(30)  # Angle in radians
+    F_T = 8.22777935  # Thrust force in N
+    T = 0.173  # Torque in Nm
+    W = 0.7966  # Motor + propellor weight in Newtons
+    alpha = np.radians(0)  # Angle in radians
     beta = np.radians(0)  # Angle in radians
     R_A_position = np.array([0.0, -h, L])  # Position vector of the reaction point
     R_B_position = np.array([0.0, -h, 0.0])  # Position vector of the reaction point for the second motor
@@ -318,10 +317,10 @@ if __name__ == "__main__":
     print("Shear Stress [MPa]:", shear_str.sum() * 1e-6)
     print("Neutral Axis Angle [deg]:", NA_alpha * 180 / np.pi)
     print("-----------------------------")
-    print("Safety Factor:", saftey_factor)
-    print("Design Minimum Stress [MPa]:", min_str * 1e-6 * saftey_factor)
-    print("Design Maximum Stress [MPa]:", max_str * 1e-6 * saftey_factor)
-    print("Design Shear Stress [MPa]:", shear_str.sum() * 1e-6 * saftey_factor)
+    print("Safety Factor:", safety_factor)
+    print("Design Minimum Stress [MPa]:", min_str * 1e-6 * safety_factor)
+    print("Design Maximum Stress [MPa]:", max_str * 1e-6 * safety_factor)
+    print("Design Shear Stress [MPa]:", shear_str.sum() * 1e-6 * safety_factor)
     print("-----------------------------")
 
     # Calculating buckling load
@@ -330,8 +329,8 @@ if __name__ == "__main__":
     print("-------------------------------")
 
     # Calculating deformation
-    y_deformation, y_rotation = calculate_deformation(-B_forces[1] * saftey_factor, -B_moments[0] * saftey_factor, L, E, I)
-    x_deformation, x_rotation = calculate_deformation(-B_forces[0] * saftey_factor, -B_moments[1] * saftey_factor, L, E, I)
+    y_deformation, y_rotation = calculate_deformation(-B_forces[1] * safety_factor, -B_moments[0] * safety_factor, L, E, I)
+    x_deformation, x_rotation = calculate_deformation(-B_forces[0] * safety_factor, -B_moments[1] * safety_factor, L, E, I)
     z_deformation, z_rotation = axial_str / E, calculate_torsion_deflection(-B_moments[2], L, G, J)
     print("Deformation in y-direction [mm]:", y_deformation.sum() * 1e3)
     print("Rotation in y-direction [deg]:", y_rotation.sum() * 180 / np.pi)
