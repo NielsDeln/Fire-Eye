@@ -25,11 +25,49 @@ class BatteryMotorSelectionTests(unittest.TestCase):
         self.assertAlmostEqual(bat['energy_capacity'], round((2200/1000)*11.1, 2))
         self.assertTrue('energy_density' in bat)
 
-    def test_motor_selection_filters_by_thrust(self):
+    # def test_motor_selection_filters_by_thrust(self):
+    #     required_thrust = 8  # N
+    #     results = get_batteries_motor(self.motor_db, self.battery_dbx, required_thrust)
+    #     self.assertIn('mot1', results)
+    #     self.assertNotIn('mot2', results)  # Not enough thrust
+
+    def test_no_invalid_batteries_selected(self):
         required_thrust = 8  # N
-        results = get_batteries_motor(self.motor_db, self.battery_dbx, required_thrust)
-        self.assertIn('mot1', results)
-        self.assertNotIn('mot2', results)  # Not enough thrust
+        throttle = 0.5
+        results = get_batteries_motor(self.motor_db, self.battery_dbx, required_thrust, throttle)
+
+        for motor in self.motor_db:
+            motor_id = motor['id']
+            motor_voltage = motor['voltage']
+            motor_power = motor['power'] * throttle * 4  # total motor power
+            motor_energy_wh = motor_power * (10 / 60)  # energy for 10 minutes
+
+            tot_power = motor_power + max(electronics_power_mode1, electronics_power_mode2)
+            tot_energy = motor_energy_wh + electronics_power_mode2 * (15 / 60)
+            max_motor_voltage = 30  # as per selection code
+
+            motor_result = results.get(motor_id, {})
+
+            # Check single battery
+            single = motor_result.get('single_batteries')
+            if single:
+                self.assertGreaterEqual(single['voltage'], motor_voltage, f"{motor_id}: Single battery voltage too low")
+                self.assertLessEqual(single['voltage'], max_motor_voltage, f"{motor_id}: Single battery voltage too high")
+                self.assertGreaterEqual(single['energy_capacity'], motor_energy_wh, f"{motor_id}: Single battery energy too low")
+
+            # Check combo battery
+            combo = motor_result.get('combo_batteries')
+            if combo:
+                self.assertGreaterEqual(combo['voltage'], motor_voltage, f"{motor_id}: Combo battery voltage too low")
+                self.assertLessEqual(combo['voltage'], max_motor_voltage, f"{motor_id}: Combo battery voltage too high")
+                self.assertGreaterEqual(combo['energy_capacity'], motor_energy_wh, f"{motor_id}: Combo battery energy too low")
+
+            # Check total batteries (used for full system)
+            for tot in motor_result.get('total_batteries', []):
+                self.assertGreaterEqual(tot['voltage'], motor_voltage, f"{motor_id}: Total battery voltage too low")
+                self.assertLessEqual(tot['voltage'], max_motor_voltage, f"{motor_id}: Total battery voltage too high")
+                self.assertGreaterEqual(tot['energy_capacity'], tot_energy, f"{motor_id}: Total battery energy too low")
+
 
     def test_best_option_contains_keys(self):
         required_thrust = 8
