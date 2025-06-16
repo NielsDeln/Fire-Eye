@@ -5,14 +5,16 @@ import bisect
 #dfsd
 ############# VARIABLES #############
 
+
+
 rho = 1.225 # air density at room temp 
-n = 21119 / 60 # Propeller speed [rps]
+n = 11866 / 60 # Propeller speed [rps]
 
 D_p = 0.127 * 2# Propeller diameter [m]
-C_T = 0.012423 # Thrust coefficient
+C_T = 0.05848 # Thrust coefficient
 print('C_T:', C_T)
 R_p = D_p / 2 # Propeller radius [m]
-R_h = 0.002 # Hub radius [m]
+R_h = 0.003 # Hub radius [m]
 # pitch = 0.1143 # Propeller pitch [m]
 D_arm = 0.47
 R_arm = D_arm / 2 # Arm radius [m]
@@ -200,37 +202,51 @@ def plot_ground_velocity():
 
     plt.show()
 
-    centers = [
-        (-half_width + R_p,  half_width - R_p),  # Top-left
-        ( half_width - R_p,  half_width - R_p),  # Top-right
-        (-half_width + R_p, -half_width + R_p),  # Bottom-left
-        ( half_width - R_p, -half_width + R_p)   # Bottom-right
-    ]
+    # centers = [
+    #     (-half_width + R_p,  half_width - R_p),  # Top-left
+    #     ( half_width - R_p,  half_width - R_p),  # Top-right
+    #     (-half_width + R_p, -half_width + R_p),  # Bottom-left
+    #     ( half_width - R_p, -half_width + R_p)   # Bottom-right
+    # ]
 
-    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots()
 
-    # Draw the propeller circles
-    for center in centers:
-        prop_circle = plt.Circle(center, R_p, fill=False, edgecolor='blue', linewidth=2)
-        ax.add_patch(prop_circle)
+    # # Draw the propeller circles
+    # for center in centers:
+    #     prop_circle = plt.Circle(center, R_p, fill=False, edgecolor='blue', linewidth=2)
+    #     ax.add_patch(prop_circle)
 
-    # Draw the ROI circles in light blue with 50% opacity
-    for center in centers:
-        roi_circle = plt.Circle(center, roi, color='lightblue', alpha=0.5)
-        ax.add_patch(roi_circle)
+    # # Draw the ROI circles in light blue with 50% opacity
+    # for center in centers:
+    #     roi_circle = plt.Circle(center, roi, color='lightblue', alpha=0.5)
+    #     ax.add_patch(roi_circle)
 
-    # Formatting the plot
-    ax.set_xlim(-half_width - roi, half_width + roi)
-    ax.set_ylim(-half_width - roi, half_width + roi)
-    ax.set_aspect('equal', 'box')
-    ax.set_xlabel('x [m]')
-    ax.set_ylabel('y [m]')
-    ax.set_title('Propellers with ROI Circles')
-    plt.grid(True)
-    plt.show()
+    # # Formatting the plot
+    # ax.set_xlim(-half_width - roi, half_width + roi)
+    # ax.set_ylim(-half_width - roi, half_width + roi)
+    # ax.set_aspect('equal', 'box')
+    # ax.set_xlabel('x [m]')
+    # ax.set_ylabel('y [m]')
+    # ax.set_title('Propellers with ROI Circles')
+    # plt.grid(True)
+    # plt.show()
 
 
 plot_ground_velocity()
 
+def print_induced_velocity_prop():
+    x = x_0
+    r = np.linspace(0, R_p, 40)
+
+    v_i_vals = [v_i(x, r_val) for r_val in r]
+
+    print(f"{'Radial Position':>15} | {'Induced Velocity':>17}")
+    print("-" * 36)
+    for r, v in zip(r, v_i_vals):
+        print(f"{r:15.4f} | {float(v*(1.1/1.2)):17.4f}")
+
+
+
+print_induced_velocity_prop()
 
 
