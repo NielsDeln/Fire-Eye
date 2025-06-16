@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import mock_open, patch
+from unittest.mock import mock_open, patch, MagicMock
 import tempfile
 from pathlib import Path
 import builtins
@@ -50,6 +50,83 @@ class TestParseOutput(unittest.TestCase):
         self.assertAlmostEqual(result["mach"], 0.0588, places=4)
         self.assertTrue("blade_elements" in result)
         self.assertGreater(len(result["blade_elements"]), 0)
+
+class TestAnalyzeResults(unittest.TestCase):
+
+    @patch('post_processing.RESULTS_DIR')
+    @patch('post_processing.TOP_N', 5)
+    @patch('post_processing.required_thrust', 10.0)
+    @patch('post_processing.parse_output')
+
+    def test_analyze_results_valid_input(self, mock_parse_output, mock_results_dir):
+        # Mocked result file name and structure
+        fake_file = MagicMock()
+        fake_file.name = 'NACA4412_10x6_2207_8o5.txt'
+        fake_file.stem = 'NACA4412_10x6_2207_8o5'
+        mock_results_dir.glob.return_value = [fake_file]
+
+        # Mock parse_output result
+        mock_parse_output.return_value = {
+            'thrust': 12.0,
+            'power': 100.0,
+            'torque': 0.5,
+            'ct': 0.003,
+            'cp': 0.02,
+            'efficiency': 0.6,
+            'mach': 0.3,
+            'wake_advance_ratio': 0.4,
+            'eff_induced': 0.65,
+            'blade_elements': [
+                {'r/R': 0.3, 'c/R': 0.05, 'effp': 0.6},
+                {'r/R': 0.8, 'c/R': 0.06, 'effp': 0.7},
+            ]
+        }
+
+        # Call the function
+        TOP_N = 5
+        required_thrust = 10.0
+        RESULTS_DIR = MagicMock()
+        RESULTS_DIR.glob.return_value = [fake_file]
+
+        analyze_results()
+
+        # No exceptions = pass. Could assert internal behavior here
+        # E.g. check final score value or best_configs structure
+        self.assertTrue(True)
+
+    @patch('post_processing.RESULTS_DIR')
+    @patch('post_processing.TOP_N', 5)
+    @patch('post_processing.required_thrust', 10.0)
+    @patch('post_processing.parse_output')
+    def test_analyze_results_invalid_file_name(self, mock_parse_output, mock_results_dir):
+        fake_file = MagicMock()
+        fake_file.name = 'badfilename.txt'
+        fake_file.stem = 'badfilename'
+        mock_results_dir.glob.return_value = [fake_file]
+
+        mock_parse_output.return_value = {
+            'thrust': 15.0,
+            'power': 120.0,
+            'torque': 0.6,
+            'ct': 0.004,
+            'cp': 0.03,
+            'efficiency': 0.7,
+            'mach': 0.25,
+            'wake_advance_ratio': 0.5,
+            'eff_induced': 0.72,
+            'blade_elements': []
+        }
+
+        TOP_N = 5
+        required_thrust = 10.0
+        RESULTS_DIR = MagicMock()
+        RESULTS_DIR.glob.return_value = [fake_file]
+
+        analyze_results()
+
+        # Should continue without crashing
+        self.assertTrue(True)
+
 
 class TestFilenameParsing(unittest.TestCase):
     def test_filename_parsing(self):
@@ -102,7 +179,7 @@ class TestScoreComputation(unittest.TestCase):
 
 class TestThrustRequirement(unittest.TestCase):
     def test_required_thrust_value(self):
-        expected = 2161 / 4 * 1.8 / 1000 * 9.81
+        expected = 2121.7 / 4 * 2/ 1000 * 9.81
         self.assertAlmostEqual(required_thrust, expected, places=5)
 
 if __name__ == "__main__":

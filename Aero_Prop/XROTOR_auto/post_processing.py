@@ -3,6 +3,7 @@ import re
 import json
 from pathlib import Path
 from collections import deque
+import math
 
 # === CONFIGURATION ===
 PROJECT_ROOT = Path(__file__).parent.resolve()
@@ -11,7 +12,7 @@ OPTIMAL_DIR = PROJECT_ROOT / "Optimal_configs"
 OPTIMAL_DIR.mkdir(parents=True, exist_ok=True)
 TOP_N = 10
 
-required_thrust = 2080.34 / 4 * 2/ 1000 * 9.81  # N
+required_thrust = 2121.7 / 4 * 2/ 1000 * 9.81  # N
 print(f"Required vertical thrust: {required_thrust:.2f} N")
 
 # === PARSE FUNCTION ===
