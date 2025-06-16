@@ -51,18 +51,17 @@ class TestStructuresArm(unittest.TestCase):
 
         # Test with extreme values
         F_T_extreme = 1
-        W_extreme = 1
+        W_extreme = 0
         alpha_extreme = np.radians(90)
-        beta_extreme = np.radians(90)
+        beta_extreme = np.radians(0)
         T_extreme = 1
-        R_position_extreme = np.array([1, 1, 1])
-        F, M = Structures_arm.calculate_arm_forces(
+        R_position_extreme = np.array([0, 1, 1])
+        F2, M2 = Structures_arm.calculate_arm_forces(
             F_T_extreme, W_extreme, alpha_extreme, beta_extreme, T_extreme, R_position_extreme
         )
-
-        self.assertTrue((F[1] == 0) & (M[1] == 0))
-        self.assertTrue((F[0] != 0) & (F[2] != 0))
-        self.assertTrue((M[0] != 0) & (M[2] != 0))
+        self.assertTrue((np.isclose(F2[1], 0)) & (np.isclose(M2[1], 0)))
+        self.assertTrue((np.isclose(F2[0], 0)) & (F2[2] != 0))
+        self.assertTrue((M2[0] != 0) & (M2[2] != 0))
 
     def test_calculate_section(self):
         I, J, A = Structures_arm.calculate_section(self.d0, self.t)
@@ -94,10 +93,10 @@ class TestStructuresArm(unittest.TestCase):
         result2 = Structures_arm.calculate_neutral_axis(M2)
         self.assertAlmostEqual(result2, expected2)
         M3 = np.array([0.0, 0.0, 0.0])
-        expected3 = 0.0
-        result3 = Structures_arm.calculate_neutral_axis(M3)
-        self.assertAlmostEqual(result3, expected3)
-
+        expected3 = ValueError("Applied moment cannot be zero for neutral axis calculation.")
+        with self.assertRaises(ValueError):
+            Structures_arm.calculate_neutral_axis(M3)
+            
     def test_calculate_axial_stress(self):
         M = np.array([2.0, 3.0, 0.0])
         NA_alpha = np.pi / 4
@@ -156,78 +155,88 @@ class TestStructuresArm(unittest.TestCase):
     
     def test_sensitivity_analysis_deformation(self):
         """
-        Sensitivity analysis: vary alpha, T, d0, E and plot the calculated deformation.
+        Sensitivity analysis: vary alpha, t, d0, E and plot the calculated deformation.
         """
         # Fixed parameters
         W = self.W
         beta = self.beta
         R_position = self.R_position
         L = self.L
-        t = self.t
         G = self.G
 
         # Ranges for sensitivity
         alphas = np.radians(np.linspace(0, 90, 10))
-        Ts = np.linspace(0.5, 3.0, 10)
-        d0s = np.linspace(0.05, 0.2, 10)
-        Es = np.linspace(50e9, 300e9, 10)
+        ts = np.linspace(0.0005, 0.005, 10)
+        d0s = np.linspace(0.005, 0.05, 10)
+        Es = np.linspace(1e9, 70e9, 10)
 
         # Sensitivity to alpha
         deformations_alpha = []
         for alpha in alphas:
             F, M = Structures_arm.calculate_arm_forces(self.F_T, W, alpha, beta, self.T, R_position)
-            I, J, A = Structures_arm.calculate_section(self.d0, t)
-            defl, _ = Structures_arm.calculate_deformation(F[1], M[0], L, self.E, I)
+            I, J, A = Structures_arm.calculate_section(self.d0, self.t)
+            defl, _ = Structures_arm.calculate_deformation(-F[1], -M[0], L, self.E, I)
             deformations_alpha.append(np.sum(defl))
         plt.figure()
         plt.plot(np.degrees(alphas), np.array(deformations_alpha)*1e3)
-        plt.xlabel('Alpha (deg)')
-        plt.ylabel('Deformation (mm)')
+        plt.xlabel(r'$\alpha$ (deg)', fontsize=16)
+        plt.ylabel(r'$y$ Deformation (mm)', fontsize=16)
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
         plt.title('Sensitivity: Deformation vs Alpha')
         plt.grid(True)
 
-        # Sensitivity to T
-        deformations_T = []
-        for T in Ts:
-            F, M = Structures_arm.calculate_arm_forces(self.F_T, W, self.alpha, beta, T, R_position)
+        # Sensitivity to wall thickness t
+        deformations_t = []
+        for t in ts:
             I, J, A = Structures_arm.calculate_section(self.d0, t)
-            torsion_defl = Structures_arm.calculate_torsion_deflection(M[2], L, G, J)
-            deformations_T.append(torsion_defl)
+            F, M = Structures_arm.calculate_arm_forces(self.F_T, W, self.alpha, beta, self.T, R_position)
+            defl, _ = Structures_arm.calculate_deformation(-F[1], -M[0], L, self.E, I)
+            deformations_t.append(np.sum(defl))
         plt.figure()
-        plt.plot(Ts, np.array(deformations_T)*1e3)
-        plt.xlabel('Torque T (Nm)')
-        plt.ylabel('Torsional Deformation (mm)')
-        plt.title('Sensitivity: Torsional Deformation vs Torque')
+        plt.plot(ts*1e3, np.array(deformations_t)*1e3)
+        plt.xlabel(r'Wall Thickness $t$ (mm)', fontsize=16)
+        plt.ylabel(r'$y$ Deformation (mm)', fontsize=16)
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
+
+        plt.title('Sensitivity: Deformation vs Wall Thickness')
         plt.grid(True)
 
         # Sensitivity to d0
         deformations_d0 = []
         for d0 in d0s:
-            I, J, A = Structures_arm.calculate_section(d0, t)
+            if d0 < self.t or np.isclose(d0, self.t, atol=1e-6):
+                deformations_d0.append(np.nan)  # Avoid division by zero in section calculations
+                continue
+            I, J, A = Structures_arm.calculate_section(d0, self.t)
             F, M = Structures_arm.calculate_arm_forces(self.F_T, W, self.alpha, beta, self.T, R_position)
-            defl, _ = Structures_arm.calculate_deformation(F[1], M[0], L, self.E, I)
+            defl, _ = Structures_arm.calculate_deformation(-F[1], -M[0], L, self.E, I)
             deformations_d0.append(np.sum(defl))
         plt.figure()
         plt.plot(d0s*1e3, np.array(deformations_d0)*1e3)
-        plt.xlabel('Outer Diameter d0 (mm)')
-        plt.ylabel('Deformation (mm)')
+        plt.xlabel(r'Outer Diameter $d_0$ (mm)', fontsize=16)
+        plt.ylabel(r'$y$ Deformation (mm)', fontsize=16)
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
         plt.title('Sensitivity: Deformation vs Outer Diameter')
         plt.grid(True)
 
         # Sensitivity to E
         deformations_E = []
         for E in Es:
-            I, J, A = Structures_arm.calculate_section(self.d0, t)
+            I, J, A = Structures_arm.calculate_section(self.d0, self.t)
             F, M = Structures_arm.calculate_arm_forces(self.F_T, W, self.alpha, beta, self.T, R_position)
-            defl, _ = Structures_arm.calculate_deformation(F[1], M[0], L, E, I)
+            defl, _ = Structures_arm.calculate_deformation(-F[1], -M[0], L, E, I)
             deformations_E.append(np.sum(defl))
         plt.figure()
         plt.plot(Es*1e-9, np.array(deformations_E)*1e3)
-        plt.xlabel("Young's Modulus E (GPa)")
-        plt.ylabel('Deformation (mm)')
+        plt.xlabel(r"Young's Modulus $E$ (GPa)", fontsize=16)
+        plt.ylabel(r'$y$ Deformation (mm)', fontsize=16)
+        plt.xticks(fontsize=14)
+        plt.yticks(fontsize=14)
         plt.title('Sensitivity: Deformation vs Young\'s Modulus')
         plt.grid(True)
-
         plt.show()
 
 

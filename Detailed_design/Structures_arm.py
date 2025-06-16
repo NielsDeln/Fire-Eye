@@ -88,6 +88,8 @@ def calculate_neutral_axis(M):
     Returns:
     float: Position of the neutral axis.
     """
+    if M[0] == 0 and M[1] == 0:
+        raise ValueError("Applied moment cannot be zero for neutral axis calculation.")
     return np.pi / 2 if M[0] == 0 else np.arctan2(M[1], M[0])
 
 
@@ -239,20 +241,20 @@ if __name__ == "__main__":
     "sigma_Tens": 90e6      # Pa  (Ultimate tensile strength)
     }
     # Material properties
-    rho = 1320  # Density in kg/m^3 (e.g., PEEK)
-    poisson = 0.35  # Poisson's ratio (e.g., PEEK)
-    E = 12e9  # Young's modulus in Pa (e.g., PEEK)
+    rho = 1380  # Density in kg/m^3 (e.g., PEEK)
+    poisson = 0.45  # Poisson's ratio (e.g., PEEK)
+    E = 6.8e9  # Young's modulus in Pa (e.g., PEEK)
     G = E / (2 * (1 + poisson))  # Shear modulus in Pa (e.g., PEEK)
     d0 = 0.02  # Outer diameter in m
-    t = 0.001  # Thickness in m
+    t = 0.002  # Thickness in m
     L = 0.190  # Length of the arm in m
     h = 0.005  # Height of the arm in m
     safety_factor = 1.5  # Safety factor for the design
 
     # Propulsion forces and moments
-    F_T = 8.22777935  # Thrust force in N
-    T = 0.173  # Torque in Nm
-    W = 0.7966  # Motor + propellor weight in Newtons
+    F_T = 18.9  # Thrust force in N
+    T = 0.232  # Torque in Nm
+    W = 0.987  # Motor + propellor weight in Newtons
     alpha = np.radians(0)  # Angle in radians
     beta = np.radians(0)  # Angle in radians
     R_A_position = np.array([0.0, -h, L])  # Position vector of the reaction point
