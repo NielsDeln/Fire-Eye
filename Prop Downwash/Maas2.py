@@ -4,13 +4,22 @@ import random
 
 #variables----------------------------------
 Dpreal = 0.127 *2 # Propeller diameter [m]
-Ct = 0.012423 # Thrust coefficient
-n = 21119/60 # Propeller speed [rpm]
+Ct = 0.04629 # Thrust coefficient
+n = 14080/60 # Propeller speed [rpm]
 Rp = Dpreal / 2 # Propeller radius [m]
 Rh = 0.013 # Hub radius [m]
 pitch = 0.1143 # Propeller pitch [m]
 P = pitch / Dpreal # Pitch ratio
+A = np.pi * Rp**2 # disk area [m^2]
+rho = 1.225 # density [whatever the unit is]
+g = 9.81 # gravitalional acceleration [m/s^2]
+m = 2.268 # mass [kg]
 
+T = Ct * rho * n**2 * Dpreal**4
+
+W = T * 4
+
+border1 = 1.7
 border = 4.25
 
 alt = 2 # max x value to be looked at, i.e. flying altitude ig [m]
@@ -18,9 +27,13 @@ res = 300 # resolution for plotting
 
 #FUNCTIONS----------------------------------
 
+VdT = ((W)/(2*rho*A))**0.5
+VdM = ((m*g)/(2*rho*A))**0.5
+print('Downwash velocity using the thrust:', VdT)
+print('Downwash velocity using the weight:', VdM)
 
 V_0 = 1.46*n*Dpreal * (Ct**0.5)
-print(V_0)
+print('Downwash velocity using the semi-empirical methods:', V_0)
 R0 = 0.74 * Rp
 Rm0 = 0.67 * (R0 - Rh)
 Dp = R0*2
@@ -29,7 +42,7 @@ x0 = 1.528 * Rp
 
 def V_MAX(x, V_0 = V_0,  Dp = Dp, P = P):
     
-    if x >= x0 and x < (x0 + (1.7 * Dp)):
+    if x >= x0 and x < (x0 + (border1 * Dp)):
       
         V_MAX = V_0 * (1.24 - 0.0765 * ((x-x0)/Dp))
        
@@ -37,7 +50,7 @@ def V_MAX(x, V_0 = V_0,  Dp = Dp, P = P):
         return V_MAX
     
     
-    elif x >= (x0 + (1.7 * Dp)) and x < (x0 + (border * Dp)):
+    elif x >= (x0 + (border1 * Dp)) and x < (x0 + (border * Dp)):
         V_MAX = V_0 * (1.37 - 0.1529*((x-x0)/Dp))
         
         return V_MAX
@@ -61,7 +74,7 @@ plt.show
 
 def V_i(r, V_MAX, x, Rm0 = Rm0, R0 = R0, Dp = Dp, x0 = x0): 
 
-    if x >= x0 and x < (x0 + (1.7 * Dp)):
+    if x >= x0 and x < (x0 + (border1 * Dp)):
         Rmax = Rm0 * (1-0.01294*((x-x0)/Dp))
         #V_i = V_MAX * np.exp(-(((r-Rmax))/(0.8839*Rm0+0.1326*(x-x0-R0)))**2)
         V_i = V_MAX * np.e ** (-((r - Rmax)/(0.8839 * Rm0 + 0.1326*(x-x0-R0)))**2)
@@ -70,7 +83,7 @@ def V_i(r, V_MAX, x, Rm0 = Rm0, R0 = R0, Dp = Dp, x0 = x0):
         return V_i
     
     
-    elif x >= (x0 + (1.7 * Dp)) and x < (x0 + (border * Dp)):
+    elif x >= (x0 + (border1* Dp)) and x < (x0 + (border * Dp)):
         Rmax = Rm0 * (1.3 - 0.3059*((x-x0)/Dp)) 
         #V_i = V_MAX * np.exp(-((r-Rmax)/(0.5176*Rm0+0.2295*(x-x0-R0)))**2)
         V_i = V_MAX * np.e ** (-((r - Rmax)/(0.5176 * Rm0 + 0.2295*(x-x0-R0)))**2)
