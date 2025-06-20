@@ -1,5 +1,120 @@
 import numpy as np
+from math import cos, sin, tan, radians
 from pprint import pprint
+
+# Conversion functions
+def g_to_kg(mass_g):
+    return mass_g / 1000.0
+
+def compute_cg(components):
+    total_mass = 0
+    weighted_sum_x = 0.0
+    weighted_sum_y = 0.0
+    weighted_sum_z = 0.0
+
+    for name, comp in components.items():
+        dims_m = mm_to_m(comp["dimensions_mm"])
+        mass_kg_unit = g_to_kg(comp["weight_g"])
+        quantity = comp["quantity"]
+        x_cgs = comp["x_cg"]
+        # print(f"\n{name} - Dimensions (m): {dims_m}, Mass (kg): {mass_kg_unit}, Quantity: {quantity}, CoG: {x_cgs}")
+        for i in range(quantity):
+            # x_cg = x_cgs[i]
+            x_cg_mm = x_cgs[i]
+            x_cg = tuple(coord / 1000.0 for coord in x_cg_mm)
+            total_mass += mass_kg_unit
+            weighted_sum_x += mass_kg_unit * x_cg[0]
+            weighted_sum_y += mass_kg_unit * x_cg[1]
+            weighted_sum_z += mass_kg_unit * x_cg[2]
+        
+    x_cg_total = (
+        weighted_sum_x / total_mass,
+        weighted_sum_y / total_mass,
+        weighted_sum_z / total_mass,
+    )
+    return x_cg_total, total_mass
+
+#check up
+def compute_x_distance(cg, point_mm):
+    return abs(point_mm[0] / 1000 - cg[0])
+
+def iterate_arm_length(components, arms_back_v_len_mm=20.0, max_iter=1000, tol=1e-6):
+    arms_back_v_len = arms_back_v_len_mm / 1000
+    angle_rad = radians(68.2)
+
+    # Match these front Y values
+    y_arm_front = 137.81
+    y_arm_front_v = 216.62
+
+    # Initial rear arm length
+    arms_back_len = 0.19
+    front_arm_positions = [(137.34, -216.62), (137.34, 216.62)]
+
+    #Constants
+    density = 1.38e-6 #kg/mm^3
+    diameter_mm, thickness_mm, _ = components["arms_back"]["dimensions_mm"]
+
+    cg, total_mass = compute_cg(components)
+
+    for _ in range(max_iter):
+        front_x_dist = abs(137.34 / 1000 - cg[0])
+
+        arms_back_len_mm = arms_back_len * 1000
+        x_offset = (210.5 / 2 - tan(radians(8)) * (118 / 2) - 18.6)
+        x_arm = -x_offset - cos(angle_rad) * arms_back_len_mm
+        x_arm_mid = -x_offset - 0.5 * cos(angle_rad) * arms_back_len_mm
+
+        # Force symmetry in y-axis to match front arms
+        y_arm_upper = y_arm_front
+        y_arm_lower = -y_arm_front
+        y_arm_v_upper = y_arm_front_v
+        y_arm_v_lower = -y_arm_front_v
+
+        components["arms_back"]["x_cg"][0] = (x_arm_mid, y_arm_upper, 39.65)
+        components["arms_back"]["x_cg"][1] = (x_arm_mid, y_arm_lower, 39.65)
+
+        #old_dims = components["arms_back"]["dimensions_mm"]
+        #components["arms_back"]["dimensions_mm"] = (old_dims[0], old_dims[1], arms_back_len * 1000)
+        components["arms_back"]["dimensions_mm"] = (diameter_mm, thickness_mm, arms_back_len_mm)
+
+        components["arms_back_v"]["x_cg"][0] = (x_arm, y_arm_v_upper, 19.65)
+        components["arms_back_v"]["x_cg"][1] = (x_arm, y_arm_v_lower, 19.65)
+
+        components["motor"]["x_cg"][2] = (x_arm, y_arm_v_upper, -9.2)
+        components["motor"]["x_cg"][3] = (x_arm, y_arm_v_lower, -9.2)
+
+        # Update weight dynamically
+        delta_x = abs(x_arm + x_offset)
+        delta_y = abs(y_arm_v_upper-59)
+        rear_arm_len = np.sqrt(delta_x**2 + delta_y**2)
+        r_outer = diameter_mm / 2
+        r_inner = r_outer - thickness_mm
+        if r_inner < 0:
+            r_inner = 0  # prevent negative radius
+        vol_per_arm = np.pi * (r_outer**2 - r_inner**2) * rear_arm_len  # in mm³
+        mass_per_arm = density * vol_per_arm  # in kg
+        components["arms_back"]["weight_g"] = mass_per_arm * 1000  # convert to grams
+
+
+        cg, total_mass = compute_cg(components)
+        rear_x_dists = [
+            compute_x_distance(cg, (x_arm, y_arm_v_upper, 0)),
+            compute_x_distance(cg, (x_arm, y_arm_v_lower, 0)),
+        ]
+        rear_x_dist = np.mean(rear_x_dists)
+        
+
+        if abs(rear_x_dist - front_x_dist) < tol:
+            # Final rear arm length calculation based on actual geometry
+            print(arms_back_len, rear_arm_len)
+            print(f"Rear Distances: {rear_x_dists}, x position: {x_arm:.6f}, Front Distance: {front_x_dist:.6f}")
+            return rear_arm_len, cg, total_mass
+
+        scale = 1 - 0.5 * (rear_x_dist - front_x_dist)
+        arms_back_len *= scale
+    raise ValueError("Convergence not achieved")
+
+    #return arms_back_len, cg
 
 COMPONENTS = {
     "voyant_carbon": {                                      #Lidar
@@ -103,47 +218,47 @@ COMPONENTS = {
     },
     "body": {
         "dimensions_mm": (118, 210.5, 79.3),
-        "weight_g": 107.81,
+        "weight_g": 98,
         "quantity": 1,
         "x_cg": [(0, 0, 39.65)],
     },
     "body_2": {
         "dimensions_mm": (118, 74, 41),
-        "weight_g": 24.30,
+        "weight_g": 22.08,
         "quantity": 1,
         "x_cg": [(0, 0, 100.5)],
     },
-    # "arms_front": {
-    #     "dimensions_mm": (20, 1, 170),
-    #     "weight_g": 13.39,
-    #     "quantity": 2,
-    #     "x_cg": [(105.50, -137.81, 39.65),
-    #              (105.50, 137.81, 39.65)],
-    # },
-    # "arms_back": {
-    #     "dimensions_mm": (20, 1, 190),
-    #     "weight_g": 14.97,
-    #     "quantity": 2,
-    #     "x_cg": [(-132.85, 136.82, 39.65),
-    #              (-132.85, -136.82, 39.65)],
-    # },
-    # "arms_front_v": {
-    #     "dimensions_mm": (20, 1, 20),
-    #     "weight_g": 1.576,
-    #     "quantity": 2,
-    #     "x_cg": [(137.34, -216.62, 19.65),
-    #              (137.34, 216.62, 19.65)],
-    # },
-    # "arms_back_v": {
-    #     "dimensions_mm": (20, 1, 190),
-    #     "weight_g": 1.576,
-    #     "quantity": 2,
-    #     "x_cg": [(-187.34, 214.64, 19.65),
-    #              (-187.34, -214.64, 19.65)],
-    # },
+    "arms_front": {
+        "dimensions_mm": (20, 1.5, 170),
+        "weight_g": 26.533,
+        "quantity": 2,
+        "x_cg": [(105.50, -137.81, 39.65),
+                 (105.50, 137.81, 39.65)],
+    },
+    "arms_back": {
+        "dimensions_mm": (20, 1.5, 190),
+        "weight_g": 29.654,
+        "quantity": 2,
+        "x_cg": [(-132.85, 136.82, 39.65),
+                 (-132.85, -136.82, 39.65)],
+    },
+    "arms_front_v": {
+        "dimensions_mm": (20, 1.5, 5),
+        "weight_g": 0.780,
+        "quantity": 2,
+        "x_cg": [(137.34, -216.62, 19.65),
+                 (137.34, 216.62, 19.65)],
+    },
+    "arms_back_v": {
+        "dimensions_mm": (20, 1.5, 5),
+        "weight_g": 0.780,
+        "quantity": 2,
+        "x_cg": [(-187.34, 214.64, 19.65),
+                 (-187.34, -214.64, 19.65)],
+    },
     "legs": {
-        "dimensions_mm": (20, 2, 100),
-        "weight_g": 15.8,
+        "dimensions_mm": (20, 1, 130),
+        "weight_g": 16.4,
         "quantity": 4,
         "x_cg": [(-95.96, 93.36, 114.66),
                  (95.96, -93.36, 114.66),
@@ -229,33 +344,9 @@ def parallel_axis_theorem(I_com_matrix, mass_kg, r):
         "I_xy": -I_total[0, 1], "I_xz": -I_total[0, 2], "I_yz": -I_total[1, 2],
     }
 
-# Phase 1: Compute total center of gravity
-total_mass = 0.0
-weighted_sum_x = 0.0
-weighted_sum_y = 0.0
-weighted_sum_z = 0.0
-
-for name, comp in COMPONENTS.items():
-    dims_m = mm_to_m(comp["dimensions_mm"])
-    mass_kg_unit = g_to_kg(comp["weight_g"])
-    quantity = comp["quantity"]
-    x_cgs = comp["x_cg"]
-    # print(f"\n{name} - Dimensions (m): {dims_m}, Mass (kg): {mass_kg_unit}, Quantity: {quantity}, CoG: {x_cgs}")
-    for i in range(quantity):
-        # x_cg = x_cgs[i]
-        x_cg_mm = x_cgs[i]
-        x_cg = tuple(coord / 1000.0 for coord in x_cg_mm)
-        total_mass += mass_kg_unit
-        weighted_sum_x += mass_kg_unit * x_cg[0]
-        weighted_sum_y += mass_kg_unit * x_cg[1]
-        weighted_sum_z += mass_kg_unit * x_cg[2]
-    
-x_cg_total = (
-    weighted_sum_x / total_mass,
-    weighted_sum_y / total_mass,
-    weighted_sum_z / total_mass,
-)
-
+# Run the loop and print final results
+final_len, final_cg, final_total_mass = iterate_arm_length(COMPONENTS)
+#print(f'here', COMPONENTS["arms_back"])
 # Phase 2: Compute inertia tensors relative to total CoG
 inertia_results = {}
 total_inertia = {
@@ -280,9 +371,9 @@ for name, comp in COMPONENTS.items():
         mass_kg = mass_kg_unit
         I_com = compute_inertia_tensor_at_com(name, mass_kg, dims_m, i)
         rel_pos = (
-            x_cg[0] - x_cg_total[0],
-            x_cg[1] - x_cg_total[1],
-            x_cg[2] - x_cg_total[2],
+            x_cg[0] - final_cg[0],
+            x_cg[1] - final_cg[1],
+            x_cg[2] - final_cg[2],
         )
         tensor = parallel_axis_theorem(I_com, mass_kg, rel_pos)
 
@@ -290,12 +381,23 @@ for name, comp in COMPONENTS.items():
         for key in total_inertia:
             total_inertia[key] += tensor[key]
 
+# print(f"\n✅ Final arm length: {final_len * 1000:.2f} mm")
+# print(f"✅ Final CoG:")
+# print(f"  x = {final_cg[0]:.6f} m")
+# print(f"  y = {final_cg[1]:.6f} m")
+# print(f"  z = {final_cg[2]:.6f} m")
+
+# print("\n✅ Updated Component Positions (x_cg in mm):")
+# for name, comp in COMPONENTS.items():
+#     print(f"\n{name}:")
+#     pprint(comp["x_cg"])
+
 print("\n" + "="*50)
-print("Total Mass (kg):", total_mass)
+print("Total Mass (kg):", final_total_mass)
 print("Total Center of Gravity (in meters):")
-print(f"  x = {x_cg_total[0]:.6f} m")
-print(f"  y = {x_cg_total[1]:.6f} m")
-print(f"  z = {x_cg_total[2]:.6f} m")
+print(f"  x = {final_cg[0]:.6f} m")
+print(f"  y = {final_cg[1]:.6f} m")
+print(f"  z = {final_cg[2]:.6f} m")
 print("="*50)
 
 print("\n" + "="*50)
